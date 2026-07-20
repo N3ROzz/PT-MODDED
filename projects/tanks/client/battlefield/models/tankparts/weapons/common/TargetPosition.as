@@ -1,0 +1,90 @@
+package projects.tanks.client.battlefield.models.tankparts.weapons.common
+{
+   import platform.client.fp10.core.type.IGameObject;
+   import projects.tanks.client.battlefield.types.Vector3d;
+   
+   public class TargetPosition
+   {
+      
+      private var _localHitPoint:Vector3d;
+
+      private var _orientation:Vector3d;
+      
+      private var _position:Vector3d;
+      
+      private var _target:IGameObject;
+      
+      private var _turretAngle:Number;
+      
+      public function TargetPosition(localhitpoint:Vector3d = null, param1:Vector3d = null, param2:Vector3d = null, param3:IGameObject = null, param4:Number = 0)
+      {
+         super();
+         this._localHitPoint = localhitpoint;
+         this._orientation = param1;
+         this._position = param2;
+         this._target = param3;
+         this._turretAngle = param4;
+      }
+
+      public function get localHitPoint() : Vector3d
+      {
+         return this._localHitPoint;
+      }
+      
+      public function set localHitPoint(param1:Vector3d) : void
+      {
+         this._localHitPoint = param1;
+      }
+      
+      public function get orientation() : Vector3d
+      {
+         return this._orientation;
+      }
+      
+      public function set orientation(param1:Vector3d) : void
+      {
+         this._orientation = param1;
+      }
+      
+      public function get position() : Vector3d
+      {
+         return this._position;
+      }
+      
+      public function set position(param1:Vector3d) : void
+      {
+         this._position = param1;
+      }
+      
+      public function get target() : IGameObject
+      {
+         return this._target;
+      }
+      
+      public function set target(param1:IGameObject) : void
+      {
+         this._target = param1;
+      }
+      
+      public function get turretAngle() : Number
+      {
+         return this._turretAngle;
+      }
+      
+      public function set turretAngle(param1:Number) : void
+      {
+         this._turretAngle = param1;
+      }
+      
+      public function toString() : String
+      {
+         var _loc1_:String = "TargetPosition [";
+         _loc1_ += "orientation = " + this.orientation + " ";
+         _loc1_ += "position = " + this.position + " ";
+         _loc1_ += "target = " + this.target + " ";
+         _loc1_ += "turretAngle = " + this.turretAngle + " ";
+         return _loc1_ + "]";
+      }
+   }
+}
+

@@ -1,0 +1,68 @@
+package alternativa.tanks.gui.panel.buttons
+{
+   import controls.base.MainPanelClanButtonBase;
+   import flash.display.Bitmap;
+   import flash.display.BitmapData;
+   import flash.events.Event;
+   import projects.tanks.clients.fp10.libraries.tanksservices.service.layout.ILobbyLayoutService;
+   
+   public class ClanButton extends MainPanelClanButtonBase
+   {
+      
+      //[Inject] // added
+      //public static var clanPanelNotificationService:ClanPanelNotificationService;
+      
+      // Clan functionality is disabled for now
+      //[Inject] // added
+      //public static var clanUserInfoService:ClanUserInfoService;
+      
+      [Inject] // added
+      public static var lobbyLayoutService:ILobbyLayoutService;
+      
+      public static var attentionIconClass:Class = ClanButton_attentionIconClass;
+      
+      private static var attentionIconBitmapData:BitmapData = Bitmap(new attentionIconClass()).bitmapData;
+      
+      private var _attentionIcon:Bitmap = new Bitmap(attentionIconBitmapData);
+      
+      public function ClanButton()
+      {
+         super();
+         // Clan functionality is disabled for now
+         //clanPanelNotificationService.addEventListener(ClanPanelNotificationEvent.UPDATE,this.update);
+         //clanPanelNotificationService.addEventListener(RestrictionJoinClanEvent.UPDATE,this.update);
+         
+         this._attentionIcon.x = 10;
+         this._attentionIcon.y = -4;
+         addChild(this._attentionIcon);
+         this.update();
+         setIconCoords(6,3);
+      }
+      
+      override public function set enable(param1:Boolean) : void
+      {
+         // Clan functionality is disabled for now
+         super.enable = true;
+         this.update();
+
+         //if(lobbyLayoutService.getCurrentState() == LayoutState.CLAN && !clanUserInfoService.selfClan)
+         //{
+         //   param1 = true;
+         //}
+         //super.enable = param1;
+         //this.update();
+      }
+      
+      public function update(param1:Event = null) : void
+      {
+         //if(enable)
+         //{
+         //   this._attentionIcon.visible = clanPanelNotificationService.numberNotification() > 0;
+         //}
+         //else
+         //{
+            this._attentionIcon.visible = false;
+         //}
+      }
+   }
+}
