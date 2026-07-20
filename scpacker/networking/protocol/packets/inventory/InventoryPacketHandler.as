@@ -1,5 +1,6 @@
 package scpacker.networking.protocol.packets.inventory
 {
+   import scpacker.GameClassIds;
    import scpacker.networking.protocol.AbstractPacketHandler;
    import alternativa.types.Long;
    import scpacker.networking.protocol.AbstractPacket;
@@ -53,7 +54,7 @@ package scpacker.networking.protocol.packets.inventory
          var inventoryItemVector:Vector.<Long> = new Vector.<Long>();
          inventoryItemVector.push(this.inventoryItemModel.id);
          inventoryItemVector.push(this.durationModel.id);
-         var inventoryItemGameClass:IGameClass = gameTypeRegistry.createClass(Long.getLong(14025,687788),inventoryItemVector);
+         var inventoryItemGameClass:IGameClass = gameTypeRegistry.createClass(GameClassIds.INVENTORY_ITEM,inventoryItemVector);
 
          var _loc3_:Object = JSON.parse(param1.battlesJson);
          for each(var itemJson in _loc3_.items)

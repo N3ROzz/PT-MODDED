@@ -1,5 +1,6 @@
 package scpacker.networking.protocol.packets.panel
 {
+   import scpacker.GameClassIds;
    import scpacker.networking.protocol.AbstractPacketHandler;
    //import alternativa.tanks.model.settings.SettingsModel;
    import alternativa.tanks.model.userproperties.UserPropertiesModel;
@@ -130,7 +131,7 @@ package scpacker.networking.protocol.packets.panel
          modelVector.push(this.settingsModel.id);
          modelVector.push(this.serverCaptcha.id);
          modelVector.push(this.userEmailAndPasswordModel.id);
-         var settingGameClass:IGameClass = this.gameTypeRegistry.createClass(Long.getLong(12545678,87654321), modelVector);
+         var settingGameClass:IGameClass = this.gameTypeRegistry.createClass(GameClassIds.PANEL_SETTINGS, modelVector);
          settingsGameObject = panelSpace.createObject(Long.getLong(12545678,87654321), settingGameClass, "Setting game object");
 
          Model.object = settingsGameObject;
@@ -150,7 +151,7 @@ package scpacker.networking.protocol.packets.panel
          modelVector.push(CaptureGoalDailyQuestModelBase.modelId);
          modelVector.push(ScoreCollectOnMapDailyQuestModelBase.modelId);
          modelVector.push(DailyQuestWithModeModelBase.modelId);
-         var dailyQuestGameClass:IGameClass = this.gameTypeRegistry.createClass(Long.getLong(12545678,87654321), modelVector);
+         var dailyQuestGameClass:IGameClass = this.gameTypeRegistry.createClass(GameClassIds.PANEL_DAILY_QUEST, modelVector);
          dailyQuestGameObject = panelSpace.createObject(Long.getLong(12546678,87655471), dailyQuestGameClass, "Daily quest game object");
          var questShowingModel:QuestShowingModel = QuestShowingModel(modelRegistry.getModel(QuestShowingModelBase.modelId));
 

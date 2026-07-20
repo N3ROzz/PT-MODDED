@@ -1,5 +1,6 @@
 package scpacker.networking.protocol.packets.battle
 {
+   import scpacker.GameClassIds;
    import scpacker.networking.protocol.AbstractPacketHandler;
    import projects.tanks.client.battlefield.types.Vector3d;
    import alternativa.tanks.models.battle.dm.BattleDMModel;
@@ -386,7 +387,7 @@ package scpacker.networking.protocol.packets.battle
          battlefieldGameClassVector.push(this.inventoryModel.id);
          battlefieldGameClassVector.push(this.battleMinesModel.id);
          battlefieldGameClassVector.push(this.inventorySfxModel .id);
-         this.battlefieldGameClass = gameTypeRegistry.createClass(Long.getLong(150325,6843665),battlefieldGameClassVector);
+         this.battlefieldGameClass = gameTypeRegistry.createClass(GameClassIds.BATTLEFIELD,battlefieldGameClassVector);
 
          var tankGameClassVector:Vector.<Long> = new Vector.<Long>();
          tankGameClassVector.push(this.tankConfigurationModel.id);
@@ -404,7 +405,7 @@ package scpacker.networking.protocol.packets.battle
          tankGameClassVector.push(this.tankResistancesModel.id);
          tankGameClassVector.push(this.tankDeviceModel.id);
          tankGameClassVector.push(this.bossStateModel.id);
-         this.tankGameClass = gameTypeRegistry.createClass(Long.getLong(150325,6843665),tankGameClassVector);
+         this.tankGameClass = gameTypeRegistry.createClass(GameClassIds.TANK,tankGameClassVector);
 
          var bonusGameClassVector:Vector.<Long> = new Vector.<Long>();
          bonusGameClassVector.push(this.bonusCommonModel.id);
@@ -1026,8 +1027,8 @@ package scpacker.networking.protocol.packets.battle
          gameTypeRegistry.destroyClass(Long.getLong(14025,684260));
          gameTypeRegistry.destroyClass(Long.getLong(14025,684460));
          gameTypeRegistry.destroyClass(Long.getLong(150325,6843660));
-         gameTypeRegistry.destroyClass(Long.getLong(150325,6843665));
-         gameTypeRegistry.destroyClass(Long.getLong(150325,6843665));
+         gameTypeRegistry.destroyClass(GameClassIds.BATTLEFIELD);
+         gameTypeRegistry.destroyClass(GameClassIds.TANK);
          gameTypeRegistry.destroyClass(Long.getLong(150325,6873665));
          gameClassesInited = false;
          

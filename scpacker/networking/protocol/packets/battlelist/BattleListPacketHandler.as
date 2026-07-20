@@ -1,5 +1,6 @@
 package scpacker.networking.protocol.packets.battlelist
 {
+   import scpacker.GameClassIds;
    import scpacker.networking.protocol.AbstractPacketHandler;
    import alternativa.types.Long;
    import projects.tanks.client.battleservice.Range;
@@ -92,7 +93,7 @@ package scpacker.networking.protocol.packets.battlelist
 
          modelVector = new Vector.<Long>();
          modelVector.push(MapInfoModelBase.modelId);
-         this.mapGameClass = gameTypeRegistry.createClass(Long.getLong(8238523,63486349),modelVector);
+         this.mapGameClass = gameTypeRegistry.createClass(GameClassIds.BATTLE_SELECT_MAP,modelVector);
 
          this.battleSelectSpace = spaceRegistry.getSpace(SpaceAndGameObjectIds.BATTLE_SELECT_SPACE_ID);
          this.achievementService = IAchievementService(OSGi.getInstance().getService(IAchievementService));

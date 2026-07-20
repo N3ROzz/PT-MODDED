@@ -1,5 +1,6 @@
 package scpacker.networking.protocol.packets.tank
 {
+   import scpacker.GameClassIds;
    import scpacker.networking.protocol.AbstractPacketHandler;
    import alternativa.tanks.models.tank.rankup.TankRankUpEffectModel;
    import alternativa.types.Long;
@@ -73,7 +74,7 @@ package scpacker.networking.protocol.packets.tank
 
          var effectVector:Vector.<Long> = new Vector.<Long>();
          effectVector.push(this.effectDescriptionModel.id);
-         this.effectGameClass = gameTypeRegistry.createClass(Long.getLong(14025,687788),effectVector);
+         this.effectGameClass = gameTypeRegistry.createClass(GameClassIds.TANK_EFFECT,effectVector);
       }
       
       public function invoke(param1:AbstractPacket) : void

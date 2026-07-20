@@ -1,5 +1,6 @@
 package scpacker.networking.protocol.packets.battlecreate
 {
+   import scpacker.GameClassIds;
    import scpacker.networking.protocol.AbstractPacketHandler;
    import projects.tanks.client.battleselect.model.map.MapInfoCC;
    import alternativa.types.Long;
@@ -73,7 +74,7 @@ package scpacker.networking.protocol.packets.battlecreate
          mapModels.push(MapInfoModelBase.modelId);
          //_loc2_.push(this.clanInfoModel.id);
 
-         this.mapGameClass = gameTypeRegistry.createClass(Long.getLong(8238523,63486349),mapModels);
+         this.mapGameClass = gameTypeRegistry.createClass(GameClassIds.BATTLE_SELECT_MAP,mapModels);
          this.battleSelectGameClass = gameTypeRegistry.createClass(Long.getLong(591359,5235923),battleSelectModels);
       }
 
