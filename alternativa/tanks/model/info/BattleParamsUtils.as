@@ -5,6 +5,7 @@ package alternativa.tanks.model.info
    import alternativa.tanks.service.battle.IBattleUserInfoService;
    import alternativa.tanks.view.battleinfo.BattleInfoBaseParams;
    import alternativa.types.Long;
+   import flash.utils.Dictionary;
    import flash.utils.getTimer;
    import platform.client.fp10.core.model.impl.Model;
    import platform.client.fp10.core.type.IGameObject;
@@ -61,28 +62,79 @@ package alternativa.tanks.model.info
       public static function registerUsers(param1:IGameObject, param2:Vector.<BattleInfoUser>, param3:BattleInfoBaseParams) : void
       {
          var _loc4_:BattleInfoUser = null;
+         if(param1 == null || param2 == null || param3 == null)
+         {
+            return;
+         }
          for each(_loc4_ in param2)
          {
             registerUser(_loc4_,param3,param1);
          }
       }
 
-      public static function registerUsersSafe(param1:IGameObject, param2:Vector.<BattleInfoUser>, param3:BattleInfoBaseParams) : void
+      public static function reconcileUsers(param1:IGameObject, param2:Vector.<BattleInfoUser>, param3:BattleInfoBaseParams) : void
       {
          var _loc4_:BattleInfoUser = null;
-         for each(_loc4_ in param2)
+         var _loc5_:String = null;
+         var _loc6_:Dictionary = new Dictionary();
+         var _loc7_:Vector.<String> = new Vector.<String>();
+         var _loc8_:Vector.<String> = null;
+         var _loc9_:int = 0;
+         if(param1 == null || param3 == null)
          {
-            if(param3.userToInfo.get(_loc4_.user) == null)
-            {
-               continue;
-            }
-            registerUser(_loc4_,param3,param1);
+            return;
          }
+         if(param2 != null)
+         {
+            for each(_loc4_ in param2)
+            {
+               if(_loc4_ == null || _loc4_.user == null || _loc4_.user.length == 0)
+               {
+                  continue;
+               }
+               _loc5_ = _loc4_.user;
+               if(_loc6_[_loc5_] == null)
+               {
+                  _loc7_.push(_loc5_);
+               }
+               _loc6_[_loc5_] = _loc4_;
+            }
+         }
+         _loc8_ = param3.userToInfo.getUserIds();
+         for each(_loc5_ in _loc8_)
+         {
+            if(_loc6_[_loc5_] == null)
+            {
+               unregisterUser(_loc5_,param3);
+            }
+         }
+         for each(_loc5_ in _loc7_)
+         {
+            registerUser(BattleInfoUser(_loc6_[_loc5_]),param3,param1);
+         }
+         for each(_loc5_ in _loc7_)
+         {
+            if(friendsInfoService.isFriendsInState(_loc5_,FriendState.ACCEPTED))
+            {
+               _loc9_++;
+            }
+         }
+         param3.friends = _loc9_;
       }
       
       public static function registerUser(param1:BattleInfoUser, param2:BattleInfoBaseParams, param3:IGameObject) : void
       {
-         var _loc4_:String = param1.user;
+         var _loc4_:String = null;
+         if(param1 == null || param2 == null || param3 == null || param1.user == null || param1.user.length == 0)
+         {
+            return;
+         }
+         _loc4_ = param1.user;
+         if(param2.userToInfo.get(_loc4_) != null)
+         {
+            param2.userToInfo.put(param1);
+            return;
+         }
          param2.userToInfo.put(param1);
          battleUserInfoService.connect(_loc4_,param3);
          if(friendsInfoService.isFriendsInState(_loc4_,FriendState.ACCEPTED))
@@ -93,6 +145,10 @@ package alternativa.tanks.model.info
       
       public static function unregisterUser(param1:String, param2:BattleInfoBaseParams) : void
       {
+         if(param2 == null || param1 == null || param1.length == 0 || param2.userToInfo.get(param1) == null)
+         {
+            return;
+         }
          param2.userToInfo.remove(param1);
          battleUserInfoService.disconnect(param1);
          if(friendsInfoService.isFriendsInState(param1,FriendState.ACCEPTED))
@@ -102,4 +158,3 @@ package alternativa.tanks.model.info
       }
    }
 }
-

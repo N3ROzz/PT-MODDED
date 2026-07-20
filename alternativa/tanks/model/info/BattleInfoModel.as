@@ -16,6 +16,7 @@ package alternativa.tanks.model.info
    import platform.client.fp10.core.model.ObjectUnloadPostListener;
    import platform.client.fp10.core.resource.types.ImageResource;
    import projects.tanks.client.battleselect.model.battle.BattleInfoCC;
+   import projects.tanks.client.battleselect.model.battle.entrance.user.BattleInfoUser;
    import projects.tanks.client.battleselect.model.battle.BattleInfoModelBase;
    import projects.tanks.client.battleselect.model.battle.IBattleInfoModelBase;
    import projects.tanks.client.battleselect.model.battle.param.BattleParamInfoCC;
@@ -81,6 +82,12 @@ package alternativa.tanks.model.info
       
       public function updateUserSuspiciousState(param1:String, param2:Boolean) : void
       {
+         var _loc3_:BattleInfoUser = this.data().userToInfo.get(param1);
+         if(_loc3_ == null)
+         {
+            return;
+         }
+         _loc3_.suspicious = param2;
          battleInfoFormService.updateUserSuspiciousState(param1,param2);
       }
       
@@ -150,4 +157,3 @@ package alternativa.tanks.model.info
       }
    }
 }
-

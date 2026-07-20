@@ -29,6 +29,7 @@ package alternativa.tanks.controllers.battleinfo
       override protected function updateUserLists() : void
       {
          var _loc1_:BattleInfoTeamParams = BattleInfoTeamParams(initParams);
+         this.userId2userList = new Dictionary();
          this.updateUserList(maxPeopleCount,_loc1_.usersRed,this.teamView.redUserList);
          this.updateUserList(maxPeopleCount,_loc1_.usersBlue,this.teamView.blueUserList);
          this.autoBalance = initParams.createParams.autoBalance;
@@ -110,13 +111,23 @@ package alternativa.tanks.controllers.battleinfo
       
       override public function updateUserScore(param1:String, param2:int) : void
       {
-         this.userId2userList[param1].updateUserScore(param1,param2);
+         var _loc3_:BattleInfoUserList = this.userId2userList[param1];
+         if(_loc3_ == null)
+         {
+            return;
+         }
+         _loc3_.updateUserScore(param1,param2);
          this.teamView.invalidateUserList();
       }
       
       override public function updateUserSuspiciousState(param1:String, param2:Boolean) : void
       {
-         this.userId2userList[param1].updateUserSuspiciousState(param1,param2);
+         var _loc3_:BattleInfoUserList = this.userId2userList[param1];
+         if(_loc3_ == null)
+         {
+            return;
+         }
+         _loc3_.updateUserSuspiciousState(param1,param2);
          this.teamView.invalidateUserList();
       }
       

@@ -71,7 +71,12 @@ package alternativa.tanks.model.info.dm
       
       public function updateUserScore(param1:String, param2:int) : void
       {
-         this.data().userToInfo.get(param1).score = param2;
+         var _loc3_:BattleInfoUser = this.data().userToInfo.get(param1);
+         if(_loc3_ == null)
+         {
+            return;
+         }
+         _loc3_.score = param2;
          battleInfoFormService.updateUserScore(param1,param2);
       }
       
@@ -88,9 +93,10 @@ package alternativa.tanks.model.info.dm
       public function reloadCC() : void
       {
          var _loc1_:BattleInfoDmParams = BattleInfoDmParams(getData(BattleInfoDmParams));
-         _loc1_.users = getInitParam().users.concat();
+         var _loc2_:Vector.<BattleInfoUser> = getInitParam().users == null ? new Vector.<BattleInfoUser>() : getInitParam().users.concat();
+         BattleParamsUtils.reconcileUsers(object,_loc2_,_loc1_);
+         _loc1_.users = _loc2_;
          BattleParamsUtils.setBattleInfoParams(object,_loc1_);
-         BattleParamsUtils.registerUsersSafe(object,_loc1_.users,_loc1_);
       }
       
       private function data() : BattleInfoDmParams

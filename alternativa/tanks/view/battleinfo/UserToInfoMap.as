@@ -28,6 +28,17 @@ package alternativa.tanks.view.battleinfo
       {
          delete this.dictionary[param1];
       }
+
+      public function getUserIds() : Vector.<String>
+      {
+         var _loc1_:Vector.<String> = new Vector.<String>();
+         var _loc2_:String = null;
+         for(_loc2_ in this.dictionary)
+         {
+            _loc1_.push(_loc2_);
+         }
+         return _loc1_;
+      }
       
       public function resetScore() : *
       {
@@ -39,4 +50,3 @@ package alternativa.tanks.view.battleinfo
       }
    }
 }
-

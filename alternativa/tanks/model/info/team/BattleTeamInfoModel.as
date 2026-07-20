@@ -57,11 +57,13 @@ package alternativa.tanks.model.info.team
       public function reloadCC() : void
       {
          var _loc1_:BattleInfoTeamParams = BattleInfoTeamParams(getData(BattleInfoTeamParams));
+         var _loc2_:Vector.<BattleInfoUser> = getInitParam().usersBlue == null ? new Vector.<BattleInfoUser>() : getInitParam().usersBlue.concat();
+         var _loc3_:Vector.<BattleInfoUser> = getInitParam().usersRed == null ? new Vector.<BattleInfoUser>() : getInitParam().usersRed.concat();
+         var _loc4_:Vector.<BattleInfoUser> = _loc2_.concat(_loc3_);
+         BattleParamsUtils.reconcileUsers(object,_loc4_,_loc1_);
+         _loc1_.usersBlue = _loc2_;
+         _loc1_.usersRed = _loc3_;
          BattleParamsUtils.setBattleInfoParams(object,_loc1_);
-         _loc1_.usersBlue = getInitParam().usersBlue.concat();
-         _loc1_.usersRed = getInitParam().usersRed.concat();
-         BattleParamsUtils.registerUsersSafe(object,_loc1_.usersBlue,_loc1_);
-         BattleParamsUtils.registerUsersSafe(object,_loc1_.usersRed,_loc1_);
          _loc1_.scoreBlue = getInitParam().scoreBlue;
          _loc1_.scoreRed = getInitParam().scoreRed;
       }
@@ -128,7 +130,12 @@ package alternativa.tanks.model.info.team
       
       public function updateUserScore(param1:String, param2:int) : void
       {
-         this.data().userToInfo.get(param1).score = param2;
+         var _loc3_:BattleInfoUser = this.data().userToInfo.get(param1);
+         if(_loc3_ == null)
+         {
+            return;
+         }
+         _loc3_.score = param2;
          battleInfoFormService.updateUserScore(param1,param2);
       }
       
