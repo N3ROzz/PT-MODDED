@@ -120,22 +120,28 @@ package scpacker.networking.protocol.packets.battleInfo
       {
          var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
          Model.object = _loc2_;
+         try
+         {
          this.battleInfoModel.roundFinished();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function fightFailedServerIsHalting(param1:FightFailedServerHaltingInPacket) : void
       {
          var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
          Model.object = _loc2_;
+         try
+         {
          //this.battleInfoModel.fightFailedServerIsHalting();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function removeUser(param1:LeftPacketInPacket) : void
       {
          var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
          Model.object = _loc2_;
+         try
+         {
          if(_loc2_.hasModel(BattleDmInfoModel))
          {
             this.battleDmInfoModel.removeUser(param1.userId);
@@ -143,103 +149,127 @@ package scpacker.networking.protocol.packets.battleInfo
          {
             this.teamBattleInfoModel.removeUser(param1.userId);
          }
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function roundFinish(param1:RoundFinishedInPacket) : void
       {
          var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
          Model.object = _loc2_;
+         try
+         {
          this.battleInfoModel.roundFinished();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function roundStart(param1:RoundStartedInPacket) : void
       {
          var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
          Model.object = _loc2_;
+         try
+         {
          this.battleInfoModel.roundStarted(5); // 5 is placeholder time
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function updateName(param1:UpdateBattleNameInPacket) : void
       {
          var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
          Model.object = _loc2_;
+         try
+         {
          this.battleInfoModel.setBattleName(param1.battleName);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function updateUserSuspiciousState(param1:UpdatePlayerSuspiciousStateInPacket) : void
       {
          var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
          Model.object = _loc2_;
+         try
+         {
          this.battleInfoModel.updateUserSuspiciousState(param1.userId,param1.suspicious);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function updateUserKills(param1:UpdatePlayerDmKillsInPacket) : void
       {
          var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
          Model.object = _loc2_;
+         try
+         {
          this.battleDmInfoModel.updateUserScore(param1.userId,param1.kills);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function updateUserScore(param1:UpdatePlayerTeamScoreInPacket) : void
       {
          var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
          Model.object = _loc2_;
+         try
+         {
          this.teamBattleInfoModel.updateUserScore(param1.userId,param1.score);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function updateTeamScore(param1:UpdateTeamScoreInPacket) : void
       {
          var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
          Model.object = _loc2_;
+         try
+         {
          this.teamBattleInfoModel.updateTeamScore(param1.team,param1.score);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function addUserDm(param1:JoinedDmBattleInPacket) : void
       {
          var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
          Model.object = _loc2_;
+         try
+         {
          this.battleDmInfoModel.addUser(param1.userInfo);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function addUserTeam(param1:JoinedTeamBattleInPacket) : void
       {
          var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
          Model.object = _loc2_;
+         try
+         {
          this.teamBattleInfoModel.addUser(param1.userInfo,param1.team);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function swapTeams(param1:SwapTeamsInPacket) : void
       {
          var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
          Model.object = _loc2_;
+         try
+         {
          this.teamBattleInfoModel.swapTeams();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function equipmentNotMatchConstraintsDm(param1:EquipmentNotMatchConstraintsInPacket) : void
       {
          var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
          Model.object = _loc2_;
+         try
+         {
          this.battleEntranceModel.equipmentNotMatchConstraints();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function equipmentNotMatchConstraintsTeam(param1:EquipmentNotMatchTeamConstraintsInPacket) : void
       {
          var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
          Model.object = _loc2_;
+         try
+         {
          this.battleEntranceModel.equipmentNotMatchConstraints();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function loadBattleInfo(param1:LoadBattleInfoInPacket) : void
@@ -291,8 +321,10 @@ package scpacker.networking.protocol.packets.battleInfo
 
          // Load BattleParamInfoModel again
          Model.object = battleGameObject;
+         try
+         {
          this.battleParamInfoModel.putInitParams(battleParamInfoCC);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
 
          var battleInfoCC:BattleInfoCC = new BattleInfoCC();
          battleInfoCC.roundStarted = battleData.roundStarted;
@@ -301,8 +333,10 @@ package scpacker.networking.protocol.packets.battleInfo
 
          // Load BattleParamInfoModel again
          Model.object = battleGameObject;
+         try
+         {
          this.battleInfoModel.putInitParams(battleInfoCC);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
 
          if (battleData.battleMode == "DM")
          {
@@ -316,9 +350,11 @@ package scpacker.networking.protocol.packets.battleInfo
 
             // Load BattleDMInfoModel again
             Model.object = battleGameObject;
+            try
+            {
             this.battleDmInfoModel.putInitParams(battleDMInfoCC);
             this.battleDmInfoModel.reloadCC();
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
          else
          {
@@ -340,9 +376,11 @@ package scpacker.networking.protocol.packets.battleInfo
 
             // Load TeamBattleInfoModel again
             Model.object = battleGameObject;
+            try
+            {
             this.teamBattleInfoModel.putInitParams(teamBattleInfoCC);
             this.teamBattleInfoModel.reloadCC();
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
          BattleSelectionTrace.record("MODEL_RELOAD_END","BattleInfoPacketHandler.loadBattleInfo",battleData.itemId,battleGameObject,"mode=" + battleData.battleMode);
          ShowInfo(battleGameObject.adapt(ShowInfo)).showInfo();

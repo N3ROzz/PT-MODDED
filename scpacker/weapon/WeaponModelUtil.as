@@ -142,7 +142,8 @@ package scpacker.weapon
          var specialEntityJsonObject:* = weaponJsonSpecialEntities[weaponName];
 
          Model.object = weaponObject;
-
+         try
+         {
          switch(weaponName.split("_")[0])
          {
             case "smoky":
@@ -367,7 +368,11 @@ package scpacker.weapon
             //   param1.putParams(SplashCC,_loc17_);
          }
          
-         Model.popObject();
+         }
+         finally
+         {
+            Model.popObject();
+         }
       }
       
       private static function initializeStreamWeapon(weaponObject:IGameObject, specialEntityJsonObject:Object):void {
@@ -414,4 +419,3 @@ package scpacker.weapon
       }
    }
 }
-

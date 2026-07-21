@@ -118,15 +118,19 @@ package scpacker.networking.protocol.packets.statisticsdm
       private function userConnect(param1:DmStatisticsUserConnectInPacket) : void
       {
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          this.statisticsDMModel.userConnect(param1.userId,param1.userInfos);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function userDisconnect(param1:DmStatisticsUserDisconnectInPacket) : void
       {
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          this.statisticsDMModel.userDisconnect(param1.userId);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
 
       private function updateLocalScore(param1:UserStat) : void

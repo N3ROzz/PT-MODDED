@@ -118,6 +118,8 @@ package scpacker.networking.protocol.packets.friends
          var friendsObject:IGameObject = this.space.createObject(Long.getLong(5555,87654321), friendsGameClass, "Friends game object");
 
          Model.object = friendsObject;
+         try
+         {
 
          TankTraceUtil.logFriends("LoadFriendsList accepted=" + this.countUsers(param1.friendsAcceptedCC) + " acceptedNew=" + this.countUsers(param1.friendsAcceptedNotificatorCC) + " incoming=" + this.countUsers(param1.friendsIncomingCC) + " incomingNew=" + this.countUsers(param1.friendsIncomingNotificatorCC) + " outgoing=" + this.countUsers(param1.friendsOutgoingCC));
 
@@ -141,7 +143,7 @@ package scpacker.networking.protocol.packets.friends
 
          this.friendsLoaderModel.objectLoadedPost();
          this.friendsLoaderModel.onUsersLoaded();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function handleUsersLoaded() : void

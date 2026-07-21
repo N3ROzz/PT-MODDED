@@ -42,9 +42,11 @@ package scpacker.networking.protocol.packets.usercountry
          var userCountryGameClass:IGameClass = this.gameTypeRegistry.createClass(Long.getLong(12665678,97654321), modelVector);
 
          Model.object = PanelPacketHandler.panelSpace.createObject(Long.getLong(12545678,85654321), userCountryGameClass, "User Country game object");
+         try
+         {
          this.userCountryModel.putInitParams(param1.cc);
          this.userCountryModel.objectLoaded();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function requestUserCountry(param1:RequestUserCountryInPacket) : void

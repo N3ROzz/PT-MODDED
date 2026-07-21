@@ -137,6 +137,8 @@ package scpacker.networking.protocol.packets.battlelist
          }
 
          Model.object = this.battleSelectObject;
+         try
+         {
          
          var _loc3_:Object = JSON.parse(param1.battlesJson);
          BattleSelectionTrace.recordFullSnapshot(this.extractBattleIds(_loc3_));
@@ -164,7 +166,7 @@ package scpacker.networking.protocol.packets.battlelist
          this.battleSelectModel.battleItemsPacketJoinSuccess();
          TankTraceUtil.logBattleList("loadAllBattles after battleItemsPacketJoinSuccess");
          
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
          //this.achievementService.setPanelPartition(2);
       }
       
@@ -205,9 +207,11 @@ package scpacker.networking.protocol.packets.battlelist
                   _loc5_.theme = EnumUtils.stringToMapTheme(String(_loc2_.theme));
                   _loc5_.defaultTheme = _loc5_.theme;
                   Model.object = _loc4_;
+                  try
+                  {
                   this.mapInfoModel.putInitParams(_loc5_);
                   this.mapInfoModel.objectLoaded();
-                  Model.popObject();
+                  }                   finally                   {                      Model.popObject();                   }
                }
             }
          }
@@ -235,10 +239,12 @@ package scpacker.networking.protocol.packets.battlelist
          _loc6_.defaultRange = new Range(Math.min(_loc8_,31),1);
          _loc6_.ultimatesEnabled = true;
          Model.object = this.battleSelectObject;
+         try
+         {
          this.battleCreateModel.putInitParams(_loc6_);
          this.battleCreateModel.objectLoaded();
          this.battleCreateModel.objectLoadedPost();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
          TankTraceUtil.logCreateBattle("BattleListPacketHandler.ensureCreateData maps=" + MapInfoModel.getMaps().length + " limits=" + _loc6_.battlesLimits.length);
       }
       
@@ -261,8 +267,10 @@ package scpacker.networking.protocol.packets.battlelist
          try
          {
             Model.object = _loc2_;
+            try
+            {
             this.battleSelectModel.select(battleGameObject);
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
          catch(e:Error)
          {
@@ -296,8 +304,10 @@ package scpacker.networking.protocol.packets.battlelist
          if(_loc2_ != null)
          {
             platform.client.fp10.core.model.impl.Model.object = _loc2_;
+            try
+            {
             this.battleSelectSpace.destroyObject(_loc2_.id);
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
       }
       
@@ -402,8 +412,10 @@ package scpacker.networking.protocol.packets.battlelist
 
          // Load BattleParamInfoModel
          Model.object = battleGameObject;
+         try
+         {
          this.battleParamsInfoModel.putInitParams(battleParamInfoCC);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
          TankTraceUtil.logBattleList("addBattle paramInfoLoaded id=" + battleData.battleId);
 
          var battleInfoCC:BattleInfoCC = new BattleInfoCC();
@@ -413,8 +425,10 @@ package scpacker.networking.protocol.packets.battlelist
 
          // Load BattleInfoModel
          Model.object = battleGameObject;
+         try
+         {
          this.battleInfoModel.putInitParams(battleInfoCC);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
          TankTraceUtil.logBattleList("addBattle battleInfoLoaded id=" + battleData.battleId);
 
          if (battleData.battleMode == "DM")
@@ -432,9 +446,11 @@ package scpacker.networking.protocol.packets.battlelist
 
             // Load BattleDMInfoModel
             Model.object = battleGameObject;
+            try
+            {
             this.battleInfoDmModel.putInitParams(battleDMInfoCC);
             this.battleInfoDmModel.objectLoaded();
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
             TankTraceUtil.logBattleList("addBattle dmModelLoaded id=" + battleData.battleId);
          } else 
          {
@@ -459,9 +475,11 @@ package scpacker.networking.protocol.packets.battlelist
 
             // Load TeamBattleInfoModel
             Model.object = battleGameObject;
+            try
+            {
             this.battleTeamInfoModel.putInitParams(teamBattleInfoCC);
             this.battleTeamInfoModel.objectLoaded();
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
             TankTraceUtil.logBattleList("addBattle teamModelLoaded id=" + battleData.battleId);
          }
       }
@@ -487,9 +505,11 @@ package scpacker.networking.protocol.packets.battlelist
 
          var mapObject:IGameObject = this.battleSelectSpace.createObject(mapObjectId,this.mapGameClass,mapInfoCC.mapId + (mapInfoCC.theme == null ? "" : mapInfoCC.theme.toString()));
          Model.object = mapObject;
+         try
+         {
          this.mapInfoModel.putInitParams(mapInfoCC);
          this.mapInfoModel.objectLoaded();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
          TankTraceUtil.logBattleList("createdFallbackMap preview=" + battleData.preview + " mapId=" + mapInfoCC.mapId + " mapName=" + mapInfoCC.mapName + " keys=" + this.getObjectKeys(battleData));
          return mapObject;
       }
@@ -543,13 +563,15 @@ package scpacker.networking.protocol.packets.battlelist
             Model.object = battleSelectObject;
             try
             {
+            try
+            {
                this.battleSelectModel.objectUnloaded();
             }
             catch(e:Error)
             {
                TankTraceUtil.logBattleList("unloadAllBattles ERROR objectUnloaded " + e.name + " " + e.message + " stack=" + e.getStackTrace());
             }
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
          else
          {

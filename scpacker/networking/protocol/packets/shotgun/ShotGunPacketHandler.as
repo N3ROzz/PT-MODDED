@@ -39,8 +39,10 @@ package scpacker.networking.protocol.packets.shotgun
          var shooterGameObject:IGameObject = TankNameGameObjectMapper.getGameObjectByTankName(param1.shooter);
          var turretGameObject:IGameObject = CoreUtils.getTurretObjectByTankName(param1.shooter);
          Model.object = turretGameObject;
+         try
+         {
          this.shotgunModel.shoot(shooterGameObject,param1.shootDirection,param1.targets);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
          //WeaponsManager.newname_5991__END(newname_2399__END.getUser(param1.shooter)).newname_7050__END(newname_2399__END.getUser(param1.shooter),BattleUtils.getVector3(param1.shootDirection),param1.targets);
       }
    }

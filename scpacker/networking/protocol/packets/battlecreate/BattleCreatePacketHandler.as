@@ -329,11 +329,15 @@ package scpacker.networking.protocol.packets.battlecreate
          equipmentConstraintsCC.equipmentConstraintsModeInfos.push(new EquipmentConstraintsModeInfo(2,"HORNET_WASP_RAILGUN","Hornet, Wasp & Railgun"));
 
          Model.object = this.battleSelectObject;
+         try
+         {
          this.equipmentConstraintsNamingMode.putInitParams(equipmentConstraintsCC);
          this.equipmentConstraintsNamingMode.objectLoaded();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
 
           Model.object = this.battleSelectObject;
+          try
+          {
 
           var battleCreateParams:BattleCreateCC = new BattleCreateCC();
           battleCreateParams.battleCreationDisabled = battlesData.battleCreationDisabled;
@@ -359,7 +363,7 @@ package scpacker.networking.protocol.packets.battlecreate
           this.battleCreateModel.objectLoaded();
           this.battleCreateModel.objectLoadedPost();
           TankTraceUtil.logCreateBattle("BattleCreatePacketHandler.afterBattleCreateModelLoad");
-          Model.popObject();
+          }           finally           {              Model.popObject();           }
       }
       
       private function createFailedBattleCreateDisabled() : void
@@ -386,8 +390,10 @@ package scpacker.networking.protocol.packets.battlecreate
       {
          var _loc2_:IGameObject = spaceRegistry.getSpace(SpaceAndGameObjectIds.BATTLE_SELECT_SPACE_ID).getObjectByName("BattleSelectObject");
          Model.object = _loc2_;
+         try
+         {
          this.battleCreateModel.setFilteredBattleName(param1.battleName);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
    }
 }

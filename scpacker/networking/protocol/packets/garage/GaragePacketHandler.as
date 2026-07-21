@@ -355,6 +355,8 @@ package scpacker.networking.protocol.packets.garage
             gameObject = this.garageSpace.createObject(Long.getLong(0,EnumUtils.intToItemCategoryEnum(item.type) == ItemCategoryEnum.GIVEN_PRESENT ? int(item.present.date + item.previewResourceId) : int(item.previewResourceId)),gameClass,item.id + "_m" + modificationId);
             
             Model.object = gameObject;
+            try
+            {
             if(item.price == 8000 && item.index > 10000)
             {
                item.index = 9897;
@@ -392,11 +394,13 @@ package scpacker.networking.protocol.packets.garage
             //this.rentModel.putInitParams(new RentItemCC(item.isForRent));
             //this.discountModel.objectLoadedPost();
             this.countableItemModel.objectLoaded();
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
             depotItems[depotItems.length] = gameObject;
          }
          
          Model.object = this.garageGameObject;
+         try
+         {
          var mountableCategorys:Vector.<ItemCategoryEnum> = new Vector.<ItemCategoryEnum>();
          mountableCategorys.push(ItemCategoryEnum.WEAPON);
          mountableCategorys.push(ItemCategoryEnum.ARMOR);
@@ -405,7 +409,7 @@ package scpacker.networking.protocol.packets.garage
          this.garageModel.objectLoaded();
          this.garageModel.initDepot(depotItems);
          //this.garageModel.initPresents(presentItems);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
 
       private function buildGarageProperties(item:Object, itemGarageProperties:Vector.<ItemGaragePropertyData>) : Vector.<GaragePropertyParams>
@@ -463,6 +467,8 @@ package scpacker.networking.protocol.packets.garage
             var gameClass:IGameClass = this.getGameClassForItem(item);
             gameObject = this.garageSpace.createObject(Long.getLong(0,item.previewResourceId),gameClass,item.id + "_m" + (item.modificationID == undefined ? "0" : item.modificationID));
             Model.object = gameObject;
+            try
+            {
 
             var garagePropertyDataList:Vector.<GaragePropertyParams> = this.buildGarageProperties(item,itemPropsForModel);
 
@@ -510,9 +516,11 @@ package scpacker.networking.protocol.packets.garage
             this.countableItemModel.objectLoaded();
             //this.upgradeParamsModel.objectLoadedPost();
             marketItems[marketItems.length] = gameObject;
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
          Model.object = this.garageGameObject;
+         try
+         {
          this.delayMountCategoryModel.putInitParams(new DelayMountCategoryCC(parsed.delayMountArmorInSec,0,parsed.delayMountColorInSec,parsed.delayMountWeaponInSec));
          this.delayMountCategoryModel.objectLoadedPost();
          this.upgradeGarageItemModel.objectLoaded();
@@ -521,14 +529,16 @@ package scpacker.networking.protocol.packets.garage
          this.garageModel.initMarket(marketItems);
          this.garageModel.selectFirstItemInDepot();
          //this.achievementService.setPanelPartition(1);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function unloadGarageSpace() : void
       {
          Model.object = this.garageGameObject;
+         try
+         {
          this.garageModel.objectUnloadedPost();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
 
          var _loc2_:IGameObject = null;
          var _loc3_:IGameObject = null;
@@ -553,17 +563,21 @@ package scpacker.networking.protocol.packets.garage
          if(_loc3_.hasModel(Item3DModel))
          {
             Model.object = _loc3_;
+            try
+            {
             this.item3dModel.putInitParams(new Item3DCC(param1.mounted));
             this.item3dModel.objectLoaded();
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
 
          Model.object = this.garageGameObject;
+         try
+         {
          if(param1.mounted)
          {
             this.garageModel.initMounted(_loc2_);
          }
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function renameFail() : void

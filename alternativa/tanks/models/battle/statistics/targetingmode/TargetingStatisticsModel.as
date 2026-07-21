@@ -84,10 +84,7 @@ package alternativa.tanks.models.battle.statistics.targetingmode
       
       private function send(param1:int) : void
       {
-         Model.object = this.gameObject;
-         this.sendStatistics(param1);
-         Model.popObject();
+         Model.withObject(this.gameObject,this.sendStatistics,param1);
       }
    }
 }
-

@@ -63,10 +63,12 @@ package scpacker.networking.protocol.packets.chat
          param1.cc.channels.push("Main");
 
          Model.object = this.chatGameObject;
+         try
+         {
          this.chatModel.putInitParams(param1.cc);
          this.chatModel.objectLoaded();
          this.communicationPanelModel.objectLoaded();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function updateTypingSpeedAntifloodParams(param1:UpdateTypingAntifloodParamsInPacket) : void

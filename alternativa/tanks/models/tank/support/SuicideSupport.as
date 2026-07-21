@@ -123,9 +123,7 @@ package alternativa.tanks.models.tank.support
          {
             this.showIndicator();
             this._requested = true;
-            Model.object = this._user;
-            this._server.suicideCommand();
-            Model.popObject();
+            Model.withObject(this._user,this._server.suicideCommand);
          }
       }
       
@@ -253,4 +251,3 @@ package alternativa.tanks.models.tank.support
       }
    }
 }
-

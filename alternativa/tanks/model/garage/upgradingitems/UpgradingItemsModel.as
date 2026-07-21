@@ -29,17 +29,12 @@ package alternativa.tanks.model.garage.upgradingitems
       
       public function itemUpgraded(param1:IGameObject) : void
       {
-         Model.object = this.object;
-         server.itemUpgraded(param1);
-         Model.popObject();
+         Model.withObject(this.object,server.itemUpgraded,param1);
       }
       
       public function select(param1:IGameObject) : void
       {
-         Model.object = this.object;
-         server.select(param1);
-         Model.popObject();
+         Model.withObject(this.object,server.select,param1);
       }
    }
 }
-

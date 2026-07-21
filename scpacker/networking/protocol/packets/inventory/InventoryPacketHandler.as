@@ -71,18 +71,22 @@ package scpacker.networking.protocol.packets.inventory
             durationCC.infinite = false;
             
             Model.object = inventoryItemGameObject;
+            try
+            {
             this.inventoryItemModel.putInitParams(inventoryItemCC);
             this.inventoryItemModel.objectLoadedPost();
             this.durationModel.putInitParams(durationCC);
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
       }
       
       private function handleInventoryUpdateCount(param1:InventoryUpdateCountInPacket) : void
       {
          Model.object = BattlePacketHandler.battlefieldGameObject.space.getObjectByName(param1.itemId);
+         try
+         {
          this.inventoryItemModel.updateCount(param1.count);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function handleInventoryItemActivated(param1:InventoryItemActivatedInPacket) : void

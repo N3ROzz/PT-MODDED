@@ -38,24 +38,30 @@ package scpacker.networking.protocol.packets.machinegun
       {
          var shooter:IGameObject = CoreUtils.getTurretObjectByTankName(param1.shooter);
          Model.object = shooter;
+         try
+         {
          this.streamWeaponCommunicationModel.startFire();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function stopFire(param1:MachineGunStopFireInPacket) : void
       {
          var shooter:IGameObject = CoreUtils.getTurretObjectByTankName(param1.shooter);
          Model.object = shooter;
+         try
+         {
          this.streamWeaponCommunicationModel.stopFire();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function hit(param1:MachineGunHitInPacket) : void
       {
          var shooter:IGameObject = CoreUtils.getTurretObjectByTankName(param1.shooter);
          Model.object = shooter;
+         try
+         {
          this.streamWeaponCommunicationModel.updateTargets(param1.shootDirection,param1.targets);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
    }
 }

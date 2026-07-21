@@ -839,8 +839,14 @@ package alternativa.tanks.models.tank
          if(param2)
          {
             Model.object = this.localObject;
-            server.moveTankAndTurretCommand(param1,LocalTankParams.getSpecificationId(),this._moveCommand, this.getTurretController().getDirection());
-            Model.popObject();
+            try
+            {
+               server.moveTankAndTurretCommand(param1,LocalTankParams.getSpecificationId(),this._moveCommand, this.getTurretController().getDirection());
+            }
+            finally
+            {
+               Model.popObject();
+            }
             MoveCommandUtils.copyMoveCommand(this._moveCommand,this.lastSentMoveCommand);
             this.sendTurretStateToServer();
             this.lastFullSentTime = param1;
@@ -865,8 +871,14 @@ package alternativa.tanks.models.tank
             return;
          }
          Model.object = this.localObject;
-         server.moveCommand(param1,LocalTankParams.getSpecificationId(),param2);
-         Model.popObject();
+         try
+         {
+            server.moveCommand(param1,LocalTankParams.getSpecificationId(),param2);
+         }
+         finally
+         {
+            Model.popObject();
+         }
          MoveCommandUtils.copyMoveCommand(param2,this.lastSentMoveCommand);
          this.lastSentTime = param1;
       }
@@ -878,8 +890,14 @@ package alternativa.tanks.models.tank
             return;
          }
          Model.object = this.localObject;
-         server.movementControlCommand(param1,LocalTankParams.getSpecificationId(),param2);
-         Model.popObject();
+         try
+         {
+            server.movementControlCommand(param1,LocalTankParams.getSpecificationId(),param2);
+         }
+         finally
+         {
+            Model.popObject();
+         }
          this.lastSentMoveCommand.control = param2;
          this.lastControlSentTime = param1;
       }

@@ -131,8 +131,10 @@ package scpacker.networking.protocol.packets.tank
          if(tankGameObject != null)
          {
             Model.object = tankGameObject;
+            try
+            {
             this.tankModel.activateTank();
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
       }
       
@@ -142,12 +144,14 @@ package scpacker.networking.protocol.packets.tank
          if(tankGameObject != null)
          {
             Model.object = tankGameObject;
+            try
+            {
             this.tankModel.kill(param1.killer,param1.delay, DamageType.SMOKY);
             if(!this.tankModel.isLocal())
             {
                this.tankModel.deathConfirmed();
             }
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
       }
       
@@ -157,8 +161,10 @@ package scpacker.networking.protocol.packets.tank
          if(tankGameObject != null)
          {
             Model.object = tankGameObject;
+            try
+            {
             this.tankModel.moveAndSetTurretState(param1.movement,param1.turretDirection);
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
       }
       
@@ -168,8 +174,10 @@ package scpacker.networking.protocol.packets.tank
          if(tankGameObject != null)
          {
             Model.object = tankGameObject;
+            try
+            {
             this.tankModel.move(param1.movement);
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
       }
       
@@ -179,8 +187,10 @@ package scpacker.networking.protocol.packets.tank
          if(tankGameObject != null)
          {
             Model.object = tankGameObject;
+            try
+            {
             this.tankModel.movementControl(param1.control);
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
       }
       
@@ -190,8 +200,10 @@ package scpacker.networking.protocol.packets.tank
          if(tankGameObject != null)
          {
             Model.object = tankGameObject;
+            try
+            {
             this.tankSpawnerModel.prepareToSpawn(param1.position,param1.orientation);
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
       }
       
@@ -201,12 +213,16 @@ package scpacker.networking.protocol.packets.tank
          if(tankGameObject != null)
          {
             Model.object = tankGameObject;
+            try
+            {
             var turretGameObject:IGameObject = TankConfiguration(tankGameObject.adapt(TankConfiguration)).getTurretObject();
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
 
             Model.object = turretGameObject;
+            try
+            {
             this.rotatingTurretModel.rotate(param1.turretRotation);
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
       }
       
@@ -216,8 +232,10 @@ package scpacker.networking.protocol.packets.tank
          if(tankGameObject != null)
          {
             Model.object = tankGameObject;
+            try
+            {
             this.tankModel.setHealth(param1.health);
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
       }
       
@@ -227,8 +245,10 @@ package scpacker.networking.protocol.packets.tank
          if(tankGameObject != null)
          {
             Model.object = tankGameObject;
+            try
+            {
             this.tankSpawnerModel.spawn(param1.team,param1.position,param1.orientation,param1.health,param1.incarnationId);
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
       }
       
@@ -238,8 +258,10 @@ package scpacker.networking.protocol.packets.tank
          if(tankGameObject != null)
          {
             Model.object = tankGameObject;
+            try
+            {
             this.tankTemperatureModel.setTemperature(param1.temperature);
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
       }
       
@@ -249,8 +271,10 @@ package scpacker.networking.protocol.packets.tank
          if(tankGameObject != null)
          {
             Model.object = tankGameObject;
+            try
+            {
             this.speedCharacteristicsModel.setSpecification(param1.maxSpeed,param1.maxTurnSpeed,param1.maxTurretRotationSpeed,param1.acceleration,param1.specificationId);
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
       }
       
@@ -312,13 +336,17 @@ package scpacker.networking.protocol.packets.tank
             effectCC.tank = param1.tankId;
 
             Model.object = effectGameObject;
+            try
+            {
             this.effectDescriptionModel.putInitParams(effectCC);
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
 
          Model.object = effectGameObject;
+         try
+         {
          this.effectDescriptionModel.activated(param1.duration, true);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function stopEffect(param1:StopEffectInPacket) : void
@@ -336,8 +364,10 @@ package scpacker.networking.protocol.packets.tank
          }
 
          Model.object = effectGameObject;
+         try
+         {
          this.effectDescriptionModel.deactivated();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
    }
 }

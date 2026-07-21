@@ -135,13 +135,15 @@ package scpacker.networking.protocol.packets.panel
          settingsGameObject = panelSpace.createObject(Long.getLong(12545678,87654321), settingGameClass, "Setting game object");
 
          Model.object = settingsGameObject;
+         try
+         {
 
          this.settingsModel.objectLoadedPost();
 
          this.userEmailAndPasswordModel.putInitParams(new UserEmailCC("notImplemented@bullshitmail.com", false));
          this.userEmailAndPasswordModel.objectLoaded();
 
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
 
          // daily quest
          var modelVector:Vector.<Long> = new Vector.<Long>();
@@ -156,8 +158,10 @@ package scpacker.networking.protocol.packets.panel
          var questShowingModel:QuestShowingModel = QuestShowingModel(modelRegistry.getModel(QuestShowingModelBase.modelId));
 
          Model.object = dailyQuestGameObject;
+         try
+         {
          questShowingModel.objectLoadedPost();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
          this.accountStatsLoaded = true;
       }
 

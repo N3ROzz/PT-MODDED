@@ -39,8 +39,10 @@ package scpacker.networking.protocol.packets.damageindicator
          if(tankGameObject != null)
          {
             Model.object = tankGameObject;
+            try
+            {
             this.damageIndicatorModel.showDamageForShooter(param1.damages);
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
       }
    }

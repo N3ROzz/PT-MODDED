@@ -45,8 +45,10 @@ package scpacker.networking.protocol.packets.settings
          //this.notificationEnabledModel.putInitParams(new NotificationEnabledCC(param1.NotificationEnabled));
          //this.notificationEnabledModel.objectLoaded();
          Model.object = PanelPacketHandler.settingsGameObject;
+         try
+         {
          this.settingsModel.openSettings(PersonalMessageReceiveMode.ALL);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function closeSettings(param1:CloseSettingsInPacket) : void

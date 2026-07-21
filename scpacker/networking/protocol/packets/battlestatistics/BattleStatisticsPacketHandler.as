@@ -66,19 +66,23 @@ package scpacker.networking.protocol.packets.battlestatistics
       private function initStatisticsModel(param1:InitStatisticsInPacket) : void
       {
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          param1.statisticsModelCC.valuableRound = true;
          this.lastFund = param1.statisticsModelCC.fund;
          TankTraceUtil.logRatings("InitStatistics valuableRound=" + param1.statisticsModelCC.valuableRound + " matchBattle=" + param1.statisticsModelCC.matchBattle + " fund=" + param1.statisticsModelCC.fund);
          this.statisticsModel.putInitParams(param1.statisticsModelCC);
          this.statisticsModel.objectLoaded();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function statisticsModelLoadedPost() : void
       {
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          this.statisticsModel.objectLoadedPost();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function fundChange(param1:BattleFundInPacket) : void
@@ -91,24 +95,30 @@ package scpacker.networking.protocol.packets.battlestatistics
             this.moneyService.setServerCrystals(this.moneyService.crystal + _loc2_);
          }
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          this.statisticsModel.fundChange(param1.fund);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function complaintConfirmed() : void
       {
          TankTraceUtil.logRatings("ComplaintConfirmed");
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          this.statisticsModel.onComplaintConfirmed();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function rankChanged(param1:RankUpInPacket) : void
       {
          TankTraceUtil.logRatings("RankUp userId=" + param1.userId + " rank=" + param1.rank);
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          this.statisticsModel.onRankChanged(param1.userId,param1.rank, false);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function roundFinish(param1:RoundFinishInPacket) : void
@@ -134,17 +144,21 @@ package scpacker.networking.protocol.packets.battlestatistics
       {
          TankTraceUtil.logRatings("RoundStart timeLimitInSec=" + param1.timeLimitInSec);
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          this.statisticsModel.roundStart(param1.timeLimitInSec,true);
          this.battlefieldModel.battleRestart();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function statusProbablyCheaterChanged(param1:StatusProbablyCheaterChangedInPacket) : void
       {
          TankTraceUtil.logRatings("StatusProbablyCheater userId=" + param1.userId + " suspicious=" + param1.suspicious);
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          this.statisticsModel.statusProbablyCheaterChanged(param1.userId,param1.suspicious);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
 
       private function describeRewards(param1:Vector.<UserReward>) : String

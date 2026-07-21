@@ -43,37 +43,47 @@ package scpacker.networking.protocol.packets.battlemine
       private function activateMine(param1:ActivateMineInPacket) : void
       {
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          this.battleMinesModel.activateMine(param1.mineId);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function explodeMine(param1:ExplodeMineInPacket) : void
       {
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          this.battleMinesModel.explodeMine(param1.mineId,param1.targetId);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function loadBattleMinesCC(param1:LoadBattleMinesCCInPacket) : void
       {
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          this.battleMinesModel.putInitParams(param1.cc);
          this.battleMinesModel.objectLoaded();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function putMine(param1:PutMineInPacket) : void
       {
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          this.battleMinesModel.putMine(param1.mineId,param1.x,param1.y,param1.z,param1.userId);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function removeAllMines(param1:RemoveMinesInPacket) : void
       {
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          this.battleMinesModel.removeAllMines(param1.ownerId);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
    }
 }

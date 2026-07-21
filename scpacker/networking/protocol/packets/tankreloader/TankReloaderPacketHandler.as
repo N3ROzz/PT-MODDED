@@ -46,8 +46,10 @@ package scpacker.networking.protocol.packets.tankreloader
          if(tankGameObject != null)
          {
             Model.object = tankGameObject;
+            try
+            {
             this.tankReloaderModel.die(param1.delay);
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
       }
       
@@ -57,8 +59,10 @@ package scpacker.networking.protocol.packets.tankreloader
          if(tankGameObject != null)
          {
             Model.object = tankGameObject;
+            try
+            {
             this.tankReloaderModel.onDeathScheduled(param1.suicideDelayMS);
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
       }
       
@@ -68,8 +72,10 @@ package scpacker.networking.protocol.packets.tankreloader
          if(tankGameObject != null)
          {
             Model.object = tankGameObject;
+            try
+            {
             this.tankReloaderModel.onReload();
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
       }
    }

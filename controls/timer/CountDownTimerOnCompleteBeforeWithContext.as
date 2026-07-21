@@ -19,10 +19,7 @@ package controls.timer
       
       public function onCompleteBefore(param1:CountDownTimer, param2:Boolean) : void
       {
-         Model.object = this.contextObject;
-         this.listener.onCompleteBefore(param1,param2);
-         Model.popObject();
+         Model.withObject(this.contextObject,this.listener.onCompleteBefore,param1,param2);
       }
    }
 }
-

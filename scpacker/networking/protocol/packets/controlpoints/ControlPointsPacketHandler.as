@@ -53,52 +53,66 @@ package scpacker.networking.protocol.packets.controlpoints
          //OSGi.getInstance().registerService(IDominationModel,this.controlPointsModel);
          BattlePacketHandler.battlefieldGameObject.gameClass.models.push(this.controlPointsModel.id);
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          this.controlPointsModel.putInitParams(param1.soundNotification);
          this.controlPointsModel.objectLoaded();
          this.controlPointsModel.objectLoadedPost();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function pointCaptureStarted(param1:PointCaptureStartedInPacket) : void
       {
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          this.controlPointsModel.pointCaptureStarted(param1.team);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function pointCaptureStopped(param1:PointCaptureStoppedInPacket) : void
       {
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          this.controlPointsModel.pointCaptureStopped(param1.team);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function setPointProgress(param1:SetPointProgressInPacket) : void
       {
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          this.controlPointsModel.setPointProgress(param1.pointId,param1.progress,param1.progressSpeed);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function setPointState(param1:SetPointStateInPacket) : void
       {
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          this.controlPointsModel.setPointState(param1.pointId,param1.currentState);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function tankEnteredPointZone(param1:TankEnteredPointZoneInPacket) : void
       {
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          this.controlPointsModel.tankEnteredPointZone(param1.pointId,param1.tankId);
-         Model.popObject()
+         }          finally          {             Model.popObject();          }
       }
       
       private function tankLeftPointZone(param1:TankLeftPointZoneInPacket) : void
       {
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          this.controlPointsModel.tankLeftPointZone(param1.pointId,param1.tankId);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
    }
 }

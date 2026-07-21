@@ -87,9 +87,7 @@ package alternativa.tanks.models.tank.spawn.spawnhandlers.ready2spawn
       private function sendReadyToSpawnCommand() : void
       {
          this.isSpawnCommandScheduled = false;
-         Model.object = this.localUser;
-         this.server.readyToSpawnCommand();
-         Model.popObject();
+         Model.withObject(this.localUser,this.server.readyToSpawnCommand);
       }
       
       [Obfuscation(rename="false")]
@@ -102,4 +100,3 @@ package alternativa.tanks.models.tank.spawn.spawnhandlers.ready2spawn
       }
    }
 }
-

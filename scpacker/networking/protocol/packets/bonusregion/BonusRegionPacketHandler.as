@@ -61,11 +61,13 @@ package scpacker.networking.protocol.packets.bonusregion
       private function load(param1:LoadBonusRegionsModelInPacket) : void
       {
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          this.goldBonusesModel.putInitParams(new GoldBonusCC(new Vector.<BonusRegionData>()));
          this.bonusRegionsModel.putInitParams(param1.cc);
          this.bonusRegionsModel.objectLoaded();
          this.bonusRegionsModel.objectLoadedPost();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function showDropZone(param1:ShowDropZoneInPacket) : void

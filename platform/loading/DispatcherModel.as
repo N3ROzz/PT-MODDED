@@ -129,9 +129,7 @@ package platform.loading
                   _loc9_ = _loc7_.data;
                   if(_loc9_ != null)
                   {
-                     Model.object = _loc5_;
-                     _loc8_.putInitParams(_loc9_);
-                     Model.popObject();
+                     Model.withObject(_loc5_,_loc8_.putInitParams,_loc9_);
                   }
                }
                _loc4_++;
@@ -184,4 +182,3 @@ package platform.loading
       }
    }
 }
-

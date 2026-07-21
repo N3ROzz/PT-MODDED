@@ -457,8 +457,10 @@ package scpacker.networking.protocol.packets.battle
 
          var mapGameObject:IGameObject = this.battleSpace.createObject(Long.getLong(0,jsonObject.mapId),this.mapGameClass,"Map object");
          Model.object = mapGameObject;
+         try
+         {
          this.battleMapModel.putInitParams(battleMapCC);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
 
 
          var bonusColorAdjust:Object = jsonObject.bonusColorAdjust;
@@ -484,8 +486,10 @@ package scpacker.networking.protocol.packets.battle
             mapBonusLightCC.softColorAdjust = mapBonusLightCC.hwColorAdjust;
          }
          Model.object = mapGameObject;
+         try
+         {
          this.mapBonusLightModel.putInitParams(mapBonusLightCC);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
 
          var colorAdjustCC:ColorAdjustCC = new ColorAdjustCC();
          colorAdjustCC.frostParamsHW = new ColorAdjustParams(1, 0, 1.5, 100, 1, 80, 1, 20);
@@ -494,8 +498,10 @@ package scpacker.networking.protocol.packets.battle
          colorAdjustCC.heatParamsSoft = colorAdjustCC.heatParamsHW;
 
          Model.object = mapGameObject;
+         try
+         {
          this.colorAdjustModel.putInitParams(colorAdjustCC);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
 
          var teamLightCC:TeamLightCC = new TeamLightCC();
          teamLightCC.lightModes = new Vector.<TeamLightParams>();
@@ -519,8 +525,10 @@ package scpacker.networking.protocol.packets.battle
          teamLightCC.lightModes.push(cpTeamLightParams);
 
          Model.object = mapGameObject;
+         try
+         {
          this.teamLightModel.putInitParams(teamLightCC);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
 
          var battlefieldBonusesModelCC:BattlefieldBonusesCC = new BattlefieldBonusesCC();
          battlefieldBonusesModelCC.bonusFallSpeed = 150;
@@ -529,6 +537,8 @@ package scpacker.networking.protocol.packets.battle
          battlefieldGameObject = this.battleSpace.rootObject; // battlefield object must be space root object
          battlefieldGameObject.gameClass = battlefieldGameClass; 
          Model.object = battlefieldGameObject;
+         try
+         {
          this.battlefieldBonusesModel.putInitParams(battlefieldBonusesModelCC);
 
          var inventoryCC:InventoryCC = new InventoryCC();
@@ -539,7 +549,6 @@ package scpacker.networking.protocol.packets.battle
          this.inventoryModel.objectLoadedPost();
          
          var inventorySfxModelCC:InventorySfxCC = new InventorySfxCC();
-         Model.object = battlefieldGameObject;
          this.inventorySfxModel.putInitParams(inventorySfxModelCC);
          this.inventorySfxModel.objectLoaded();
 
@@ -578,7 +587,11 @@ package scpacker.networking.protocol.packets.battle
          this.battlefieldModel.putInitParams(battlefieldModelCC);
          this.battlefieldModel.objectLoaded();
          this.battlefieldModel.objectLoadedPost();
+         }
+         finally
+         {
          Model.popObject();
+         }
 
          var explosionTexture:Long = Long.getLong(0,jsonObject.explosionTextureId);
          var shockWaveTexture:Long = Long.getLong(0,jsonObject.shockWaveTextureId);
@@ -654,6 +667,8 @@ package scpacker.networking.protocol.packets.battle
          
          // Initialize hull models
          Model.object = hullGameObject;
+         try
+         {
          this.tankExplosionModel.putInitParams(this.tankExplosionCC);
          this.tankExplosionModel.objectLoaded();
 
@@ -662,7 +677,7 @@ package scpacker.networking.protocol.packets.battle
          this.hullCommonModel.putInitParams(hullCommonCC);
          this.simpleArmorModel.putInitParams(simpleArmorCC);
          this.hullSmokeModel.putInitParams(this.hullSmokeCC);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
 
          var weaponCommonCC:WeaponCommonCC = new WeaponCommonCC();
          weaponCommonCC.highlightingDistance = 100000;
@@ -681,15 +696,19 @@ package scpacker.networking.protocol.packets.battle
 
          // Initialize turret models
          Model.object = turretGameObject;
+         try
+         {
          this.object3DSModel.putInitParams(turretObject3DCC);
          this.weaponCommonModel.putInitParams(weaponCommonCC);
          this.rotatingTurretModel.putInitParams(rotatingTurretCC);
          this.rotatingTurretModel.objectLoaded();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
 
          Model.object = coloringGameObject;
+         try
+         {
          this.coloringModel.putInitParams(coloringCC);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
 
          var tankCC:TankCC = new TankCC();
          tankCC.health = jsonObject.health;
@@ -747,6 +766,8 @@ package scpacker.networking.protocol.packets.battle
 
          var tankGameObject:IGameObject = this.battleSpace.createObject(IdTool.getNextId(),this.tankGameClass,jsonObject.nickname);
          Model.object = tankGameObject;
+         try
+         {
          this.tankConfigurationModel.putInitParams(tankConfigurationCC);
          this.suicideModel.putInitParams(suicideCC);
          this.speedCharacteristicsModel.putInitParams(speedcharacteristicsCC);
@@ -769,7 +790,7 @@ package scpacker.networking.protocol.packets.battle
 
          this.tankSpawnerModel.objectLoaded();
          this.tankResistancesModel.objectLoadedPost();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
          
          TankNameGameObjectMapper.addMapping(jsonObject.nickname, tankGameObject);
       }
@@ -908,6 +929,8 @@ package scpacker.networking.protocol.packets.battle
             GoldBoxDiagnostics.recordBonusTypeCatalog(bonusTypeJsonObject.id,bonusGameObject == null ? null : bonusGameObject.name,bonusTypeJsonObject.resourceId,bonusDataJsonObject.parachuteResource,bonusDataJsonObject.parachuteInnerResource,bonusDataJsonObject.pickupSoundResource);
 
             Model.object = bonusGameObject;
+            try
+            {
 
             bonusCommonCC = new BonusCommonCC();
             bonusCommonCC.boxResource = Tanks3DSResource(resourceRegistry.getResource(Long.getLong(0,bonusTypeJsonObject.resourceId)));
@@ -921,7 +944,7 @@ package scpacker.networking.protocol.packets.battle
             this.bonusLightModel.putInitParams(new BonusLightCC(bonusTypeJsonObject.lighting.attenuationBegin,bonusTypeJsonObject.lighting.attenuationEnd,bonusTypeJsonObject.lighting.intensity,bonusTypeJsonObject.lighting.color));
             bonusCommonModel.objectLoaded();
 
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
       }
 
@@ -957,8 +980,10 @@ package scpacker.networking.protocol.packets.battle
          GoldBoxDiagnostics.onBatchSpawnPacket(parsedCount,bonuses.length,selectedTargetCount,unresolvedCount);
 
          Model.object = battlefieldGameObject;
+         try
+         {
          battlefieldBonusesModel.initBonuses(bonuses);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function addBonus(param1:AddBonusBoxInPacket) : void
@@ -972,8 +997,10 @@ package scpacker.networking.protocol.packets.battle
          GoldBoxDiagnostics.recordRawBonusAdd(param1.bonusId,bonusSpawnData.bonusId,param1.position.x,param1.position.y,param1.position.z,bonusSpawnData.battleBonusObject == null ? null : bonusSpawnData.battleBonusObject.name,bonusSpawnData.battleBonusObject != null,"AddBonusBoxInPacket",true);
 
          Model.object = battlefieldGameObject;
+         try
+         {
          battlefieldBonusesModel.spawnBonuses(new <BonusSpawnData>[bonusSpawnData]);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function removeBonus(param1:RemoveBonusBoxInPacket) : void
@@ -982,8 +1009,10 @@ package scpacker.networking.protocol.packets.battle
          GoldBoxDiagnostics.recordRawResponse("REMOVE_BONUS_PACKET_RECEIVED",param1.bonusId,_loc2_,this.battlefieldBonusesModel.hasBonusForDiagnostics(_loc2_));
          GoldBoxDiagnostics.responseReceived(param1.bonusId,"REMOVE_RESPONSE");
          Model.object = battlefieldGameObject;
+         try
+         {
          this.battlefieldBonusesModel.removeBonuses(new <Long>[_loc2_]);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function bonusTake(param1:TakeBonusBoxInPacket) : void
@@ -992,8 +1021,10 @@ package scpacker.networking.protocol.packets.battle
          GoldBoxDiagnostics.recordRawResponse("TAKE_BONUS_PACKET_RECEIVED",param1.bonusId,_loc2_,this.battlefieldBonusesModel.hasBonusForDiagnostics(_loc2_));
          GoldBoxDiagnostics.responseReceived(param1.bonusId,"TAKE_RESPONSE");
          Model.object = battlefieldGameObject;
+         try
+         {
          this.battlefieldBonusesModel.bonusTaken(_loc2_);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
 
       private function unloadBattle() : void

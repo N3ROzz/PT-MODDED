@@ -42,8 +42,10 @@ package scpacker.networking.protocol.packets.isida
          var turretGameObject:IGameObject = CoreUtils.getTurretObjectByTankName(param1.shooter);
          
          Model.object = turretGameObject;
+         try
+         {
          this.isisdaModel.resetTarget();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function setTarget(param1:SetIsidaTargetInPacket) : void
@@ -51,8 +53,10 @@ package scpacker.networking.protocol.packets.isida
          var turretGameObject:IGameObject = CoreUtils.getTurretObjectByTankName(param1.shooter);
          
          Model.object = turretGameObject;
+         try
+         {
          this.isisdaModel.setTarget(param1.currentState,param1.target);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function stop(param1:StopIsidaInPacket) : void
@@ -60,8 +64,10 @@ package scpacker.networking.protocol.packets.isida
          var turretGameObject:IGameObject = CoreUtils.getTurretObjectByTankName(param1.shooter);
          
          Model.object = turretGameObject;
+         try
+         {
          this.isisdaModel.stopWeapon();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
    }
 }

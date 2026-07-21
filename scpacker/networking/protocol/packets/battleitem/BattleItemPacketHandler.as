@@ -69,8 +69,10 @@ package scpacker.networking.protocol.packets.battleitem
          if(_loc2_ != null)
          {
             Model.object = _loc2_;
+            try
+            {
             //this.newname_5446__END.madePrivate();
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
       }
       
@@ -80,8 +82,10 @@ package scpacker.networking.protocol.packets.battleitem
          if(_loc2_ != null)
          {
             Model.object = _loc2_;
+            try
+            {
             this.battleInfoModel.setBattleName(param1.battleName);
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
       }
       
@@ -91,8 +95,10 @@ package scpacker.networking.protocol.packets.battleitem
          if(_loc2_ != null)
          {
             Model.object = _loc2_;
+            try
+            {
             this.battleInfoModel.updateSuspicion(param1.suspicionLevel);
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
       }
       
@@ -105,8 +111,10 @@ package scpacker.networking.protocol.packets.battleitem
             userInfo.user = param1.userId;
 
             Model.object = _loc2_;
+            try
+            {
             this.battleDmInfoModel.addUser(userInfo);
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
       }
       
@@ -116,8 +124,10 @@ package scpacker.networking.protocol.packets.battleitem
          if(_loc2_ != null)
          {
             Model.object = _loc2_;
+            try
+            {
             this.battleDmInfoModel.removeUser(param1.userId);
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
       }
       
@@ -127,8 +137,10 @@ package scpacker.networking.protocol.packets.battleitem
          if(_loc2_ != null)
          {
             Model.object = _loc2_;
+            try
+            {
             this.battleTeamInfoModel.removeUser(param1.userId);
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
       }
       
@@ -141,8 +153,10 @@ package scpacker.networking.protocol.packets.battleitem
             userInfo.user = param1.userId;
 
             Model.object = _loc2_;
+            try
+            {
             this.battleTeamInfoModel.addUser(userInfo,param1.team);
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
       }
       
@@ -152,8 +166,10 @@ package scpacker.networking.protocol.packets.battleitem
          if(_loc2_ != null)
          {
             Model.object = _loc2_;
+            try
+            {
             this.battleTeamInfoModel.swapTeams();
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
       }
    }

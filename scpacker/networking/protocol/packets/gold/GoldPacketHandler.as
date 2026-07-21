@@ -49,25 +49,31 @@ package scpacker.networking.protocol.packets.gold
       {
          GoldBoxDiagnostics.recordGlobalEvent("GOLD_TAKEN_ANNOUNCEMENT","packetId=" + GoldTakenInPacket.id + " username=" + GoldBoxDiagnostics.sanitize(param1.username).replace(/\s+/g,"_"));
          Model.object = BattlePacketHandler.battlefieldGameObject; // This is technically wrong object, but it works, because it is in right space only the space is curretnly used from it inside the model.
+         try
+         {
          this.battleGoldBonusesModel.goldTaken(TankNameGameObjectMapper.getGameObjectByTankName(param1.username));
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function notificationBonusContainsUid(param1:NotificationBonusContainsUidInPacket) : void
       {
          GoldBoxDiagnostics.recordGlobalEvent("GOLD_NOTIFICATION_UID_PACKET_RECEIVED","packetId=" + NotificationBonusContainsUidInPacket.id + " reason=" + GoldBoxDiagnostics.sanitize(param1.reason).replace(/\s+/g,"_") + " username=" + GoldBoxDiagnostics.sanitize(param1.username).replace(/\s+/g,"_") + " uid=" + GoldBoxDiagnostics.sanitize(param1.uid).replace(/\s+/g,"_"));
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          var reason:String = param1.reason.replace("%USERNAME%",param1.username);
          this.goldBonusModel.notificationProtanki(reason, null);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function notificationBonus(param1:NotificationBonusInPacket) : void
       {
          GoldBoxDiagnostics.recordGlobalEvent("GOLD_NOTIFICATION_PACKET_RECEIVED","packetId=" + NotificationBonusInPacket.id + " reason=" + GoldBoxDiagnostics.sanitize(param1.reason).replace(/\s+/g,"_") + " soundPresent=" + (param1.soundId != null ? "1" : "0"));
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          this.goldBonusModel.notificationProtanki(param1.reason, param1.soundId as SoundResource);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
    }
 }

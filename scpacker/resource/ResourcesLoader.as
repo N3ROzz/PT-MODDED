@@ -7,8 +7,6 @@ package scpacker.resource
    import platform.client.fp10.core.registry.ResourceRegistry;
    import platform.client.fp10.core.resource.Resource;
    import platform.client.fp10.core.resource.ResourceInfo;
-   import platform.client.fp10.core.type.impl.GameObject;
-   import platform.client.fp10.core.model.impl.Model;
    
    public class ResourcesLoader
    {
@@ -21,9 +19,6 @@ package scpacker.resource
       
       public function getResourceDependencies(param1:String, param2:int) : ObjectsDependencies
       {
-         var _loc4_:* = new GameObject(Long.getLong(1,1),null,"ResourceObject",null);
-         Model.objects[Model.objects.length] = Model.object;
-         Model.object = _loc4_;
          return new ObjectsDependencies(param2,this.getResources(param1));
       }
       
@@ -94,4 +89,3 @@ package scpacker.resource
       }
    }
 }
-

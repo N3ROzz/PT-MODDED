@@ -47,37 +47,47 @@ package scpacker.networking.protocol.packets.capturetheflag
       {
          BattlePacketHandler.battlefieldGameObject.gameClass.models.push(this.ctfModel.id);
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          this.ctfModel.putInitParams(param1.cc);
          this.ctfModel.objectLoadedPost();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function dropFlag(param1:DropFlagInPacket) : void
       {
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          this.ctfModel.dropFlag(param1.position,param1.flagTeam);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function flagDelivered(param1:FlagDeliveredInPacket) : void
       {
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          this.ctfModel.flagDelivered(param1.winnerTeam,param1.delivererTankId);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function flagTaken(param1:FlagTakenInPacket) : void
       {
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          this.ctfModel.flagTaken(param1.tankId,param1.flagTeam);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function returnFlagToBase(param1:ReturnFlagToBaseInPacket) : void
       {
          Model.object = BattlePacketHandler.battlefieldGameObject;
+         try
+         {
          this.ctfModel.returnFlagToBase(param1.flagTeam,TankNameGameObjectMapper.getGameObjectByTankName(param1.tank));
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
    }
 }

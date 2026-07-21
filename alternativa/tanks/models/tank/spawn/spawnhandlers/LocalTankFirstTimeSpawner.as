@@ -47,9 +47,7 @@ package alternativa.tanks.models.tank.spawn.spawnhandlers
       
       private function spawn() : void
       {
-         Model.object = this.user;
-         this.server.readyToSpawnCommand();
-         Model.popObject();
+         Model.withObject(this.user,this.server.readyToSpawnCommand);
       }
       
       [Obfuscation(rename="false")]
@@ -61,4 +59,3 @@ package alternativa.tanks.models.tank.spawn.spawnhandlers
       }
    }
 }
-

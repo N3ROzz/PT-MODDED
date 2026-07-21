@@ -5,6 +5,8 @@ package scpacker.networking.protocol.packets.init
    import alternativa.tanks.loader.ILoaderWindowService;
    import alternativa.tanks.servermodels.EntranceModel;
    import platform.client.fp10.core.model.impl.Model;
+   import platform.client.fp10.core.type.IGameObject;
+   import platform.client.fp10.core.type.impl.GameObject;
    import platform.loading.DispatcherModel;
    import scpacker.networking.protocol.AbstractPacketHandler;
    import scpacker.networking.protocol.AbstractPacket;
@@ -49,8 +51,16 @@ package scpacker.networking.protocol.packets.init
       
       private function loadResources(param1:LoadResourcesInPacket) : void
       {
-         this.dispatcherModel.loadDependencies(this.resourcesLoader.getResourceDependencies(param1.resourcesJson,param1.callbackId));
-         Model.popObject();
+         var _loc2_:IGameObject = new GameObject(Long.getLong(1,1),null,"ResourceObject",null);
+         Model.object = _loc2_;
+         try
+         {
+            this.dispatcherModel.loadDependencies(this.resourcesLoader.getResourceDependencies(param1.resourcesJson,param1.callbackId));
+         }
+         finally
+         {
+            Model.popObject();
+         }
       }
       
       private function hideLoader() : void
@@ -67,4 +77,3 @@ package scpacker.networking.protocol.packets.init
       }
    }
 }
-

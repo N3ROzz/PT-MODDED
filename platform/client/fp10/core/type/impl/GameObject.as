@@ -241,15 +241,21 @@ package platform.client.fp10.core.type.impl
          var _loc1_:Long = null;
          var _loc2_:IModel = null;
          Model.object = this;
-         for each(_loc1_ in this.gameClass.models)
+         try
          {
-            _loc2_ = modelRegistry.getModel(_loc1_);
-            if(_loc2_ != null)
+            for each(_loc1_ in this.gameClass.models)
             {
-               _loc2_.clearInitParams();
+               _loc2_ = modelRegistry.getModel(_loc1_);
+               if(_loc2_ != null)
+               {
+                  _loc2_.clearInitParams();
+               }
             }
          }
-         Model.popObject();
+         finally
+         {
+            Model.popObject();
+         }
       }
       
       private function resetInterfaceCache() : void
@@ -276,4 +282,3 @@ package platform.client.fp10.core.type.impl
       }
    }
 }
-

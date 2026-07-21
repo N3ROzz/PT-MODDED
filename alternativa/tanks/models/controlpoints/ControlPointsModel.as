@@ -147,10 +147,7 @@ package alternativa.tanks.models.controlpoints
       
       private function getMyData(param1:Class) : Object
       {
-         Model.object = this.gameObject;
-         var _loc2_:Object = getData(param1);
-         Model.popObject();
-         return _loc2_;
+         return Model.withObject(this.gameObject,getData,param1);
       }
       
       private function onTankRemovedFromBattle(param1:TankRemovedFromBattleEvent) : void
@@ -519,4 +516,3 @@ package alternativa.tanks.models.controlpoints
       }
    }
 }
-

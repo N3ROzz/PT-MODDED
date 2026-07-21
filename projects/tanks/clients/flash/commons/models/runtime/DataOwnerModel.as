@@ -29,12 +29,7 @@ package projects.tanks.clients.flash.commons.models.runtime
       
       private function getDataOwnerIdFor(param1:IGameObject) : Long
       {
-         var _loc2_:Long = null;
-         Model.object = param1;
-         _loc2_ = getInitParam().dataOwnerId;
-         Model.popObject();
-         return _loc2_;
+         return Model.withObject(param1,getInitParam).dataOwnerId;
       }
    }
 }
-

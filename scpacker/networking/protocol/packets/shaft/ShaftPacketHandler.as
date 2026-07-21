@@ -52,15 +52,19 @@ package scpacker.networking.protocol.packets.shaft
       private function handleActivateManualTargeting(param1:ShaftActivateManualTargetingInPacket) : void
       {
          Model.object = CoreUtils.getTurretObjectByTankName(param1.shooter);
+         try
+         {
          this.shaftfmodel.activateManualTargeting(TankNameGameObjectMapper.getGameObjectByTankName(param1.shooter));
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function handleLaserAimAtTank(param1:ShaftLaserAimAtTankInPacket) : void
       {
          Model.object = CoreUtils.getTurretObjectByTankName(param1.shooterId);
+         try
+         {
          this.laserPointerModel.aimRemoteAtTank(TankNameGameObjectMapper.getGameObjectByTankName(param1.targetTank),param1.localSpotPosition);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function handleShootTarget(param1:ShaftShootTargetInPacket) : void
@@ -77,29 +81,37 @@ package scpacker.networking.protocol.packets.shaft
          }
 
          Model.object = CoreUtils.getTurretObjectByTankName(param1.shooter);
+         try
+         {
          this.shaftfmodel.fire(TankNameGameObjectMapper.getGameObjectByTankName(param1.shooter),param1.staticHitPoint,targetGameObjects,param1.targetHitPoints,param1.impactForce);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function handleLaserHide(param1:ShaftLaserHideInPacket) : void
       {
          Model.object = CoreUtils.getTurretObjectByTankName(param1.shooterId);
+         try
+         {
          this.laserPointerModel.hideRemote();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function handleStopManualTargeting(param1:ShaftStopManualTargetingInPacket) : void
       {
          Model.object = CoreUtils.getTurretObjectByTankName(param1.shooter);
+         try
+         {
          this.shaftfmodel.stopManulaTargeting(TankNameGameObjectMapper.getGameObjectByTankName(param1.shooter));
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function handleLaserUpdateDirection(param1:ShaftLaserUpdateDirectionInPacket) : void
       {
          Model.object = CoreUtils.getTurretObjectByTankName(param1.shooterId);
+         try
+         {
          this.laserPointerModel.updateRemoteDirection(param1.projectionOnVerticalAxis);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
    }
 }

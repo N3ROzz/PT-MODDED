@@ -77,9 +77,7 @@ package platform.client.fp10.core.registry.impl
          var _loc5_:Model = Model(this.modelById[_loc4_]);
          if(_loc5_ != null)
          {
-            Model.object = param1;
-            _loc5_.invoke(param2,param3);
-            Model.popObject();
+            Model.withObject(param1,_loc5_.invoke,param2,param3);
          }
       }
       
@@ -124,4 +122,3 @@ package platform.client.fp10.core.registry.impl
       }
    }
 }
-

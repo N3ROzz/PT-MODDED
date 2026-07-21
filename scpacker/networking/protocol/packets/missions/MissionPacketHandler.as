@@ -51,43 +51,55 @@ package scpacker.networking.protocol.packets.missions
       private function showQuestWindow(param1:ShowQuestWindowInPacket) : void
       {
          Model.object = PanelPacketHandler.dailyQuestGameObject;
+         try
+         {
          this.questShowingModel.showQuestWindow(param1.missions,param1.weeklyStreakInfo);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function skipDailyQuest(param1:SkipDailyQuestInPacket) : void
       {
          Model.object = PanelPacketHandler.dailyQuestGameObject;
+         try
+         {
          this.questShowingModel.skipDailyQuest(Long.getLong(0,param1.missionId),param1.mission);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function showQuestWindowWithoutDailyQuests(param1:ShowQuestWindowWithoutDailyQuestsInPacket) : void
       {
          Model.object = PanelPacketHandler.dailyQuestGameObject;
+         try
+         {
          this.questShowingModel.showQuestWindowWithoutDailyQuests(param1.weeklyStreakInfo);
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function takeDailyQuestPrize(param1:TakeDailyQuestPrizeInPacket) : void
       {
          Model.object = PanelPacketHandler.dailyQuestGameObject;
+         try
+         {
          this.questShowingModel.takeDailyQuestPrize(Long.getLong(0,param1.missionId));
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function notifyDailyQuestCompleted() : void
       {
          Model.object = PanelPacketHandler.dailyQuestGameObject;
+         try
+         {
          this.dailyQuestNotifierModel.notifyDailyQuestCompleted();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       private function notifyDailyQuestGenerated() : void
       {
          Model.object = PanelPacketHandler.dailyQuestGameObject;
+         try
+         {
          this.dailyQuestNotifierModel.notifyDailyQuestGenerated();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
    }
 }

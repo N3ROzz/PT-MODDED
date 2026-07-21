@@ -38,8 +38,10 @@ package scpacker.networking.protocol.packets.selfdestruct
          if(tankGameObject != null)
          {
             Model.object = tankGameObject;
+            try
+            {
             this.suicideModel.suicide(param1.delay);
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
       }
    }

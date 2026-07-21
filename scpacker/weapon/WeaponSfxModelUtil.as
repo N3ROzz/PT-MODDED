@@ -102,6 +102,8 @@ package scpacker.weapon
          initializeBCSHModelForGameObject(sfxDataJsonObject,gameObject);
          var lightingEffectEntity:LightingSFXEntity = createLightingEffectEntity(sfxDataJsonObject,gameObject);
          Model.object = gameObject;
+         try
+         {
          switch(weaponName.split("_")[0])
          {
             case "smoky":
@@ -140,7 +142,11 @@ package scpacker.weapon
             //case "artillery":
             //   createArtillerySfx(param1,param3);
          }
-         Model.popObject();
+         }
+         finally
+         {
+            Model.popObject();
+         }
       }
       
       public static function initializeBCSHModelForGameObject(param1:Object, gameObject:IGameObject) : void
@@ -163,9 +169,11 @@ package scpacker.weapon
             _loc3_[_loc3_.length] = _loc5_;
          }
          Model.object = gameObject;
+         try
+         {
          modelRegistry.getModel(gameObject.gameClass.models[3]).putInitParams(new BCSHModelCC(_loc3_));
          ObjectLoadListener(modelRegistry.getModel(gameObject.gameClass.models[3])).objectLoaded();
-         Model.popObject();
+         }          finally          {             Model.popObject();          }
       }
       
       public static function createLightingEffectEntity(param1:Object, param2:IGameObject) : LightingSFXEntity
@@ -217,9 +225,11 @@ package scpacker.weapon
             _loc3_.trailImage = ImageResource(resourceRegistry.getResource(Long.getLong(0,param2.trailImage)));
             _loc3_.lightingSFXEntity = lightingEffectEntity;
             Model.object = gameObject;
+            try
+            {
             _loc4_.putInitParams(_loc3_);
             _loc4_.objectLoadedPost();
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
          return _loc4_;
       }
@@ -242,9 +252,11 @@ package scpacker.weapon
             _loc3_.shotTexture = ImageResource(resourceRegistry.getResource(Long.getLong(0,param2.shotTexture)));
             _loc3_.lightingSFXEntity = lightingEffectEntity;
             Model.object = gameObject;
+            try
+            {
             _loc4_.putInitParams(_loc3_);
             _loc4_.objectLoaded();
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
          return _loc4_;
       }
@@ -282,10 +294,12 @@ package scpacker.weapon
             }
 
             Model.object = gameObject;
+            try
+            {
             _loc7_.putInitParams(_loc3_);
             _loc7_.objectLoaded();
             _loc7_.initColorTransform(_loc6_);
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
          return _loc7_;
       }
@@ -305,9 +319,11 @@ package scpacker.weapon
             _loc3_.shotTexture = MultiframeImageResource(resourceRegistry.getResource(Long.getLong(0,param2.shotTexture)));
             _loc3_.lightingSFXEntity = lightingEffectEntity;
             Model.object = gameObject;
+            try
+            {
             _loc4_.putInitParams(_loc3_);
             _loc4_.objectLoadedPost();
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
          return _loc4_;
       }
@@ -329,9 +345,11 @@ package scpacker.weapon
             _loc3_.idleSound = SoundResource(resourceRegistry.getResource(Long.getLong(0,param2.idleSound)));
             _loc3_.lightingSFXEntity = lightingEffectEntity;
             Model.object = gameObject;
+            try
+            {
             _loc4_.putInitParams(_loc3_);
             _loc4_.objectLoadedPost();
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
          return _loc4_;
       }
@@ -352,9 +370,11 @@ package scpacker.weapon
             _loc3_.shotTexture = ImageResource(resourceRegistry.getResource(Long.getLong(0,param2.shotTexture)));
             _loc3_.lightingSFXEntity = lightingEffectEntity;
             Model.object = gameObject;
+            try
+            {
             _loc4_.putInitParams(_loc3_);
             _loc4_.objectLoaded();
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
          return _loc4_;
       }
@@ -373,9 +393,11 @@ package scpacker.weapon
             _loc3_.shotSoundResource = SoundResource(resourceRegistry.getResource(Long.getLong(0,param2.shotSoundResource)));
             _loc3_.lightingSFXEntity = lightingEffectEntity;
             Model.object = gameObject;
+            try
+            {
             _loc4_.putInitParams(_loc3_);
             _loc4_.objectLoaded();
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
          return _loc4_;
       }
@@ -398,9 +420,11 @@ package scpacker.weapon
             _loc3_.tailTrailTexutre = ImageResource(resourceRegistry.getResource(Long.getLong(0,param2.tailTrailTexutre)));
             _loc3_.lightingSFXEntity = lightingEffectEntity;
             Model.object = gameObject;
+            try
+            {
             _loc4_.putInitParams(_loc3_);
             _loc4_.objectLoadedPost();
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
          return _loc4_;
       }
@@ -423,9 +447,11 @@ package scpacker.weapon
             _loc4_.zoomModeSound = SoundResource(resourceRegistry.getResource(Long.getLong(0,param2.zoomModeSound)));
             _loc4_.lightingSFXEntity = lightingEffectEntity;
             Model.object = gameObject;
+            try
+            {
             _loc3_.putInitParams(_loc4_);
             _loc3_.objectLoadedPost();
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
          return _loc3_;
       }
@@ -453,9 +479,11 @@ package scpacker.weapon
             _loc3_.sparkleTexture = ImageResource(resourceRegistry.getResource(Long.getLong(0,param2.sparkleTexture)));
             _loc3_.lightingSFXEntity = lightingEffectEntity;
             Model.object = gameObject;
+            try
+            {
             _loc4_.putInitParams(_loc3_);
             _loc4_.objectLoadedPost();
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
          return _loc4_;
       }
@@ -485,9 +513,11 @@ package scpacker.weapon
             _loc4_.turbineStartSound = SoundResource(resourceRegistry.getResource(Long.getLong(0,param2.turbineStartSound)));
             _loc4_.lightingSFXEntity = lightingEffectEntity;
             Model.object = gameObject;
+            try
+            {
             _loc3_.putInitParams(_loc4_);
             _loc3_.objectLoadedPost();
-            Model.popObject();
+            }             finally             {                Model.popObject();             }
          }
          return _loc3_;
       }
@@ -525,4 +555,3 @@ package scpacker.weapon
       //}
    }
 }
-
