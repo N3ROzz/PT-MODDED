@@ -20,6 +20,7 @@ package alternativa.tanks.models.weapon.shotgun
    import projects.tanks.client.battlefield.models.tankparts.weapons.common.discrete.TargetHit;
    import projects.tanks.client.battlefield.models.tankparts.weapons.shotgun.shot.IShotgunShotModelBase;
    import projects.tanks.client.battlefield.models.tankparts.weapons.shotgun.shot.ShotgunShotModelBase;
+   import utils.HammerDiagnostics;
    
    [ModelInfo]
    public class ShotgunModel extends ShotgunShotModelBase implements IShotgunShotModelBase, IWeaponModel, DiscreteWeaponListener
@@ -59,13 +60,34 @@ package alternativa.tanks.models.weapon.shotgun
       
       public function onShot(param1:IGameObject, param2:Vector3, param3:Vector.<TargetHit>) : void
       {
+         if(HammerDiagnostics.ENABLED)
+         {
+            HammerDiagnostics.log("HAMMER_SHOT_MODEL_BEGIN","shooter=" + (param1 == null ? "null" : param1.name) + " isLocalShooter=" + int(param1 == this.shooter));
+            HammerDiagnostics.logTargetHits("HAMMER_SHOT_MODEL_TARGETS",param3);
+         }
          var _loc4_:Tank = this.calculateGunParams(param1);
          if(_loc4_ != null && param1 != this.shooter)
          {
+            if(HammerDiagnostics.ENABLED)
+            {
+               HammerDiagnostics.log("HAMMER_REMOTE_MODEL_SFX_BEGIN");
+            }
             getEffects().createShotEffects(new ShotgunObject(object),this.gunParams,_loc4_,param2);
+            if(HammerDiagnostics.ENABLED)
+            {
+               HammerDiagnostics.log("HAMMER_REMOTE_MODEL_SFX_RETURNED");
+            }
             _loc4_.addDust();
          }
+         if(HammerDiagnostics.ENABLED)
+         {
+            HammerDiagnostics.log("HAMMER_IMPACT_APPLY_BEGIN");
+         }
          this.applyImpact(param3);
+         if(HammerDiagnostics.ENABLED)
+         {
+            HammerDiagnostics.log("HAMMER_IMPACT_APPLY_RETURNED");
+         }
       }
       
       private function aiming() : ShotgunAiming

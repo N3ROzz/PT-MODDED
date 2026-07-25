@@ -6,6 +6,8 @@ package alternativa.tanks.models.weapon.shotgun
    public class PelletDirectionCalculator
    {
       
+      private static const SPREAD_ANGLE_SCALE:Number = 0.75;
+      
       private static const horizontalVector:Vector3 = new Vector3();
       
       private static const verticalVector:Vector3 = new Vector3();
@@ -23,8 +25,8 @@ package alternativa.tanks.models.weapon.shotgun
       public function PelletDirectionCalculator(param1:ShotGunAimingCC)
       {
          super();
-         this.MAX_X = Math.tan(param1.coneHorizontalAngle * 0.5);
-         this.MAX_Y = Math.tan(param1.coneVerticalAngle * 0.5);
+         this.MAX_X = Math.tan(param1.coneHorizontalAngle * 0.5 * SPREAD_ANGLE_SCALE);
+         this.MAX_Y = Math.tan(param1.coneVerticalAngle * 0.5 * SPREAD_ANGLE_SCALE);
          this.params = param1;
          this.directions = new Vector.<Vector3>(param1.pelletCount,true);
          this.result = new Vector.<Vector3>(param1.pelletCount,true);
@@ -85,4 +87,3 @@ package alternativa.tanks.models.weapon.shotgun
       }
    }
 }
-

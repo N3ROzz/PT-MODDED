@@ -2,15 +2,16 @@ package alternativa.tanks.models.weapon.shotgun
 {
    import alternativa.math.Vector3;
    import alternativa.tanks.battle.BattleUtils;
-   import alternativa.tanks.battle.objects.tank.Tank;
    import alternativa.tanks.battle.objects.tank.WeaponPlatform;
    import alternativa.tanks.models.weapon.common.WeaponCommonData;
    import alternativa.tanks.models.weapon.shotgun.sfx.ShotgunEffects;
    import alternativa.tanks.models.weapon.weakening.DistanceWeakening;
    import alternativa.tanks.models.weapons.common.CommonLocalWeapon;
    import flash.utils.getTimer;
+   import projects.tanks.client.battlefield.models.tankparts.weapons.common.TargetPosition;
    import projects.tanks.client.battlefield.models.tankparts.weapons.shotgun.shot.ShotgunShotCC;
    import projects.tanks.client.garage.models.item.properties.ItemProperty;
+   import utils.HammerDiagnostics;
    
    public class ShotgunWeapon extends CommonLocalWeapon
    {
@@ -68,7 +69,11 @@ package alternativa.tanks.models.weapon.shotgun
       
       private function shoot(param1:int) : void
       {
-         var _loc4_:Vector.<Tank> = null;
+         var _loc4_:Vector.<TargetPosition> = null;
+         if(HammerDiagnostics.ENABLED)
+         {
+            HammerDiagnostics.log("HAMMER_LOCAL_SHOT_BEGIN","clientTime=" + param1 + " remainingShots=" + this.reminderShots);
+         }
          this.lastShotTime = param1;
          var _loc2_:WeaponPlatform = this.getWeaponPlatform();
          if(this.reminderShots == 0)
@@ -92,18 +97,71 @@ package alternativa.tanks.models.weapon.shotgun
          _loc2_.getAllGunParams(gunParams);
          var _loc3_:WeaponCommonData = this.weaponObject.commonData();
          _loc2_.getBody().addWorldForceScaled(gunParams.barrelOrigin,gunParams.direction,-_loc3_.getRecoilForce());
+         if(HammerDiagnostics.ENABLED)
+         {
+            HammerDiagnostics.log("HAMMER_RECOIL_APPLIED","force=" + _loc3_.getRecoilForce() + " direction=(" + gunParams.direction.x + "," + gunParams.direction.y + "," + gunParams.direction.z + ")");
+         }
          _loc2_.addDust();
          if(BattleUtils.isTurretAboveGround(_loc2_.getBody(),gunParams))
          {
             _loc4_ = this.targeting.getShotDirection(gunParams,_loc2_.getBody(),this.bestDirection);
-            this.weaponObject.discrete().tryToShoot(param1,this.bestDirection,_loc4_);
+            HammerDiagnostics.logTargets("HAMMER_TARGETING_COMPLETE",_loc4_);
+            if(HammerDiagnostics.ENABLED)
+            {
+               HammerDiagnostics.log("HAMMER_PACKET_SEND_BEGIN","packetId=-541655881 direction=(" + this.bestDirection.x + "," + this.bestDirection.y + "," + this.bestDirection.z + ")");
+            }
+            try
+            {
+               this.weaponObject.discrete().tryToShoot(param1,this.bestDirection,_loc4_);
+               if(HammerDiagnostics.ENABLED)
+               {
+                  HammerDiagnostics.log("HAMMER_PACKET_SEND_RETURNED","packetId=-541655881");
+               }
+            }
+            catch(error:Error)
+            {
+               HammerDiagnostics.logError("HAMMER_PACKET_SEND_FAILED",error);
+               throw error;
+            }
          }
          else
          {
             this.bestDirection.copy(gunParams.direction);
-            this.weaponObject.discrete().tryToDummyShoot(param1,this.bestDirection);
+            if(HammerDiagnostics.ENABLED)
+            {
+               HammerDiagnostics.log("HAMMER_DUMMY_PACKET_SEND_BEGIN","packetId=2128281231");
+            }
+            try
+            {
+               this.weaponObject.discrete().tryToDummyShoot(param1,this.bestDirection);
+               if(HammerDiagnostics.ENABLED)
+               {
+                  HammerDiagnostics.log("HAMMER_DUMMY_PACKET_SEND_RETURNED","packetId=2128281231");
+               }
+            }
+            catch(dummyError:Error)
+            {
+               HammerDiagnostics.logError("HAMMER_DUMMY_PACKET_SEND_FAILED",dummyError);
+               throw dummyError;
+            }
          }
-         this.effects.createShotEffects(this.weaponObject,gunParams,_loc2_,this.bestDirection);
+         if(HammerDiagnostics.ENABLED)
+         {
+            HammerDiagnostics.log("HAMMER_LOCAL_SFX_BEGIN");
+         }
+         try
+         {
+            this.effects.createShotEffects(this.weaponObject,gunParams,_loc2_,this.bestDirection);
+            if(HammerDiagnostics.ENABLED)
+            {
+               HammerDiagnostics.log("HAMMER_LOCAL_SFX_RETURNED");
+            }
+         }
+         catch(sfxError:Error)
+         {
+            HammerDiagnostics.logError("HAMMER_LOCAL_SFX_FAILED",sfxError);
+            throw sfxError;
+         }
       }
       
       override public function reset() : void

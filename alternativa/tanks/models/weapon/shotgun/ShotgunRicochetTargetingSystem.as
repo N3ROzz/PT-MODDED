@@ -3,9 +3,9 @@ package alternativa.tanks.models.weapon.shotgun
    import alternativa.math.Matrix3;
    import alternativa.math.Vector3;
    import alternativa.physics.Body;
-   import alternativa.physics.collision.IRayCollisionFilter;
    import alternativa.physics.collision.types.RayHit;
    import alternativa.tanks.battle.BattleService;
+   import alternativa.tanks.battle.BattleUtils;
    import alternativa.tanks.battle.objects.tank.Tank;
    import alternativa.tanks.models.weapon.AllGlobalGunParams;
    import alternativa.tanks.models.weapon.RayCollisionFilter;
@@ -14,239 +14,129 @@ package alternativa.tanks.models.weapon.shotgun
    import alternativa.tanks.models.weapon.shared.CommonTargetEvaluator;
    import alternativa.tanks.physics.CollisionGroup;
    import alternativa.tanks.physics.TanksCollisionDetector;
+   import projects.tanks.client.battlefield.models.tankparts.weapons.common.TargetPosition;
    import projects.tanks.client.battlefield.models.tankparts.weapons.shotgun.aiming.ShotGunAimingCC;
    
-   public class ShotgunRicochetTargetingSystem implements IRayCollisionFilter
+   public class ShotgunRicochetTargetingSystem
    {
       
-      [Inject] // added
+      [Inject]
       public static var battleService:BattleService;
+      
+      private static const TARGET_DIAMETER:Number = 90;
+      
+      private static const CENTER_DIRECTION_PENALTY:Number = 0.001;
       
       private static const rayHit:RayHit = new RayHit();
       
-      private static const currOrigin:Vector3 = new Vector3();
-      
-      private static const currDirection:Vector3 = new Vector3();
-      
       private static const direction:Vector3 = new Vector3();
       
-      private static const matrix:Matrix3 = new Matrix3();
+      private static const rotationMatrix:Matrix3 = new Matrix3();
       
-      private var maxDistance:Number;
+      private static const stepMatrix:Matrix3 = new Matrix3();
       
-      private var targetEvaluator:CommonTargetEvaluator;
+      private var candidateTargets:Vector.<TargetPosition>;
       
-      private var ricochetCount:int;
-      
-      private var shooterBody:Body;
-      
-      private var collisionDetector:TanksCollisionDetector;
-      
-      private var maxRicochetCount:int;
-      
-      private var directions:Vector.<ShotgunTargetingDirection>;
+      private var bestTargets:Vector.<TargetPosition>;
       
       private var pelletDirectionGenerator:PelletDirectionCalculator;
       
-      private var collisionFilter:RayCollisionFilter = new RayCollisionFilter();
+      private var directionCount:int;
       
-      private var autoAiming:VerticalAutoAiming;
+      private var collisionDetector:TanksCollisionDetector;
       
-      private var bestDirectionIndexs:Vector.<int>;
+      private var targetEvaluator:CommonTargetEvaluator;
       
-      private var angleStep:Number;
+      private var collisionFilter:RayCollisionFilter;
       
-      private var countSectors:int;
-      
-      private var lengthDirections:int;
+      private var weaponObject:WeaponObject;
       
       public function ShotgunRicochetTargetingSystem(param1:WeaponObject, param2:PelletDirectionCalculator, param3:ShotGunAimingCC)
       {
          super();
-         this.collisionFilter.exclusion = this.shooterBody;
-         this.autoAiming = param1.verticalAutoAiming();
-         this.maxDistance = param1.distanceWeakening().getDistance();
-         this.targetEvaluator = battleService.getCommonTargetEvaluator();
-         this.collisionDetector = battleService.getBattleRunner().getCollisionDetector();
+         this.candidateTargets = new Vector.<TargetPosition>();
+         this.bestTargets = new Vector.<TargetPosition>();
+         this.collisionFilter = new RayCollisionFilter();
          this.pelletDirectionGenerator = param2;
-         this.maxRicochetCount = 1;
-         this.lengthDirections = this.autoAiming.getNumRaysUp() + this.autoAiming.getNumRaysDown() + 1;
-         this.directions = new Vector.<ShotgunTargetingDirection>(this.lengthDirections);
-         this.angleStep = (this.autoAiming.getElevationAngleDown() + this.autoAiming.getElevationAngleUp()) / (this.autoAiming.getNumRaysDown() + this.autoAiming.getNumRaysUp());
-         this.countSectors = param3.coneVerticalAngle / this.angleStep;
-         this.bestDirectionIndexs = new Vector.<int>(this.countSectors);
+         this.weaponObject = param1;
+         this.directionCount = this.calculateDirectionCount(param1);
+         this.collisionDetector = battleService.getBattleRunner().getCollisionDetector();
+         this.targetEvaluator = battleService.getCommonTargetEvaluator();
       }
       
-      public function considerBody(param1:Body) : Boolean
+      public function getShotDirection(param1:AllGlobalGunParams, param2:Body, param3:Vector3) : Vector.<TargetPosition>
       {
-         return this.shooterBody != param1 || this.ricochetCount > 0;
-      }
-      
-      public function getShotDirection(param1:AllGlobalGunParams, param2:Body, param3:Vector3) : Vector.<Tank>
-      {
-         var _loc7_:Number = NaN;
-         var _loc8_:ShotgunTargetingDirection = null;
-         param3.copy(param1.direction);
-         this.shooterBody = param2;
+         var _loc14_:Number = NaN;
+         var _loc15_:Vector3 = null;
+         var _loc16_:Body = null;
+         var _loc17_:Tank = null;
+         var _loc18_:TargetPosition = null;
+         var _loc19_:Vector.<TargetPosition> = null;
+         this.pelletDirectionGenerator.next();
          this.collisionFilter.exclusion = param2;
-         var _loc4_:int = 0;
-         var _loc5_:Number = -this.autoAiming.getElevationAngleDown();
+         var _loc4_:VerticalAutoAiming = this.weaponObject.verticalAutoAiming();
+         var _loc5_:Number = _loc4_.getElevationAngleDown();
+         var _loc6_:Number = _loc4_.getElevationAngleUp();
+         var _loc7_:Number = this.weaponObject.distanceWeakening().getDistance();
+         var _loc8_:Number = this.weaponObject.distanceWeakening().getFullDamageDistance();
+         var _loc9_:Number = -_loc5_;
+         var _loc10_:Number = (_loc5_ + _loc6_) / (this.directionCount - 1);
+         var _loc11_:Number = Math.max(_loc5_,_loc6_);
          direction.copy(param1.direction);
-         matrix.fromAxisAngle(param1.elevationAxis,-this.autoAiming.getElevationAngleDown());
-         direction.transform3(matrix);
-         matrix.fromAxisAngle(param1.elevationAxis,this.angleStep);
-         while(_loc5_ < this.autoAiming.getElevationAngleUp() + this.angleStep && _loc4_ < this.lengthDirections)
+         rotationMatrix.fromAxisAngle(param1.elevationAxis,-_loc5_);
+         direction.transform3(rotationMatrix);
+         stepMatrix.fromAxisAngle(param1.elevationAxis,_loc10_);
+         var _loc12_:Number = -1;
+         var _loc13_:int = 0;
+         while(_loc13_ < this.directionCount)
          {
-            _loc7_ = this.procesingHitAndGetTargetPriority(param1.barrelOrigin,direction,_loc5_);
-            _loc8_ = this.directions[_loc4_];
-            if(_loc8_ == null)
+            this.candidateTargets.length = 0;
+            _loc14_ = _loc11_ == 0 ? 0 : -Math.abs(_loc9_) / _loc11_ * CENTER_DIRECTION_PENALTY;
+            for each(_loc15_ in this.pelletDirectionGenerator.getDirectionsFor(param1.elevationAxis,direction))
             {
-               _loc8_ = new ShotgunTargetingDirection(direction,_loc7_);
-            }
-            else
-            {
-               _loc8_.init(direction,_loc7_);
-            }
-            this.directions[_loc4_] = _loc8_;
-            _loc4_++;
-            _loc5_ += this.angleStep;
-            direction.transform3(matrix);
-         }
-         this.finishTargetSearch(param3);
-         var _loc6_:Vector.<Tank> = new Vector.<Tank>();
-         this.processDirection(param3,param1,_loc6_);
-         return _loc6_;
-      }
-      
-      private function procesingHitAndGetTargetPriority(param1:Vector3, param2:Vector3, param3:Number) : Number
-      {
-         var _loc5_:Body = null;
-         this.ricochetCount = 0;
-         currOrigin.copy(param1);
-         currDirection.copy(param2);
-         var _loc4_:Number = this.maxDistance;
-         while(_loc4_ > 0)
-         {
-            if(!this.collisionDetector.raycast(currOrigin,currDirection,CollisionGroup.WEAPON,_loc4_,this,rayHit))
-            {
-               return 0;
-            }
-            _loc4_ -= rayHit.t;
-            if(_loc4_ < 0)
-            {
-               _loc4_ = 0;
-            }
-            _loc5_ = rayHit.shape.body;
-            if(_loc5_.tank != null && _loc5_ != this.shooterBody)
-            {
-               return this.calculateTargetPriority(_loc5_,_loc4_,param3);
-            }
-            if(_loc5_.tank != null)
-            {
-               return 0;
-            }
-            if(!this.processRicochet())
-            {
-               return 0;
-            }
-         }
-         return 0;
-      }
-      
-      private function calculateTargetPriority(param1:Body, param2:Number, param3:Number) : Number
-      {
-         var _loc4_:Number = this.maxDistance - param2;
-         return this.targetEvaluator.getTargetPriority(param1,_loc4_,param3,this.maxDistance,Math.max(this.autoAiming.getElevationAngleUp(),this.autoAiming.getElevationAngleDown()));
-      }
-      
-      private function processRicochet() : Boolean
-      {
-         var _loc1_:Vector3 = null;
-         if(this.ricochetCount < this.maxRicochetCount)
-         {
-            ++this.ricochetCount;
-            _loc1_ = rayHit.normal;
-            currDirection.addScaled(-2 * currDirection.dot(_loc1_),_loc1_);
-            currOrigin.copy(rayHit.position).addScaled(0.5,_loc1_);
-            return true;
-         }
-         return false;
-      }
-      
-      private function finishTargetSearch(param1:Vector3) : void
-      {
-         var _loc6_:Number = NaN;
-         var _loc7_:int = 0;
-         var _loc8_:int = 0;
-         var _loc9_:int = 0;
-         this.shooterBody = null;
-         var _loc2_:Number = 0;
-         var _loc3_:int = 0;
-         var _loc4_:int = 0;
-         while(_loc4_ < this.directions.length)
-         {
-            _loc6_ = 0;
-            _loc7_ = this.countSectors / 2;
-            _loc8_ = -_loc7_;
-            while(_loc8_ <= _loc7_)
-            {
-               _loc9_ = _loc4_ + _loc8_;
-               if(_loc9_ >= 0 && _loc9_ < this.directions.length)
+               if(this.collisionDetector.raycast(param1.barrelOrigin,_loc15_,CollisionGroup.WEAPON,_loc7_,this.collisionFilter,rayHit))
                {
-                  _loc6_ += this.directions[_loc9_].getMaxPriority();
+                  _loc16_ = rayHit.shape.body;
+                  _loc17_ = _loc16_.tank;
+                  if(_loc17_ != null)
+                  {
+                     _loc18_ = BattleUtils.getTargetPosition(_loc17_);
+                     _loc18_.localHitPoint = BattleUtils.getVector3d(rayHit.position.clone());
+                     this.candidateTargets.push(_loc18_);
+                     _loc14_ += this.targetEvaluator.getTargetPriority(_loc16_,rayHit.t,_loc9_,_loc8_,_loc11_);
+                  }
                }
-               _loc8_++;
             }
-            if(_loc2_ < _loc6_)
+            if(_loc12_ < _loc14_)
             {
-               _loc2_ = _loc6_;
-               _loc3_ = 0;
-               this.bestDirectionIndexs[_loc3_] = _loc4_;
+               _loc12_ = _loc14_;
+               param3.copy(direction);
+               _loc19_ = this.candidateTargets;
+               this.candidateTargets = this.bestTargets;
+               this.bestTargets = _loc19_;
             }
-            else if(_loc6_ == _loc2_ && _loc6_ > 0)
+            if(_loc13_ + 1 < this.directionCount)
             {
-               _loc3_++;
-               this.bestDirectionIndexs[_loc3_] = _loc4_;
+               direction.transform3(stepMatrix);
+               _loc9_ += _loc10_;
             }
-            _loc4_++;
+            _loc13_++;
          }
-         var _loc5_:ShotgunTargetingDirection = this.directions[this.bestDirectionIndexs[_loc3_ >> 1]];
-         if(_loc5_.getMaxPriority() > 0)
+         this.candidateTargets.length = 0;
+         for each(_loc18_ in this.bestTargets)
          {
-            param1.copy(_loc5_.getDirection());
+            this.candidateTargets.push(_loc18_);
          }
+         this.bestTargets.length = 0;
+         return this.candidateTargets;
       }
       
-      private function processDirection(param1:Vector3, param2:AllGlobalGunParams, param3:Vector.<Tank>) : void
+      private function calculateDirectionCount(param1:WeaponObject) : int
       {
-         var _loc5_:Vector3 = null;
-         var _loc4_:Vector.<Vector3> = this.pelletDirectionGenerator.getDirectionsFor(param2.elevationAxis,param1.clone());
-         param3.length = 0;
-         for each(param1 in _loc4_)
-         {
-            if(!this.addTargetIfCollision(param2.barrelOrigin,param1,this.maxDistance,param3))
-            {
-               _loc5_ = rayHit.normal;
-               currDirection.addScaled(-2 * currDirection.dot(_loc5_),_loc5_);
-               currOrigin.copy(rayHit.position).addScaled(0.5,_loc5_);
-               this.addTargetIfCollision(currOrigin,currDirection,this.maxDistance,param3);
-            }
-         }
-      }
-      
-      private function addTargetIfCollision(param1:Vector3, param2:Vector3, param3:Number, param4:Vector.<Tank>) : Boolean
-      {
-         var _loc5_:Tank = null;
-         if(this.collisionDetector.raycast(param1,param2,CollisionGroup.WEAPON,param3,this.collisionFilter,rayHit))
-         {
-            _loc5_ = rayHit.shape.body.tank;
-            if(_loc5_ != null)
-            {
-               param4.push(_loc5_);
-               return true;
-            }
-         }
-         return false;
+         var _loc2_:VerticalAutoAiming = param1.verticalAutoAiming();
+         var _loc3_:Number = param1.distanceWeakening().getFullDamageDistance();
+         var _loc4_:Number = _loc2_.getElevationAngleDown() + _loc2_.getElevationAngleUp();
+         return Math.ceil(_loc4_ / (2 * Math.atan(TARGET_DIAMETER / (2 * _loc3_)))) + 1;
       }
    }
 }

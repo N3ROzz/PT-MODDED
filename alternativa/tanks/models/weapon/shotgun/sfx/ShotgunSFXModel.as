@@ -14,6 +14,7 @@ package alternativa.tanks.models.weapon.shotgun.sfx
    import projects.tanks.client.battlefield.models.tankparts.weapons.common.discrete.TargetHit;
    import projects.tanks.client.battlefield.models.tankparts.weapons.shotgun.sfx.IShotgunSFXModelBase;
    import projects.tanks.client.battlefield.models.tankparts.weapons.shotgun.sfx.ShotgunSFXModelBase;
+   import utils.HammerDiagnostics;
    
    [ModelInfo]
    public class ShotgunSFXModel extends ShotgunSFXModelBase implements IShotgunSFXModelBase, ShotgunSFX, ObjectLoadPostListener, DiscreteWeaponListener
@@ -43,7 +44,15 @@ package alternativa.tanks.models.weapon.shotgun.sfx
       
       public function onShot(param1:IGameObject, param2:Vector3, param3:Vector.<TargetHit>) : void
       {
+         if(HammerDiagnostics.ENABLED)
+         {
+            HammerDiagnostics.log("HAMMER_SFX_MODEL_BEGIN","shooter=" + (param1 == null ? "null" : param1.name));
+         }
          this.showShotEffects(param1,param2);
+         if(HammerDiagnostics.ENABLED)
+         {
+            HammerDiagnostics.log("HAMMER_SFX_MODEL_RETURNED");
+         }
       }
       
       private function showShotEffects(param1:IGameObject, param2:Vector3) : void
@@ -54,7 +63,15 @@ package alternativa.tanks.models.weapon.shotgun.sfx
          {
             this.calculateGunParams(param1);
             _loc4_ = _loc3_.getTank();
+            if(HammerDiagnostics.ENABLED)
+            {
+               HammerDiagnostics.log("HAMMER_REMOTE_SFX_BEGIN");
+            }
             this.getEffects().createShotEffects(this.weaponObject(),this.gunParams,_loc4_,param2);
+            if(HammerDiagnostics.ENABLED)
+            {
+               HammerDiagnostics.log("HAMMER_REMOTE_SFX_RETURNED");
+            }
          }
       }
       
@@ -84,4 +101,3 @@ package alternativa.tanks.models.weapon.shotgun.sfx
       }
    }
 }
-

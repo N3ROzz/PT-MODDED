@@ -1,9 +1,9 @@
 package alternativa.tanks.models.weapons.discrete
 {
    import alternativa.math.Vector3;
-   import alternativa.tanks.battle.objects.tank.Tank;
    import platform.client.fp10.core.model.impl.Model;
    import platform.client.fp10.core.type.IGameObject;
+   import projects.tanks.client.battlefield.models.tankparts.weapons.common.TargetPosition;
    
    public class DiscreteWeaponAdapt implements DiscreteWeapon
    {
@@ -19,11 +19,11 @@ package alternativa.tanks.models.weapons.discrete
          this.impl = param2;
       }
       
-      public function tryToShoot(param1:int, param2:Vector3, param3:Vector.<Tank>) : void
+      public function tryToShoot(param1:int, param2:Vector3, param3:Vector.<TargetPosition>) : void
       {
          var clientTime:int = param1;
          var direction:Vector3 = param2;
-         var targets:Vector.<Tank> = param3;
+         var targets:Vector.<TargetPosition> = param3;
          try
          {
             Model.object = this.object;
@@ -51,4 +51,3 @@ package alternativa.tanks.models.weapons.discrete
       }
    }
 }
-
