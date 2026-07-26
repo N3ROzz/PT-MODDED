@@ -956,28 +956,56 @@ package scpacker.networking.protocol.packets.battle
          var jsonObject:Object = JSON.parse(param1.json);
          var bonuses:Vector.<BonusSpawnData> = new Vector.<BonusSpawnData>();
          var parsedCount:int = 0;
+         var rejectedCount:int = 0;
          var selectedTargetCount:int = 0;
          var unresolvedCount:int = 0;
 
          for each(bonusJsonObject in jsonObject)
          {
             parsedCount++;
+            if(bonusJsonObject == null)
+            {
+               rejectedCount++;
+               GoldBoxDiagnostics.recordGlobalEvent("ADD_BONUS_BOXES_ENTRY_REJECTED","reason=null_entry");
+               continue;
+            }
+            if(bonusJsonObject.id == null || String(bonusJsonObject.id).length == 0)
+            {
+               rejectedCount++;
+               GoldBoxDiagnostics.recordGlobalEvent("ADD_BONUS_BOXES_ENTRY_REJECTED","reason=missing_id");
+               continue;
+            }
+            var rawBonusId:String = String(bonusJsonObject.id);
+            if(bonusJsonObject.position == null)
+            {
+               rejectedCount++;
+               GoldBoxDiagnostics.recordGlobalEvent("ADD_BONUS_BOXES_ENTRY_REJECTED","reason=missing_position rawBonusId=" + GoldBoxDiagnostics.sanitize(rawBonusId));
+               continue;
+            }
             var bonusSpawnData:BonusSpawnData = new BonusSpawnData();
-            bonusSpawnData.bonusId = LongUtils.strToId(bonusJsonObject.id);
+            bonusSpawnData.bonusId = LongUtils.strToId(rawBonusId);
             bonusSpawnData.spawnPosition = new Vector3d(bonusJsonObject.position.x,bonusJsonObject.position.y,bonusJsonObject.position.z);
             bonusSpawnData.lifeTime = bonusJsonObject.timeFromAppearing;
-            bonusSpawnData.battleBonusObject = this.battleSpace.getObject(LongUtils.strToId(bonusJsonObject.id.split("#")[0]));
+            bonusSpawnData.battleBonusObject = this.battleSpace.getObject(LongUtils.strToId(rawBonusId.split("#")[0]));
             if(bonusSpawnData.battleBonusObject == null)
             {
+               rejectedCount++;
                unresolvedCount++;
             }
-            if(GoldBoxDiagnostics.recordRawBonusAdd(bonusJsonObject.id,bonusSpawnData.bonusId,bonusSpawnData.spawnPosition.x,bonusSpawnData.spawnPosition.y,bonusSpawnData.spawnPosition.z,bonusSpawnData.battleBonusObject == null ? null : bonusSpawnData.battleBonusObject.name,bonusSpawnData.battleBonusObject != null,"AddBonusBoxesInPacket",false))
+            if(GoldBoxDiagnostics.recordRawBonusAdd(rawBonusId,bonusSpawnData.bonusId,bonusSpawnData.spawnPosition.x,bonusSpawnData.spawnPosition.y,bonusSpawnData.spawnPosition.z,bonusSpawnData.battleBonusObject == null ? null : bonusSpawnData.battleBonusObject.name,bonusSpawnData.battleBonusObject != null,"AddBonusBoxesInPacket",false))
             {
                selectedTargetCount++;
             }
+            if(bonusSpawnData.battleBonusObject == null)
+            {
+               GoldBoxDiagnostics.recordGlobalEvent("ADD_BONUS_BOXES_ENTRY_REJECTED","reason=unresolved_bonus_object rawBonusId=" + GoldBoxDiagnostics.sanitize(rawBonusId));
+               continue;
+            }
+            bonuses.push(bonusSpawnData);
          }
 
          GoldBoxDiagnostics.onBatchSpawnPacket(parsedCount,bonuses.length,selectedTargetCount,unresolvedCount);
+         GoldBoxDiagnostics.recordGlobalEvent("ADD_BONUS_BOXES_VALIDATION_SUMMARY","parsedCount=" + parsedCount + " validSpawnCount=" + bonuses.length + " rejectedCount=" + rejectedCount + " unresolvedCount=" + unresolvedCount);
 
          Model.object = battlefieldGameObject;
          try
