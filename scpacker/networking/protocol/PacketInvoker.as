@@ -71,11 +71,11 @@ package scpacker.networking.protocol
             _loc7_ = "SNAPSHOT_COMPARE_FAILURE";
             _loc8_ = this.appendDetail(_loc8_,"compare=" + compareError.name + ":" + compareError.message);
          }
-         var _loc9_:Boolean = _loc7_.length > 0;
          if(_loc6_ != param3)
          {
             _loc7_ = this.appendMismatch(_loc7_,"POP_UNDERFLOW");
          }
+         var _loc9_:Boolean = _loc7_.length > 0;
 
          var _loc10_:String = "not_required";
          if(_loc9_)
