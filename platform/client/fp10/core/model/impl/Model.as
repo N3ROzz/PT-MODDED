@@ -51,6 +51,7 @@ package platform.client.fp10.core.model.impl
          if(objects.length == 0)
          {
             ++_popUnderflowGeneration;
+            currentObject = null;
             trace("[MODEL_CONTEXT] event=POP_UNDERFLOW generation=" + _popUnderflowGeneration);
             return;
          }
