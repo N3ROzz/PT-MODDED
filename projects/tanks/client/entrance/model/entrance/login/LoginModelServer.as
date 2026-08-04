@@ -9,6 +9,7 @@ package projects.tanks.client.entrance.model.entrance.login
    import scpacker.networking.Network;
    import alternativa.osgi.OSGi;
    import scpacker.networking.protocol.packets.login.LoginOutPacket;
+   import utils.LoginDebugTrace;
    
    public class LoginModelServer
    {
@@ -24,6 +25,7 @@ package projects.tanks.client.entrance.model.entrance.login
       
       public function login(param1:String, param2:String, param3:Boolean) : void
       {
+         LoginDebugTrace.beginLoginAttempt("password",param1,param3);
          network.send(new LoginOutPacket(param1,param2,param3));
       }
    }

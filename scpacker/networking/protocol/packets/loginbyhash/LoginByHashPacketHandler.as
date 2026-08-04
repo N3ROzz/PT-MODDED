@@ -5,6 +5,7 @@ package scpacker.networking.protocol.packets.loginbyhash
    import alternativa.tanks.servermodels.loginbyhash.LoginByHashModel;
    import scpacker.networking.protocol.AbstractPacket;
    import projects.tanks.client.entrance.model.entrance.loginbyhash.LoginByHashModelBase;
+   import utils.LoginDebugTrace;
    
    public class LoginByHashPacketHandler extends AbstractPacketHandler
    {
@@ -31,13 +32,14 @@ package scpacker.networking.protocol.packets.loginbyhash
       
       private function rememberUsersHash(param1:RememberUserHashInPakcet) : void
       {
+         LoginDebugTrace.recordEvent("REMEMBER_USER_HASH_PACKET_RECEIVED","packetId=" + param1.getId());
          this.loginByHashModel.rememberUsersHash(param1.userHash);
       }
       
       private function loginByHashFailed(param1:LoginByHashFailedInPacket) : void
       {
+         LoginDebugTrace.recordAuthFailure("saved_hash",param1.getId());
          this.loginByHashModel.loginByHashFailed();
       }
    }
 }
-

@@ -551,7 +551,6 @@ package alternativa.tanks.models.weapon.shaft
                if(this.isValidHit(_loc5_,_loc3_,_loc4_))
                {
                   _loc1_.addTarget(_loc5_.getBody(),_loc4_);
-                  break;
                }
                this.addTankSkinToExclusionSet(_loc5_.getSkin());
             }
@@ -797,4 +796,3 @@ package alternativa.tanks.models.weapon.shaft
       }
    }
 }
-

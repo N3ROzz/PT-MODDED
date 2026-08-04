@@ -21,6 +21,7 @@ package juho.hacking.hackmenu
          private var track:Shape = new Shape();
          private var fill:Shape = new Shape();
          private var thumb:Shape = new Shape();
+         private var interactionArea:Sprite = new Sprite();
          private var valueLabel:Label = new Label();
          private var callback:Function;
          private var min:Number = 0;
@@ -39,6 +40,10 @@ package juho.hacking.hackmenu
             this.step = param4;
             this.callback = param5;
             this.suffix = param6;
+            this.interactionArea.graphics.beginFill(0,0);
+            this.interactionArea.graphics.drawRect(0,0,this.trackWidth,24);
+            this.interactionArea.graphics.endFill();
+            addChild(this.interactionArea);
             addChild(this.track);
             addChild(this.fill);
             addChild(this.thumb);
@@ -47,17 +52,13 @@ package juho.hacking.hackmenu
             this.valueLabel.x = 222;
             this.valueLabel.y = 4;
             addChild(this.valueLabel);
-         this.thumb.addEventListener(MouseEvent.MOUSE_DOWN,this.onDown);
-            this.track.addEventListener(MouseEvent.MOUSE_DOWN,this.onDown);
-            this.fill.addEventListener(MouseEvent.MOUSE_DOWN,this.onDown);
+            this.interactionArea.addEventListener(MouseEvent.MOUSE_DOWN,this.onDown);
             this.draw();
          }
    
          public function dispose() : void
          {
-            this.thumb.removeEventListener(MouseEvent.MOUSE_DOWN,this.onDown);
-            this.track.removeEventListener(MouseEvent.MOUSE_DOWN,this.onDown);
-            this.fill.removeEventListener(MouseEvent.MOUSE_DOWN,this.onDown);
+            this.interactionArea.removeEventListener(MouseEvent.MOUSE_DOWN,this.onDown);
             if(stage != null)
             {
                stage.removeEventListener(MouseEvent.MOUSE_MOVE,this.onMove);

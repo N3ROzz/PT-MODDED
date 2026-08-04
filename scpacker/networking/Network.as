@@ -26,6 +26,7 @@ package scpacker.networking
    import scpacker.logging.IRemoteLogging;
    import utils.TankTraceUtil;
    import utils.BattleSelectionTrace;
+   import utils.LoginDebugTrace;
    import scpacker.networking.protocol.packets.battlelist.SelectBattleInOutPacket;
    
    public class Network
@@ -72,6 +73,7 @@ package scpacker.networking
       {
          var _loc3_:OSGi = null;
          var _loc4_:ProtocolInitializer = null;
+         LoginDebugTrace.beginConnection(param1,param2,useExtraHost);
          if(!useExtraHost)
          {
             _loc3_ = OSGi.getInstance();
@@ -105,6 +107,10 @@ package scpacker.networking
          var _loc4_:int = 0;
          var _loc5_:int = 0;
          var _loc6_:int = 0;
+         if(param1 != null && this.socket != null && this.socket.connected)
+         {
+            LoginDebugTrace.recordPacket("OUT",param1.getId(),param1.getPacketHandlerId(),-1,getQualifiedClassName(param1));
+         }
          if(param1 != null && param1.getId() == SelectBattleInOutPacket.id && BattleSelectionTrace.ENABLED)
          {
             _loc1_ = param1 as SelectBattleInOutPacket;
@@ -182,6 +188,7 @@ package scpacker.networking
       
       private function onConnect(param1:Event) : void
       {
+         LoginDebugTrace.recordEvent("SOCKET_CONNECTED");
       }
       
       private function onSocketData(param1:ProgressEvent) : void
@@ -231,6 +238,7 @@ package scpacker.networking
             {
                _loc11_ = packetFactory.getPacket(_loc1_);
                BattleSelectionTrace.recordInboundPacket(_loc1_,_loc11_ == null ? -1 : _loc11_.getPacketHandlerId(),_loc3_);
+               LoginDebugTrace.recordPacket("IN",_loc1_,_loc11_ == null ? -1 : _loc11_.getPacketHandlerId(),_loc3_,_loc11_ == null ? "unresolved" : getQualifiedClassName(_loc11_));
                _loc11_.unwrap(this.payloadBuffer);
                packetInvoker.invoke(_loc11_);
             }
@@ -277,6 +285,8 @@ package scpacker.networking
       private function onClose(param1:Event) : void
       {
          var _loc4_:int = 0;
+         LoginDebugTrace.recordEvent("SOCKET_CLOSED");
+         LoginDebugTrace.endSession("socket_closed");
          TankTraceUtil.logBattleListStale("socket close lastSelect=" + TankTraceUtil.lastBattleSelectId + " lastJoin=" + TankTraceUtil.lastBattleJoinId + " useExtraHost=" + useExtraHost);
          closeSocket();
          var _loc3_:IDisplay = IDisplay(OSGi.getInstance().getService(IDisplay));
@@ -303,6 +313,8 @@ package scpacker.networking
       
       private function ioError(param1:IOErrorEvent) : void
       {
+         LoginDebugTrace.recordEvent("SOCKET_IO_ERROR","text=" + param1.text);
+         LoginDebugTrace.endSession("socket_io_error");
          TankTraceUtil.logBattleListStale("socket ioError text=" + param1.text + " lastSelect=" + TankTraceUtil.lastBattleSelectId + " lastJoin=" + TankTraceUtil.lastBattleJoinId + " useExtraHost=" + useExtraHost);
          closeSocket();
          if(!useExtraHost)
@@ -317,6 +329,8 @@ package scpacker.networking
       
       private function onSecurityError(param1:SecurityErrorEvent) : void
       {
+         LoginDebugTrace.recordEvent("SOCKET_SECURITY_ERROR","text=" + param1.text);
+         LoginDebugTrace.endSession("socket_security_error");
          TankTraceUtil.logBattleListStale("socket securityError text=" + param1.text + " lastSelect=" + TankTraceUtil.lastBattleSelectId + " lastJoin=" + TankTraceUtil.lastBattleJoinId + " useExtraHost=" + useExtraHost);
          closeSocket();
          if(!useExtraHost)
