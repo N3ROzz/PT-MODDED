@@ -24,27 +24,34 @@ package scpacker.networking.protocol
       public function wrap(param1:ByteArray) : void
       {
          var _loc3_:int = 0;
-         param1.position = 4;
-         param1.writeInt(this.getId());
-         var _loc2_:int = int(this.propertyCodecs.length);
-         while(_loc3_ < _loc2_)
-         {
-            var codec:ICodec = this.propertyCodecs[_loc3_];
-            if(codec == null)
-            {
-               throw new Error("Codec is not registered for property index " + _loc3_);
-            }
-            codec.encode(payloadBuffer,this.propertyValues[_loc3_]);
-            _loc3_++;
-         }
-         BattleSelectionTrace.recordPreEncryptionFrame(this.getId(),payloadBuffer);
-         protocolInitializer.getProtection().encrypt(payloadBuffer);
-         BattleSelectionTrace.recordEncryptedPayloadLength(this.getId(),payloadBuffer.length);
-         param1.writeBytes(payloadBuffer);
-         this.packetLength = 8 + payloadBuffer.length;
          payloadBuffer.clear();
-         param1.position = 0;
-         param1.writeInt(packetLength);
+         try
+         {
+            param1.position = 4;
+            param1.writeInt(this.getId());
+            var _loc2_:int = int(this.propertyCodecs.length);
+            while(_loc3_ < _loc2_)
+            {
+               var codec:ICodec = this.propertyCodecs[_loc3_];
+               if(codec == null)
+               {
+                  throw new Error("Codec is not registered for property index " + _loc3_);
+               }
+               codec.encode(payloadBuffer,this.propertyValues[_loc3_]);
+               _loc3_++;
+            }
+            BattleSelectionTrace.recordPreEncryptionFrame(this.getId(),payloadBuffer);
+            protocolInitializer.getProtection().encrypt(payloadBuffer);
+            BattleSelectionTrace.recordEncryptedPayloadLength(this.getId(),payloadBuffer.length);
+            param1.writeBytes(payloadBuffer);
+            this.packetLength = 8 + payloadBuffer.length;
+            param1.position = 0;
+            param1.writeInt(packetLength);
+         }
+         finally
+         {
+            payloadBuffer.clear();
+         }
       }
       
       public function unwrap(param1:ByteArray) : void
