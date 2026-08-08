@@ -278,8 +278,7 @@ package scpacker.networking
             _loc5_ = this.inputBuffer.position;
             if(this.inputBuffer.bytesAvailable < 8)
             {
-               this.inputBuffer.position = _loc5_;
-               this.readPosition = _loc5_;
+               this.compactInputBufferFrom(_loc5_);
                return;
             }
             _loc10_ = this.inputBuffer.readInt();
@@ -303,8 +302,7 @@ package scpacker.networking
             }
             if(this.inputBuffer.bytesAvailable < _loc4_)
             {
-               this.inputBuffer.position = _loc5_;
-               this.readPosition = _loc5_;
+               this.compactInputBufferFrom(_loc5_);
                return;
             }
             var _loc12_:int = this.inputBuffer.position + _loc4_;
@@ -376,6 +374,30 @@ package scpacker.networking
             }
          }
          this.inputBuffer.clear();
+         this.readPosition = 0;
+      }
+
+      private function compactInputBufferFrom(param1:int) : void
+      {
+         if(param1 < 0 || param1 > this.inputBuffer.length)
+         {
+            throw new RangeError("Invalid input buffer compaction offset: " + param1);
+         }
+         if(param1 == 0)
+         {
+            this.inputBuffer.position = 0;
+            this.readPosition = 0;
+            return;
+         }
+         var _loc2_:ByteArray = new ByteArray();
+         this.inputBuffer.position = param1;
+         this.inputBuffer.readBytes(_loc2_,0,this.inputBuffer.length - param1);
+         this.inputBuffer.clear();
+         if(_loc2_.length > 0)
+         {
+            this.inputBuffer.writeBytes(_loc2_,0,_loc2_.length);
+         }
+         this.inputBuffer.position = 0;
          this.readPosition = 0;
       }
 
