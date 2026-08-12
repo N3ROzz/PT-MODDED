@@ -7,6 +7,7 @@ package alternativa.tanks.models.tank.killhandlers
    import alternativa.tanks.models.tank.ITankModel;
    import alternativa.tanks.physics.CollisionGroup;
    import platform.client.fp10.core.type.IGameObject;
+   import utils.RuntimeLifecycleDiagnostics;
    
    public class LocalTankDieHandler extends CommonTankDieHandler implements TankDieHandler
    {
@@ -24,6 +25,7 @@ package alternativa.tanks.models.tank.killhandlers
       
       public function handleTankDie(param1:IGameObject, param2:int) : void
       {
+         RuntimeLifecycleDiagnostics.recordTankLifecycle("LOCAL_DIE_HANDLER_ENTER",param1.name,"delay=" + param2,true);
          var _loc3_:ITankModel = getTankModel(param1);
          _loc3_.sendStateCorrection(true);
          _loc3_.sendDeathConfirmationCommand();
@@ -37,4 +39,3 @@ package alternativa.tanks.models.tank.killhandlers
       }
    }
 }
-

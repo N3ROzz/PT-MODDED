@@ -14,6 +14,7 @@ package scpacker.networking
    import flash.events.SecurityErrorEvent;
    import flash.net.Socket;
    import flash.utils.ByteArray;
+   import flash.utils.getTimer;
    import flash.utils.getQualifiedClassName;
    import platform.client.fp10.core.service.errormessage.IErrorMessageService;
    import scpacker.networking.protocol.PacketInvoker;
@@ -24,6 +25,7 @@ package scpacker.networking
    import utils.TankTraceUtil;
    import utils.BattleSelectionTrace;
    import utils.LoginDebugTrace;
+   import utils.RuntimeLifecycleDiagnostics;
    import scpacker.networking.protocol.packets.battlelist.SelectBattleInOutPacket;
    
    public class Network
@@ -74,6 +76,7 @@ package scpacker.networking
          OSGi.getInstance().registerService(ProtocolInitializer,protocolInitializer);
          AbstractPacket.protocolInitializer = protocolInitializer;
          BattleSelectionTrace.startSession();
+         RuntimeLifecycleDiagnostics.startSession();
       }
       
       public function connect(param1:String, param2:int) : void
@@ -82,6 +85,7 @@ package scpacker.networking
          var _loc4_:ProtocolInitializer = null;
          LoginDebugTrace.beginConnection(param1,param2,useExtraHost);
          this.transportFailed = false;
+         RuntimeLifecycleDiagnostics.updateTransportState(false,false);
          if(!useExtraHost)
          {
             _loc3_ = OSGi.getInstance();
@@ -120,7 +124,18 @@ package scpacker.networking
          var _loc6_:int = 0;
          var _loc7_:Boolean = param1 != null && param1.getId() == SelectBattleInOutPacket.id && BattleSelectionTrace.ENABLED;
          var _loc8_:String = "diagnostics";
+         var _loc9_:Boolean = param1 != null && param1.getId() == -1284211503 && RuntimeLifecycleDiagnostics.enabled;
+         var _loc10_:Boolean = param1 != null && param1.getId() == SelectBattleInOutPacket.id && RuntimeLifecycleDiagnostics.enabled;
          this.sendBuffer.clear();
+         if(_loc9_)
+         {
+            RuntimeLifecycleDiagnostics.recordJoinSend("JOIN_SEND_ENTER",param1.getId(),param1.getPacketHandlerId(),this.diagnosticSocketConnected,this.transportFailed,this.sendBuffer.length);
+         }
+         if(_loc10_)
+         {
+            _loc1_ = param1 as SelectBattleInOutPacket;
+            RuntimeLifecycleDiagnostics.recordSelectSend("SELECT_SEND_ENTER",param1.getId(),param1.getPacketHandlerId(),_loc1_ == null ? "" : _loc1_.battleId,this.diagnosticSocketConnected,this.transportFailed,this.sendBuffer.length);
+         }
          if(param1 != null && this.socket != null && this.socket.connected)
          {
             try
@@ -147,7 +162,19 @@ package scpacker.networking
                   this.reportNetworkError("DIAGNOSTIC_FAILURE","battle_selection_skip",param1.getId(),-1,-1,false,skipDiagnosticError,true,false);
                }
             }
+            if(_loc9_)
+            {
+               RuntimeLifecycleDiagnostics.recordJoinSend("JOIN_SEND_FAILURE",param1.getId(),param1.getPacketHandlerId(),this.diagnosticSocketConnected,this.transportFailed,this.sendBuffer.length,"stage=precondition reason=" + (this.transportFailed ? "transport_failed" : "socket_disconnected"));
+            }
+            if(_loc10_)
+            {
+               RuntimeLifecycleDiagnostics.recordSelectSend("SELECT_SEND_FAILURE",param1.getId(),param1.getPacketHandlerId(),_loc1_ == null ? "" : _loc1_.battleId,this.diagnosticSocketConnected,this.transportFailed,this.sendBuffer.length,"stage=precondition reason=" + (this.transportFailed ? "transport_failed" : "socket_disconnected"));
+            }
             return;
+         }
+         if(param1.getId() == 988664577)
+         {
+            RuntimeLifecycleDiagnostics.recordSuicide("SUICIDE_OUT_SEND","packetId=" + param1.getId(),true);
          }
          try
          {
@@ -169,6 +196,14 @@ package scpacker.networking
             _loc8_ = "wrap";
             param1.wrap(this.sendBuffer);
             _loc8_ = "post_wrap";
+            if(_loc9_)
+            {
+               RuntimeLifecycleDiagnostics.recordJoinSend("JOIN_WRAP_COMPLETE",param1.getId(),param1.getPacketHandlerId(),this.diagnosticSocketConnected,this.transportFailed,this.sendBuffer.length);
+            }
+            if(_loc10_)
+            {
+               RuntimeLifecycleDiagnostics.recordSelectSend("SELECT_WRAP_COMPLETE",param1.getId(),param1.getPacketHandlerId(),_loc1_ == null ? "" : _loc1_.battleId,this.diagnosticSocketConnected,this.transportFailed,this.sendBuffer.length);
+            }
             if(_loc7_)
             {
                _loc4_ = this.sendBuffer.position;
@@ -182,6 +217,14 @@ package scpacker.networking
             _loc8_ = "write";
             this.socket.writeBytes(this.sendBuffer);
             _loc8_ = "post_write";
+            if(_loc9_)
+            {
+               RuntimeLifecycleDiagnostics.recordJoinSend("JOIN_SOCKET_WRITE_COMPLETE",param1.getId(),param1.getPacketHandlerId(),this.diagnosticSocketConnected,this.transportFailed,this.sendBuffer.length,"socketBytesPending=" + this.socket.bytesPending);
+            }
+            if(_loc10_)
+            {
+               RuntimeLifecycleDiagnostics.recordSelectSend("SELECT_SOCKET_WRITE_COMPLETE",param1.getId(),param1.getPacketHandlerId(),_loc1_ == null ? "" : _loc1_.battleId,this.diagnosticSocketConnected,this.transportFailed,this.sendBuffer.length,"socketBytesPending=" + this.socket.bytesPending);
+            }
             if(_loc7_)
             {
                BattleSelectionTrace.record("SOCKET_WRITE_END","Network.send",_loc2_,null,"bufferLength=" + this.sendBuffer.length + " socketBytesPending=" + this.socket.bytesPending);
@@ -190,6 +233,16 @@ package scpacker.networking
             _loc8_ = "flush";
             this.socket.flush();
             _loc8_ = "complete";
+            if(_loc9_)
+            {
+               RuntimeLifecycleDiagnostics.recordJoinSend("JOIN_FLUSH_COMPLETE",param1.getId(),param1.getPacketHandlerId(),this.diagnosticSocketConnected,this.transportFailed,this.sendBuffer.length,"socketBytesPending=" + this.socket.bytesPending);
+               RuntimeLifecycleDiagnostics.recordJoinSend("JOIN_SEND_EXIT",param1.getId(),param1.getPacketHandlerId(),this.diagnosticSocketConnected,this.transportFailed,this.sendBuffer.length);
+            }
+            if(_loc10_)
+            {
+               RuntimeLifecycleDiagnostics.recordSelectSend("SELECT_FLUSH_COMPLETE",param1.getId(),param1.getPacketHandlerId(),_loc1_ == null ? "" : _loc1_.battleId,this.diagnosticSocketConnected,this.transportFailed,this.sendBuffer.length,"socketBytesPending=" + this.socket.bytesPending);
+               RuntimeLifecycleDiagnostics.recordSelectSend("SELECT_SEND_EXIT",param1.getId(),param1.getPacketHandlerId(),_loc1_ == null ? "" : _loc1_.battleId,this.diagnosticSocketConnected,this.transportFailed,this.sendBuffer.length);
+            }
             if(_loc7_)
             {
                BattleSelectionTrace.record("SOCKET_FLUSH_END","Network.send",_loc2_,null,"socketBytesPending=" + this.socket.bytesPending);
@@ -197,6 +250,14 @@ package scpacker.networking
          }
          catch(e:Error)
          {
+            if(_loc9_)
+            {
+               RuntimeLifecycleDiagnostics.recordJoinSend("JOIN_SEND_FAILURE",param1.getId(),param1.getPacketHandlerId(),this.diagnosticSocketConnected,this.transportFailed,this.sendBuffer.length,"stage=" + _loc8_ + " errorName=" + e.name + " errorMessage=" + e.message);
+            }
+            if(_loc10_)
+            {
+               RuntimeLifecycleDiagnostics.recordSelectSend("SELECT_SEND_FAILURE",param1.getId(),param1.getPacketHandlerId(),_loc1_ == null ? "" : _loc1_.battleId,this.diagnosticSocketConnected,this.transportFailed,this.sendBuffer.length,"stage=" + _loc8_ + " errorName=" + e.name + " errorMessage=" + e.message);
+            }
             if(_loc7_)
             {
                try
@@ -244,13 +305,19 @@ package scpacker.networking
       private function onConnect(param1:Event) : void
       {
          LoginDebugTrace.recordEvent("SOCKET_CONNECTED");
+         RuntimeLifecycleDiagnostics.updateTransportState(true,this.transportFailed);
       }
       
       private function onSocketData(param1:ProgressEvent) : void
       {
+         var _loc2_:int = 0;
+         var _loc3_:int = 0;
          try
          {
+            _loc2_ = this.socket.bytesAvailable;
+            _loc3_ = this.inputBuffer.length;
             this.socket.readBytes(this.inputBuffer,this.inputBuffer.length);
+            RuntimeLifecycleDiagnostics.recordSocketData(_loc2_,this.inputBuffer.length - _loc3_,this.inputBuffer.length,this.readPosition);
             this.processIncoming();
          }
          catch(e:Error)
@@ -272,6 +339,9 @@ package scpacker.networking
          var _loc8_:String = "header";
          var _loc6_:Boolean = false;
          var _loc2_:Error = null;
+         var _loc13_:int = -1;
+         var _loc14_:int = -1;
+         var _loc15_:Boolean = false;
          this.inputBuffer.position = this.readPosition;
          while(true)
          {
@@ -305,6 +375,11 @@ package scpacker.networking
                this.compactInputBufferFrom(_loc5_);
                return;
             }
+            _loc13_ = -1;
+            _loc14_ = getTimer();
+            _loc15_ = false;
+            RuntimeLifecycleDiagnostics.recordPacketStage("FRAME_READY",_loc1_,-1,_loc3_,_loc7_);
+            RuntimeLifecycleDiagnostics.recordSelectAckFrame(_loc1_,31,_loc3_,_loc7_);
             var _loc12_:int = this.inputBuffer.position + _loc4_;
             _loc6_ = false;
             _loc2_ = null;
@@ -329,8 +404,24 @@ package scpacker.networking
                      throw new Error("Uncompressed payload exceeds limit: " + this.payloadBuffer.length);
                   }
                }
+               RuntimeLifecycleDiagnostics.recordPacketStage("DECRYPT_DONE",_loc1_,-1,_loc3_,_loc7_);
                _loc8_ = "packet_resolution";
                _loc11_ = packetFactory.getPacket(_loc1_);
+               _loc13_ = -1;
+               if(_loc11_ != null)
+               {
+                  try
+                  {
+                     _loc13_ = _loc11_.getPacketHandlerId();
+                  }
+                  catch(packetHandlerMetadataError:Error)
+                  {
+                  }
+               }
+               RuntimeLifecycleDiagnostics.recordPreInitNetworkStage("PREINIT_ANY_FRAME",_loc1_,_loc13_,_loc3_,_loc7_,_loc14_);
+               _loc15_ = true;
+               RuntimeLifecycleDiagnostics.recordPreInitNetworkStage("PREINIT_ANY_PACKET_RESOLVED",_loc1_,_loc13_,_loc3_,_loc7_,_loc14_);
+               RuntimeLifecycleDiagnostics.recordPacketStage("PACKET_RESOLVED",_loc1_,-1,_loc3_,_loc7_,"resolved=" + (_loc11_ != null ? 1 : 0));
                this.recordInboundDiagnosticsSafely(_loc1_,_loc11_,_loc3_,_loc7_);
                if(_loc11_ == null)
                {
@@ -343,10 +434,14 @@ package scpacker.networking
                      _loc8_ = "unwrap";
                      _loc11_.unwrap(this.payloadBuffer);
                      _loc8_ = "handler";
+                     RuntimeLifecycleDiagnostics.recordPacketStage("INVOKER_ENTER",_loc1_,-1,_loc3_,_loc7_);
                      packetInvoker.invoke(_loc11_);
+                     RuntimeLifecycleDiagnostics.recordPacketStage("INVOKER_EXIT",_loc1_,-1,_loc3_,_loc7_);
                   }
                   catch(packetError:Error)
                   {
+                     RuntimeLifecycleDiagnostics.recordPreInitFailure(_loc8_,_loc1_,_loc13_,_loc3_,_loc7_,packetError);
+                     RuntimeLifecycleDiagnostics.recordPacketFailure(_loc8_,_loc1_,_loc3_,_loc7_,packetError);
                      this.reportNetworkError("PACKET_FAILURE",_loc8_,_loc1_,_loc3_,_loc4_,_loc7_,packetError,true,false);
                   }
                }
@@ -362,6 +457,12 @@ package scpacker.networking
             }
             if(_loc6_)
             {
+               if(!_loc15_)
+               {
+                  RuntimeLifecycleDiagnostics.recordPreInitNetworkStage("PREINIT_ANY_FRAME",_loc1_,_loc13_,_loc3_,_loc7_,_loc14_);
+               }
+               RuntimeLifecycleDiagnostics.recordPreInitFailure(_loc8_,_loc1_,_loc13_,_loc3_,_loc7_,_loc2_);
+               RuntimeLifecycleDiagnostics.recordPacketFailure(_loc8_,_loc1_,_loc3_,_loc7_,_loc2_);
                this.reportNetworkError("FATAL_RECEIVE",_loc8_,_loc1_,_loc3_,_loc4_,_loc7_,_loc2_,false,false);
                this.failIncomingTransport();
                return;
@@ -451,6 +552,8 @@ package scpacker.networking
       private function terminateTransportWithoutFlush() : void
       {
          this.transportFailed = true;
+         RuntimeLifecycleDiagnostics.updateTransportState(false,true);
+         RuntimeLifecycleDiagnostics.recordTransportFailed("fatal_transport");
          try
          {
             if(this.socket != null && this.socket.connected)
@@ -546,6 +649,8 @@ package scpacker.networking
          var _loc4_:int = 0;
          LoginDebugTrace.recordEvent("SOCKET_CLOSED");
          LoginDebugTrace.endSession("socket_closed");
+         RuntimeLifecycleDiagnostics.recordSocketTermination("SOCKET_CLOSE");
+         RuntimeLifecycleDiagnostics.updateTransportState(false,this.transportFailed);
          TankTraceUtil.logBattleListStale("socket close lastSelect=" + TankTraceUtil.lastBattleSelectId + " lastJoin=" + TankTraceUtil.lastBattleJoinId + " useExtraHost=" + useExtraHost);
          closeSocket();
          var _loc3_:IDisplay = IDisplay(OSGi.getInstance().getService(IDisplay));
@@ -574,6 +679,8 @@ package scpacker.networking
       {
          LoginDebugTrace.recordEvent("SOCKET_IO_ERROR","text=" + param1.text);
          LoginDebugTrace.endSession("socket_io_error");
+         RuntimeLifecycleDiagnostics.recordSocketTermination("SOCKET_IO_ERROR","text=" + param1.text);
+         RuntimeLifecycleDiagnostics.updateTransportState(false,this.transportFailed);
          TankTraceUtil.logBattleListStale("socket ioError text=" + param1.text + " lastSelect=" + TankTraceUtil.lastBattleSelectId + " lastJoin=" + TankTraceUtil.lastBattleJoinId + " useExtraHost=" + useExtraHost);
          closeSocket();
          if(!useExtraHost)
@@ -590,6 +697,8 @@ package scpacker.networking
       {
          LoginDebugTrace.recordEvent("SOCKET_SECURITY_ERROR","text=" + param1.text);
          LoginDebugTrace.endSession("socket_security_error");
+         RuntimeLifecycleDiagnostics.recordSocketTermination("SOCKET_SECURITY_ERROR","text=" + param1.text);
+         RuntimeLifecycleDiagnostics.updateTransportState(false,this.transportFailed);
          TankTraceUtil.logBattleListStale("socket securityError text=" + param1.text + " lastSelect=" + TankTraceUtil.lastBattleSelectId + " lastJoin=" + TankTraceUtil.lastBattleJoinId + " useExtraHost=" + useExtraHost);
          closeSocket();
          if(!useExtraHost)
@@ -606,6 +715,16 @@ package scpacker.networking
       {
          extraHost = param1;
          extraPort = param2;
+      }
+
+      public function get diagnosticSocketConnected() : Boolean
+      {
+         return this.socket != null && this.socket.connected;
+      }
+
+      public function get diagnosticTransportFailed() : Boolean
+      {
+         return this.transportFailed;
       }
       
       public function reconnectToExtraHost() : void

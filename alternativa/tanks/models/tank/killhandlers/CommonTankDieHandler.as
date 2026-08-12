@@ -16,6 +16,7 @@ package alternativa.tanks.models.tank.killhandlers
    import flash.utils.getTimer;
    import platform.client.fp10.core.type.IGameObject;
    import projects.tanks.client.battlefield.models.tankparts.sfx.lighting.entity.LightingSFXEntity;
+   import utils.RuntimeLifecycleDiagnostics;
    
    public class CommonTankDieHandler
    {
@@ -56,17 +57,19 @@ package alternativa.tanks.models.tank.killhandlers
       
       protected function killTank(param1:IGameObject, param2:int) : void
       {
+         RuntimeLifecycleDiagnostics.recordTankLifecycle("COMMON_KILL_ENTER",param1.name,"delay=" + param2,true);
          var _loc3_:ITankModel = getTankModel(param1);
          _loc3_.lockMovementControl(TankControlLockBits.DEAD);
          _loc3_.getWeaponController().lockWeapon(TankControlLockBits.DEAD,false);
          _loc3_.getWeaponController().deactivateWeapon();
          var _loc4_:Tank = _loc3_.getTank();
          _loc4_.kill();
+         RuntimeLifecycleDiagnostics.recordTankLifecycle("TANK_KILL_CALLED",param1.name,"",true);
          var _loc5_:BattleRunner = battleService.getBattleRunner();
          _loc5_.addLogicUnit(new ReadyToSpawnTask(getTimer() + param2,_loc4_));
          createDeathEffects(_loc4_);
+         RuntimeLifecycleDiagnostics.recordTankLifecycle("EXPLOSION_CREATED",param1.name,"",true);
          battleEventDispatcher.dispatchEvent(new TankDeadEvent(param1));
       }
    }
 }
-

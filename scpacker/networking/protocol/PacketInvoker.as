@@ -3,6 +3,7 @@ package scpacker.networking.protocol
    import alternativa.osgi.OSGi;
    import alternativa.osgi.service.logging.LogService;
    import platform.client.fp10.core.model.impl.Model;
+   import utils.RuntimeLifecycleDiagnostics;
 
    public class PacketInvoker
    {
@@ -28,7 +29,10 @@ package scpacker.networking.protocol
          {
             _loc5_ = param1.getPacketHandlerId();
             var _loc6_:Object = this.packetHandlers[_loc5_];
+            RuntimeLifecycleDiagnostics.recordPreInitAnyHandler("PREINIT_ANY_HANDLER_ENTER",param1.getId(),_loc5_);
             _loc6_.invoke(param1);
+            RuntimeLifecycleDiagnostics.recordPreInitAnyHandler("PREINIT_ANY_HANDLER_EXIT",param1.getId(),_loc5_);
+            RuntimeLifecycleDiagnostics.completePreInitAfterHandler(param1.getId());
          }
          finally
          {

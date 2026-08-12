@@ -44,6 +44,7 @@ package scpacker.networking.protocol.packets.battlelist
    import scpacker.networking.protocol.packets.battlecreate.BattleCreatePacketHandler;
    import utils.TankTraceUtil;
    import utils.BattleSelectionTrace;
+   import utils.RuntimeLifecycleDiagnostics;
    
    public class BattleListPacketHandler extends AbstractPacketHandler
    {
@@ -118,6 +119,7 @@ package scpacker.networking.protocol.packets.battlelist
                break;
             case UnloadBattleSelectSpaceInPacket.id:
                this.unloadAllBattles();
+               RuntimeLifecycleDiagnostics.recordBattleSelectSpaceUnloaded();
          }
       }
       
@@ -141,6 +143,8 @@ package scpacker.networking.protocol.packets.battlelist
          {
          
          var _loc3_:Object = JSON.parse(param1.battlesJson);
+         var serverBattleCount:int = _loc3_ == null || _loc3_.battles == null ? 0 : int(_loc3_.battles.length);
+         BattleSelectionTrace.recordSnapshotBoundary("BATTLE_SNAPSHOT_BEGIN",serverBattleCount,this.countClientBattleObjects());
          BattleSelectionTrace.recordFullSnapshot(this.extractBattleIds(_loc3_));
          _loc5_ = this.collectLiveBattleIds(_loc3_);
          TankTraceUtil.logBattleList("parsed battles=" + (_loc3_.battles == null ? -1 : _loc3_.battles.length));
@@ -165,6 +169,8 @@ package scpacker.networking.protocol.packets.battlelist
          TankTraceUtil.logBattleList("loadAllBattles before battleItemsPacketJoinSuccess count=" + _loc4_);
          this.battleSelectModel.battleItemsPacketJoinSuccess();
          TankTraceUtil.logBattleList("loadAllBattles after battleItemsPacketJoinSuccess");
+         this.recordDuplicateBattleCandidates();
+         BattleSelectionTrace.recordSnapshotBoundary("BATTLE_SNAPSHOT_END",serverBattleCount,this.countClientBattleObjects());
          
          }          finally          {             Model.popObject();          }
          //this.achievementService.setPanelPartition(2);
@@ -251,6 +257,8 @@ package scpacker.networking.protocol.packets.battlelist
       private function selectBattle(param1:SelectBattleInOutPacket) : void
       {
          var battleGameObject:IGameObject = this.battleSelectSpace.getObjectByName(param1.battleId);
+         RuntimeLifecycleDiagnostics.recordSelectAckHandler("SELECT_ACK_HANDLER_ENTER",param1.battleId,battleGameObject != null);
+         RuntimeLifecycleDiagnostics.recordSelectAckHandler("SELECT_ACK",param1.battleId,battleGameObject != null);
          BattleSelectionTrace.acknowledge(param1.battleId,battleGameObject);
          BattleSelectionTrace.record("OBJECT_RESOLVE","BattleListPacketHandler.selectBattle",param1.battleId,battleGameObject,"lookup=exact");
          TankTraceUtil.logBattleListStale("selectBattle response battleId=" + param1.battleId + " exists=" + (battleGameObject != null));
@@ -277,6 +285,7 @@ package scpacker.networking.protocol.packets.battlelist
             BattleSelectionTrace.error("selectBattleModel","BattleListPacketHandler",param1.battleId,battleGameObject,e);
             throw e;
          }
+         RuntimeLifecycleDiagnostics.recordSelectAckHandler("SELECT_ACK_HANDLER_EXIT",param1.battleId,battleGameObject != null);
       }
       
       private function createBattle(param1:BattleCreatedInPacket) : void
@@ -295,20 +304,20 @@ package scpacker.networking.protocol.packets.battlelist
          var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(param1.battleId);
          var _loc3_:String = this.trimBattleId(param1.battleId);
          var _loc4_:IGameObject = _loc3_ == param1.battleId ? null : this.battleSelectSpace.getObjectByName(_loc3_);
+         BattleSelectionTrace.recordRemovePacket(param1.battleId,_loc3_,_loc2_ != null,_loc4_ != null);
          TankTraceUtil.logBattleListStale("removeBattle packet id=" + param1.battleId + " exactExists=" + (_loc2_ != null) + " trimmed=" + _loc3_ + " trimmedExists=" + (_loc4_ != null));
-         if(_loc2_ == null)
+         var target:IGameObject = _loc2_ != null ? _loc2_ : _loc4_;
+         if(target == null)
          {
             TankTraceUtil.logBattleList("removeBattle ignored missing id=" + param1.battleId);
             return;
          }
-         if(_loc2_ != null)
+         BattleSelectionTrace.recordBattleObjectDestroyed(target.name,target,"REMOVE_PACKET");
+         platform.client.fp10.core.model.impl.Model.object = target;
+         try
          {
-            platform.client.fp10.core.model.impl.Model.object = _loc2_;
-            try
-            {
-            this.battleSelectSpace.destroyObject(_loc2_.id);
-            }             finally             {                Model.popObject();             }
-         }
+         this.battleSelectSpace.destroyObject(target.id);
+         }         finally         {            Model.popObject();         }
       }
       
       private function collectLiveBattleIds(param1:Object) : Object
@@ -361,6 +370,7 @@ package scpacker.networking.protocol.packets.battlelist
          for each(_loc2_ in _loc3_)
          {
             TankTraceUtil.logBattleList("removeStaleBattle id=" + _loc2_.name);
+            BattleSelectionTrace.recordBattleObjectDestroyed(_loc2_.name,_loc2_,"STALE_SNAPSHOT");
             this.battleSelectSpace.destroyObject(_loc2_.id);
          }
       }
@@ -380,13 +390,15 @@ package scpacker.networking.protocol.packets.battlelist
             battleInfoGameClass = teamBattleInfoGameClass;
          }
 
-         if(this.battleSelectSpace.getObjectByName(battleData.battleId) != null)
+         var existingBattleObject:IGameObject = this.battleSelectSpace.getObjectByName(battleData.battleId);
+         if(existingBattleObject != null)
          {
-            this.battleSelectSpace.destroyObject(this.battleSelectSpace.getObjectByName(battleData.battleId).id);
+            BattleSelectionTrace.recordBattleObjectDestroyed(existingBattleObject.name,existingBattleObject,"SNAPSHOT_REPLACE");
+            this.battleSelectSpace.destroyObject(existingBattleObject.id);
          }
 
          var battleGameObject:IGameObject = this.battleSelectSpace.createObject(IdTool.getNextId(), battleInfoGameClass, battleData.battleId);
-         BattleSelectionTrace.recordBattleObjectCreated(String(battleData.battleId));
+         BattleSelectionTrace.recordBattleObjectCreated(String(battleData.battleId),battleGameObject);
          TankTraceUtil.logBattleList("addBattle createdObject id=" + battleGameObject.id + " name=" + battleGameObject.name);
          
          var battleParamInfoCC:BattleParamInfoCC = new BattleParamInfoCC();
@@ -544,6 +556,44 @@ package scpacker.networking.protocol.packets.battlelist
          return _loc2_.join(",");
       }
 
+      private function countClientBattleObjects() : int
+      {
+         var count:int = 0;
+         for each(var battleObject:IGameObject in this.battleSelectSpace.objects)
+         {
+            if(this.isBattleInfoObject(battleObject))
+            {
+               count++;
+            }
+         }
+         return count;
+      }
+
+      private function recordDuplicateBattleCandidates() : void
+      {
+         var counts:Object = {};
+         var rawIds:Object = {};
+         var normalizedId:String = null;
+         var key:String = null;
+         if(!BattleSelectionTrace.ENABLED)
+         {
+            return;
+         }
+         for each(var battleObject:IGameObject in this.battleSelectSpace.objects)
+         {
+            if(this.isBattleInfoObject(battleObject))
+            {
+               normalizedId = BattleSelectionTrace.normalize(battleObject.name);
+               counts[normalizedId] = int(counts[normalizedId]) + 1;
+               rawIds[normalizedId] = battleObject.name;
+            }
+         }
+         for(key in counts)
+         {
+            BattleSelectionTrace.recordDuplicateCandidate(String(rawIds[key]),int(counts[key]));
+         }
+      }
+
       private function trimBattleId(param1:String) : String
       {
          if(param1 == null)
@@ -557,26 +607,6 @@ package scpacker.networking.protocol.packets.battlelist
       {
          BattleSelectionTrace.clearBattleSet("BattleListPacketHandler.unloadAllBattles");
          TankTraceUtil.logBattleList("unloadAllBattles start");
-         var battleSelectObject:IGameObject = this.battleSelectSpace.getObject(SpaceAndGameObjectIds.BATTLE_SELECT_OBJECT_ID);
-         if(battleSelectObject != null)
-         {
-            Model.object = battleSelectObject;
-            try
-            {
-            try
-            {
-               this.battleSelectModel.objectUnloaded();
-            }
-            catch(e:Error)
-            {
-               TankTraceUtil.logBattleList("unloadAllBattles ERROR objectUnloaded " + e.name + " " + e.message + " stack=" + e.getStackTrace());
-            }
-            }             finally             {                Model.popObject();             }
-         }
-         else
-         {
-            TankTraceUtil.logBattleList("unloadAllBattles battleSelectObjectNull");
-         }
          var _loc1_:Vector.<IGameObject> = new Vector.<IGameObject>();
          for each(var _loc3_ in this.battleSelectSpace.objects)
          {

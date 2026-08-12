@@ -53,6 +53,7 @@ package scpacker.networking.protocol.packets.battle
    import platform.client.fp10.core.type.impl.GameClass;
    import platform.client.fp10.core.type.impl.GameObject;
    import projects.tanks.clients.flash.resources.resource.MapResource;
+   import projects.tanks.clients.flash.resources.resource.PropLibResource;
    import projects.tanks.clients.flash.resources.resource.Tanks3DSResource;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.userproperties.IUserPropertiesService;
    import alternativa.tanks.models.teamlight.ModeLight;
@@ -86,6 +87,7 @@ package scpacker.networking.protocol.packets.battle
    import alternativa.tanks.models.mapbonuslight.MapBonusLightModel;
    import projects.tanks.client.battlefield.models.mapbonuslight.MapBonusLightModelBase;
    import projects.tanks.client.battlefield.models.coloradjust.ColorAdjustParams;
+   import utils.RuntimeLifecycleDiagnostics;
    import alternativa.tanks.models.teamlight.TeamLightModel;
    import projects.tanks.client.battlefield.models.teamlight.TeamLightModelBase;
    import projects.tanks.client.battlefield.models.teamlight.TeamLightCC;
@@ -418,6 +420,7 @@ package scpacker.networking.protocol.packets.battle
       
       private function initBattle(param1:InitBattleInPacket) : void
       {
+         RuntimeLifecycleDiagnostics.recordPacketStage("HANDLER_ENTER",InitBattleInPacket.id,this.id,-1,false);
          GoldBoxDiagnostics.beginBattle();
          this.createBattleSpaceIfNotExists();
          spaceRegistry.addSpace(this.battleSpace);
@@ -427,6 +430,8 @@ package scpacker.networking.protocol.packets.battle
          var mapGraphicDataJsonObject:Object = JSON.parse(jsonObject.map_graphic_data);
          var skyboxJsonObject:Object = JSON.parse(jsonObject.skybox);
          var lightingJsonObject:Object = JSON.parse(jsonObject.lighting);
+         RuntimeLifecycleDiagnostics.beginMap(String(jsonObject.battleId),String(jsonObject.mapId));
+         RuntimeLifecycleDiagnostics.recordMap("INIT_BATTLE_HANDLER_ENTER","packetId=" + InitBattleInPacket.id,true);
 
          var _loc4_:SkyboxSides = new SkyboxSides();
          _loc4_.back = ImageResource(resourceRegistry.getResource(Long.getLong(0,skyboxJsonObject.back)));
@@ -450,6 +455,7 @@ package scpacker.networking.protocol.packets.battle
          battleMapCC.fogParams = new FogParams(mapGraphicDataJsonObject.fogAlpha,mapGraphicDataJsonObject.fogColor,mapGraphicDataJsonObject.fogFarLimit,mapGraphicDataJsonObject.fogNearLimit);
          battleMapCC.gravity = mapGraphicDataJsonObject.gravity;
          battleMapCC.mapResource = resourceRegistry.getResource(Long.getLong(0,jsonObject.mapId)) as MapResource;
+         this.recordMapResourceState(battleMapCC.mapResource);
          battleMapCC.skyBoxRevolutionAxis = new Vector3d(10,3,0);
          battleMapCC.skyBoxRevolutionSpeed = mapGraphicDataJsonObject.skyboxRevolutionSpeed;
          battleMapCC.skyboxSides = _loc4_;
@@ -612,6 +618,46 @@ package scpacker.networking.protocol.packets.battle
          this.hullSmokeCC.nearDistance = jsonObject.dustNearDistance;
          this.hullSmokeCC.particle = MultiframeImageResource(resourceRegistry.getResource(Long.getLong(0,jsonObject.smokeTextureId)));
          this.hullSmokeCC.size = jsonObject.dustSize;
+         RuntimeLifecycleDiagnostics.recordMap("INIT_BATTLE_HANDLER_EXIT","packetId=" + InitBattleInPacket.id,true);
+         RuntimeLifecycleDiagnostics.recordPacketStage("HANDLER_EXIT",InitBattleInPacket.id,this.id,-1,false);
+      }
+
+      private function recordMapResourceState(param1:MapResource) : void
+      {
+         var _loc2_:int = 0;
+         var _loc3_:int = 0;
+         var _loc4_:int = 0;
+         var _loc5_:int = 0;
+         var _loc6_:Long = null;
+         var _loc7_:PropLibResource = null;
+         try
+         {
+            if(param1 != null && param1.libIds != null)
+            {
+               _loc2_ = param1.libIds.length;
+               for each(_loc6_ in param1.libIds)
+               {
+                  _loc7_ = resourceRegistry.getResource(_loc6_) as PropLibResource;
+                  if(_loc7_ != null)
+                  {
+                     ++_loc3_;
+                     if(_loc7_.isLoaded)
+                     {
+                        ++_loc4_;
+                     }
+                     if(_loc7_.lib == null)
+                     {
+                        ++_loc5_;
+                     }
+                  }
+               }
+            }
+            RuntimeLifecycleDiagnostics.recordMap("MAP_RESOURCE_LOOKUP","mapResourceExists=" + (param1 != null ? 1 : 0) + " mapResourceIsLoaded=" + (param1 != null && param1.isLoaded ? 1 : 0) + " mapResourceIsLoading=" + (param1 != null && param1.isLoading ? 1 : 0) + " mapResourceStatus=" + (param1 == null ? "null" : param1.status) + " mapDataNull=" + (param1 == null || param1.mapData == null ? 1 : 0) + " mapDataLength=" + (param1 == null || param1.mapData == null ? -1 : param1.mapData.length) + " libRegistryNull=" + (param1 == null || param1.libRegistry == null ? 1 : 0) + " propLibCount=" + _loc2_ + " requiredPropLibCount=" + _loc2_ + " availablePropLibCount=" + _loc3_ + " loadedPropLibCount=" + _loc4_ + " nullLibCount=" + _loc5_,true);
+         }
+         catch(e:Error)
+         {
+            RuntimeLifecycleDiagnostics.recordMap("MAP_RESOURCE_DIAGNOSTIC_FAILURE","errorName=" + e.name + " errorMessage=" + e.message,true);
+         }
       }
       
       private function createTank(param1:CreateTankInPacket) : void

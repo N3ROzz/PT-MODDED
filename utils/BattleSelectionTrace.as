@@ -10,6 +10,7 @@ package utils
    import flash.utils.Dictionary;
    import flash.utils.getQualifiedClassName;
    import flash.utils.getTimer;
+   import flash.utils.setTimeout;
    import platform.client.fp10.core.type.IGameObject;
 
    public class BattleSelectionTrace
@@ -42,6 +43,8 @@ package utils
       private static var lastRemovedAt:Object = {};
       private static var objectCreationGeneration:Object = {};
       private static var snapshotSetDumped:Boolean = false;
+      private static var requestGeneration:uint = 0;
+      private static var lastAckGeneration:uint = 0;
       private static var logFile:File = File.desktopDirectory.resolvePath("protanki-battle-selection-trace.log");
 
       public function BattleSelectionTrace()
@@ -112,6 +115,7 @@ package utils
          }
          loadInfoItemId = normalize(param1);
          record("INBOUND_LOAD_INFO","BattleInfoPacketHandler.loadBattleInfo",param1,param2,param3);
+         record("BATTLE_INFO_FOR_SELECTION","BattleInfoPacketHandler.loadBattleInfo",param1,param2,"requestedBattleId=" + clean(pendingId) + " loadedBattleId=" + clean(loadInfoItemId));
       }
 
       public static function beginRequest(param1:String, param2:String, param3:IGameObject = null) : void
@@ -129,6 +133,7 @@ package utils
          id = normalize(param1);
          pendingId = id;
          pendingPayload = param2 == null ? "" : param2;
+         requestGeneration++;
          selectInboundWindowUntil = now + SELECT_INBOUND_WINDOW_MS;
          detail = "packetId=2092412133" +
             " payloadVariant=" + BUILD_VARIANT +
@@ -144,6 +149,8 @@ package utils
             " lastAddedAgeMs=" + ageFromMap(now,lastAddedAt,id) +
             " lastRemovedAgeMs=" + ageFromMap(now,lastRemovedAt,id);
          record("OUTBOUND_SELECT","BattleSelectModelServer",param1,param3,detail);
+         record("SELECT_REQUEST","BattleSelectModelServer",param1,param3,"battleId=" + clean(id) + " objectStillInSpace=" + boolString(isObjectStillInSpace(param3)));
+         scheduleNoAckObservation(requestGeneration,id);
          if(currentServerBattleIds[id] == null)
          {
             recordSetDump("SELECTED_ID_ABSENT",currentServerBattleIds);
@@ -157,7 +164,12 @@ package utils
             return;
          }
          lastAckId = normalize(param1);
+         if(lastAckId == pendingId)
+         {
+            lastAckGeneration = requestGeneration;
+         }
          record("INBOUND_SELECT_ACK","BattleListPacketHandler",param1,param2,"");
+         record("SELECT_ACK","BattleListPacketHandler",param1,param2,"requestedBattleId=" + clean(pendingId) + " ackBattleId=" + clean(lastAckId));
       }
 
       public static function recordFullSnapshot(param1:Array) : void
@@ -236,12 +248,53 @@ package utils
          writeSetEvent("BATTLE_SERVER_REMOVE",currentServerBattleIds,"rawId=" + clean(param1));
       }
 
-      public static function recordBattleObjectCreated(param1:String) : void
+      public static function recordBattleObjectCreated(param1:String, param2:IGameObject = null) : void
       {
          var id:String = normalize(param1);
          if(ENABLED && id != "")
          {
             objectCreationGeneration[id] = snapshotGeneration;
+            record("BATTLE_OBJECT_CREATE","BattleListPacketHandler",param1,param2,"battleId=" + clean(id));
+         }
+      }
+
+      public static function recordBattleObjectDestroyed(param1:String, param2:IGameObject, param3:String) : void
+      {
+         if(ENABLED)
+         {
+            record("BATTLE_OBJECT_DESTROY","BattleListPacketHandler",param1,param2,"battleId=" + clean(normalize(param1)) + " reason=" + clean(param3));
+         }
+      }
+
+      public static function recordRemovePacket(param1:String, param2:String, param3:Boolean, param4:Boolean) : void
+      {
+         if(ENABLED)
+         {
+            record("BATTLE_REMOVE_PACKET","BattleListPacketHandler",param1,null,"rawBattleId=" + clean(param1) + " trimmedBattleId=" + clean(param2) + " exactExists=" + boolString(param3) + " trimmedExists=" + boolString(param4));
+         }
+      }
+
+      public static function recordSnapshotBoundary(param1:String, param2:int, param3:int) : void
+      {
+         if(ENABLED)
+         {
+            record(param1,"BattleListPacketHandler","",null,"serverBattleCount=" + param2 + " clientBattleObjectCount=" + param3);
+         }
+      }
+
+      public static function recordDuplicateCandidate(param1:String, param2:int) : void
+      {
+         if(ENABLED && param2 > 1)
+         {
+            record("GHOST_OR_DUPLICATE_CANDIDATE","BattleListPacketHandler",param1,null,"battleId=" + clean(normalize(param1)) + " objectCount=" + param2);
+         }
+      }
+
+      public static function recordJoinRequest(param1:String, param2:IGameObject, param3:String) : void
+      {
+         if(ENABLED)
+         {
+            record("JOIN_REQUEST","BattleEntranceModelServer",param1,param2,"uiSelectedBattleId=" + clean(controllerSelectedId) + " lastSelectRequestedBattleId=" + clean(pendingId) + " lastSelectAckBattleId=" + clean(lastAckId) + " lastBattleInfoBattleId=" + clean(loadInfoItemId) + " team=" + clean(param3));
          }
       }
 
@@ -431,6 +484,30 @@ package utils
       private static function boolString(param1:Boolean) : String
       {
          return param1 ? "1" : "0";
+      }
+
+      private static function scheduleNoAckObservation(param1:uint, param2:String) : void
+      {
+         setTimeout(function():void
+         {
+            if(ENABLED && param1 == requestGeneration && pendingId == param2 && lastAckGeneration != param1)
+            {
+               record("SELECT_NO_ACK","BattleSelectionTrace",param2,null,"requestedBattleId=" + clean(param2));
+            }
+         },SELECT_INBOUND_WINDOW_MS);
+      }
+
+      private static function isObjectStillInSpace(param1:IGameObject) : Boolean
+      {
+         try
+         {
+            return param1 != null && param1.space != null && param1.space.getObject(param1.id) == param1;
+         }
+         catch(e:Error)
+         {
+            return false;
+         }
+         return false;
       }
 
       private static function matchesCurrent(param1:String) : String

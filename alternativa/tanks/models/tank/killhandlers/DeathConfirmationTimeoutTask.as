@@ -9,6 +9,7 @@ package alternativa.tanks.models.tank.killhandlers
    import alternativa.tanks.battle.events.death.TankDeadEvent;
    import flash.utils.getTimer;
    import platform.client.fp10.core.type.IGameObject;
+   import utils.RuntimeLifecycleDiagnostics;
    
    public class DeathConfirmationTimeoutTask implements LogicUnit, BattleEventListener
    {
@@ -44,6 +45,7 @@ package alternativa.tanks.models.tank.killhandlers
          this.object = param1;
          this.callback = param2;
          this.triggerTime = getTimer() + DEATH_CONFIRMATION_TIMEOUT_MS;
+         RuntimeLifecycleDiagnostics.recordDeath("REMOTE_TIMEOUT_STARTED",param1.name,"timeoutMs=" + DEATH_CONFIRMATION_TIMEOUT_MS + " triggerTime=" + this.triggerTime,true);
          battleService.getBattleRunner().addLogicUnit(this);
          for each(_loc3_ in EVENTS)
          {
@@ -55,6 +57,7 @@ package alternativa.tanks.models.tank.killhandlers
       {
          if(param1 > this.triggerTime)
          {
+            RuntimeLifecycleDiagnostics.recordDeath("REMOTE_TIMEOUT_FIRED",this.object == null ? "" : this.object.name,"now=" + param1 + " triggerTime=" + this.triggerTime,true);
             this.stop();
             this.callback(this.object);
             this.callback = null;
@@ -111,4 +114,3 @@ package alternativa.tanks.models.tank.killhandlers
       }
    }
 }
-

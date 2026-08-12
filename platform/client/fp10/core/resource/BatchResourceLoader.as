@@ -6,6 +6,8 @@ package platform.client.fp10.core.resource
    import platform.client.fp10.core.service.errormessage.IErrorMessageService;
    import platform.client.fp10.core.service.errormessage.errors.ResourceError;
    import platform.client.fp10.core.type.AutoClosable;
+   import flash.utils.getQualifiedClassName;
+   import utils.RuntimeLifecycleDiagnostics;
    
    public class BatchResourceLoader implements IResourceLoadingListener, AutoClosable
    {
@@ -98,6 +100,7 @@ package platform.client.fp10.core.resource
       
       public function onResourceLoadingFatalError(param1:Resource, param2:String) : void
       {
+         RuntimeLifecycleDiagnostics.recordMap("RESOURCE_FATAL","resourceId=" + (param1 == null ? "null" : param1.id) + " resourceClass=" + (param1 == null ? "null" : getQualifiedClassName(param1)) + " status=" + (param1 == null ? "null" : param1.status) + " isLoaded=" + (param1 != null && param1.isLoaded ? 1 : 0) + " isLoading=" + (param1 != null && param1.isLoading ? 1 : 0) + " errorMessage=" + (param2 == null ? "" : param2.split(/\r?\n/)[0]) + " numResources=" + this.numResources + " numLoadedResources=" + this.numLoadedResources,true);
          var _loc3_:ResourceError = new ResourceError(param1,param2);
          getLogger().error(_loc3_.getMessage());
          messageBoxService.showMessage(_loc3_);
@@ -116,4 +119,3 @@ package platform.client.fp10.core.resource
       }
    }
 }
-

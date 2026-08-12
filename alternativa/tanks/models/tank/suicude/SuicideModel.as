@@ -8,6 +8,7 @@ package alternativa.tanks.models.tank.suicude
    import alternativa.tanks.models.tank.support.SuicideSupport;
    import projects.tanks.client.battlefield.models.user.suicide.ISuicideModelBase;
    import projects.tanks.client.battlefield.models.user.suicide.SuicideModelBase;
+   import utils.RuntimeLifecycleDiagnostics;
    
    [ModelInfo]
    public class SuicideModel extends SuicideModelBase implements ISuicideModelBase, LocalTankLoadListener, LocalTankUnloadListener
@@ -34,10 +35,10 @@ package alternativa.tanks.models.tank.suicude
       [Obfuscation(rename="false")]
       public function suicide(param1:int) : void
       {
+         RuntimeLifecycleDiagnostics.recordSuicide("SUICIDE_MODEL_ENTER","delay=" + param1,true);
          var _loc2_:ITankModel = ITankModel(object.adapt(ITankModel));
          _loc2_.die(param1);
          battleEventDispatcher.dispatchEvent(new TankSuicideEvent(object));
       }
    }
 }
-

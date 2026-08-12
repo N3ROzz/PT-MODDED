@@ -7,6 +7,7 @@ package alternativa.tanks.models.battle.battlefield.map
    import flash.display.BitmapData;
    import flash.events.Event;
    import flash.events.EventDispatcher;
+   import utils.RuntimeLifecycleDiagnostics;
    
    public class MapTexturesBuilder extends EventDispatcher implements ITextureConstructorListener
    {
@@ -53,6 +54,10 @@ package alternativa.tanks.models.battle.battlefield.map
          this.totalCounter = 0;
          this.lastCollectionIndex = 0;
          this.createTextureConstructors();
+         if(this.texturedPropsCollections.length == 0)
+         {
+            RuntimeLifecycleDiagnostics.recordMap("ZERO_TEXTURE_COLLECTIONS","texturedCollectionCount=0",true);
+         }
          this.runConstructors();
       }
       
@@ -83,7 +88,15 @@ package alternativa.tanks.models.battle.battlefield.map
          {
             param1.index = this.lastCollectionIndex;
             _loc2_ = this.texturedPropsCollections[this.lastCollectionIndex++];
-            param1.createTexture(_loc2_.getTextureData(),this);
+            try
+            {
+               param1.createTexture(_loc2_.getTextureData(),this);
+            }
+            catch(e:Error)
+            {
+               RuntimeLifecycleDiagnostics.recordMap("MAP_TEXTURE_FAILURE","constructorIndex=" + param1.index + " errorName=" + e.name + " errorMessage=" + e.message,true);
+               throw e;
+            }
          }
       }
       
@@ -100,6 +113,7 @@ package alternativa.tanks.models.battle.battlefield.map
             this.textures.push(_loc2_.texture);
             this.assignMaterialToProps(_loc2_);
             ++this.totalCounter;
+            RuntimeLifecycleDiagnostics.recordMap("MAP_TEXTURE_READY","constructorIndex=" + _loc2_.index + " completedCount=" + this.totalCounter + " totalCount=" + this.texturedPropsCollections.length);
             if(this.totalCounter == this.texturedPropsCollections.length)
             {
                this.complete();
@@ -130,4 +144,3 @@ package alternativa.tanks.models.battle.battlefield.map
       }
    }
 }
-

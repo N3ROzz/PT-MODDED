@@ -111,6 +111,7 @@ package alternativa.tanks.models.tank
    import juho.hacking.Hack;
    import juho.hacking.event.LocalTankUnloadedEvent;
    import utils.TankTraceUtil;
+   import utils.RuntimeLifecycleDiagnostics;
    
    [ModelInfo]
    public class TankModel extends TankModelBase implements ITankModelBase, ObjectLoadListener, ObjectUnloadListener, ITankModel, LocalTankInfoService, ChassisControlListener, BattleEventListener, ITurretControllerListener
@@ -535,17 +536,21 @@ package alternativa.tanks.models.tank
       [Obfuscation(rename="false")]
       public function kill(param1:String, param2:int, param3:DamageType) : void
       {
+         RuntimeLifecycleDiagnostics.recordDeath("TANKMODEL_KILL_ENTER",object.name,"",true);
          TankTraceUtil.log("[TankModel.kill] objectName=" + object.name + " killer=" + param1 + " delay=" + param2 + " " + TankTraceUtil.tankInfo(this.getTank()));
          if(this.isLocal() && this.getTank() != null)
          {
             TankTraceUtil.logHpLifecycle("[LocalLifecycle] event=death localTank=" + object.name + " health=" + this.getTank().health + " max=" + this.getTank().getMaxHealth() + " team=" + this.getTank().teamType + " incarnation=" + this.getTank().incarnation);
          }
          this.die(param2);
+         RuntimeLifecycleDiagnostics.recordDeath("TANK_KILLED_EVENT_DISPATCH_BEGIN",object.name,"",true);
          battleEventDispatcher.dispatchEvent(new TankKilledEvent(param1,getUserInfo().name,param3));
+         RuntimeLifecycleDiagnostics.recordDeath("TANK_KILLED_EVENT_DISPATCH_END",object.name,"",true);
       }
       
       public function die(param1:int) : void
       {
+         RuntimeLifecycleDiagnostics.recordTankLifecycle("TANKMODEL_DIE_ENTER",object.name,"delay=" + param1,true);
          TankTraceUtil.log("[TankModel.die] objectName=" + object.name + " delay=" + param1 + " " + TankTraceUtil.tankInfo(this.getTank()));
          var _loc2_:TankDieHandler = TankDieHandler(getData(TankDieHandler));
          _loc2_.handleTankDie(object,param1);
@@ -554,6 +559,7 @@ package alternativa.tanks.models.tank
       [Obfuscation(rename="false")]
       public function deathConfirmed() : void
       {
+         RuntimeLifecycleDiagnostics.recordDeath("DEATH_CONFIRMED_ENTER",object.name,"",true);
          TankTraceUtil.log("[TankModel.deathConfirmed] objectName=" + object.name + " " + TankTraceUtil.tankInfo(this.getTank()));
          var _loc1_:TankDeathConfirmationHandler = TankDeathConfirmationHandler(getData(TankDeathConfirmationHandler));
          _loc1_.handleDeathConfirmation(object);

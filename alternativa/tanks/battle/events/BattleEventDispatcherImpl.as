@@ -1,6 +1,7 @@
 package alternativa.tanks.battle.events
 {
    import flash.utils.Dictionary;
+   import utils.RuntimeLifecycleDiagnostics;
    
    public class BattleEventDispatcherImpl implements BattleEventDispatcher
    {
@@ -93,7 +94,16 @@ package alternativa.tanks.battle.events
             _loc5_ = 0;
             while(_loc5_ < _loc4_)
             {
-               BattleEventListener(_loc2_[_loc5_]).handleBattleEvent(param1);
+               var _loc6_:BattleEventListener = BattleEventListener(_loc2_[_loc5_]);
+               try
+               {
+                  _loc6_.handleBattleEvent(param1);
+               }
+               catch(e:Error)
+               {
+                  RuntimeLifecycleDiagnostics.recordListenerFailure(param1,_loc6_,e);
+                  throw e;
+               }
                _loc5_++;
             }
          }
@@ -160,4 +170,3 @@ package alternativa.tanks.battle.events
       }
    }
 }
-

@@ -8,6 +8,7 @@ package projects.tanks.client.battleselect.model.battleselect
    import alternativa.osgi.OSGi;
    import scpacker.networking.protocol.packets.battlelist.SelectBattleInOutPacket;
    import utils.BattleSelectionTrace;
+   import utils.RuntimeLifecycleDiagnostics;
 
    public class BattleSelectModelServer
    {
@@ -22,6 +23,7 @@ package projects.tanks.client.battleselect.model.battleselect
       
       public function onSelect(param1:String, param2:IGameObject = null) : void
       {
+         RuntimeLifecycleDiagnostics.recordSelectRequest(param1,this.network != null && this.network.diagnosticSocketConnected,this.network != null && this.network.diagnosticTransportFailed);
          var payload:String = BattleSelectionTrace.buildSelectPayload(param1);
          BattleSelectionTrace.beginRequest(param1,payload,param2);
          network.send(new SelectBattleInOutPacket(payload));

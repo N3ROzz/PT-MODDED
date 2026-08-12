@@ -52,6 +52,16 @@ package alternativa.tanks.models.battle.battlefield.map
       private var christmasTree:Object3D;
       
       private var christmasTreeToys:Vector.<Object3D> = new Vector.<Object3D>();
+
+      private var mapPropCount:int;
+
+      private var resolvedPropCount:int;
+
+      private var missingLibraryCount:int;
+
+      private var missingGroupCount:int;
+
+      private var missingPropCount:int;
       
       public function MapGeometryParser(param1:PropLibRegistry)
       {
@@ -102,6 +112,7 @@ package alternativa.tanks.models.battle.battlefield.map
          var _loc2_:XML = null;
          for each(_loc2_ in param1.elements("static-geometry").prop)
          {
+            ++this.mapPropCount;
             this.parseProp(_loc2_);
          }
       }
@@ -130,18 +141,22 @@ package alternativa.tanks.models.battle.battlefield.map
          var _loc5_:PropLibrary = this.propLibRegistry.getLibrary(_loc2_);
          if(_loc5_ == null)
          {
+            ++this.missingLibraryCount;
             return null;
          }
          var _loc6_:PropGroup = _loc5_.rootGroup.getGroupByName(_loc3_);
          if(_loc6_ == null)
          {
+            ++this.missingGroupCount;
             return null;
          }
          var _loc7_:PropData = _loc6_.getPropByName(_loc4_);
          if(_loc7_ == null)
          {
+            ++this.missingPropCount;
             return null;
          }
+         ++this.resolvedPropCount;
          return _loc7_.getDefaultState().getDefaultObject();
       }
       
@@ -327,6 +342,30 @@ package alternativa.tanks.models.battle.battlefield.map
       {
          return this.christmasTreeToys;
       }
+
+      public function getMapPropCount() : int
+      {
+         return this.mapPropCount;
+      }
+
+      public function getResolvedPropCount() : int
+      {
+         return this.resolvedPropCount;
+      }
+
+      public function getMissingLibraryCount() : int
+      {
+         return this.missingLibraryCount;
+      }
+
+      public function getMissingGroupCount() : int
+      {
+         return this.missingGroupCount;
+      }
+
+      public function getMissingPropCount() : int
+      {
+         return this.missingPropCount;
+      }
    }
 }
-

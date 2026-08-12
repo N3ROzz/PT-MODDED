@@ -35,6 +35,7 @@ package scpacker.networking.protocol.packets.battleInfo
    import scpacker.networking.protocol.packets.battlelist.BattleListPacketHandler;
    import projects.tanks.client.battleservice.model.types.BattleSuspicionLevel;
    import utils.BattleSelectionTrace;
+   import utils.RuntimeLifecycleDiagnostics;
    
    public class BattleInfoPacketHandler extends AbstractPacketHandler
    {
@@ -61,7 +62,9 @@ package scpacker.networking.protocol.packets.battleInfo
       
       public function invoke(param1:AbstractPacket) : void
       {
-         switch(param1.getId())
+         var _loc2_:int = param1.getId();
+         RuntimeLifecycleDiagnostics.recordPreInitHandler("PREINIT_HANDLER_ENTER",_loc2_,this.id);
+         switch(_loc2_)
          {
             case JoinedDmBattleInPacket.id:
                this.addUserDm(param1 as JoinedDmBattleInPacket);
@@ -114,6 +117,7 @@ package scpacker.networking.protocol.packets.battleInfo
             case UpdatePlayerSuspiciousStateInPacket.id:
                this.updateUserSuspiciousState(param1 as UpdatePlayerSuspiciousStateInPacket);
          }
+         RuntimeLifecycleDiagnostics.recordPreInitHandler("PREINIT_HANDLER_EXIT",_loc2_,this.id);
       }
       
       private function battleStop(param1:BattleStoppedInPacket) : void
@@ -225,21 +229,33 @@ package scpacker.networking.protocol.packets.battleInfo
       private function addUserDm(param1:JoinedDmBattleInPacket) : void
       {
          var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
+         RuntimeLifecycleDiagnostics.recordBattleInfo("JOINED_DM_HANDLER_ENTER","packetBattleId=" + param1.battleId + " " + this.describeBattleObject(_loc2_));
+         if(param1.battleId != selectedBattleId)
+         {
+            RuntimeLifecycleDiagnostics.recordBattleInfo("BATTLE_ID_MISMATCH","packetBattleId=" + param1.battleId + " resolvedBy=selectedBattleId",true);
+         }
          Model.object = _loc2_;
          try
          {
          this.battleDmInfoModel.addUser(param1.userInfo);
          }          finally          {             Model.popObject();          }
+         RuntimeLifecycleDiagnostics.recordBattleInfo("JOINED_DM_HANDLER_EXIT","packetBattleId=" + param1.battleId + " " + this.describeBattleObject(_loc2_));
       }
       
       private function addUserTeam(param1:JoinedTeamBattleInPacket) : void
       {
          var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
+         RuntimeLifecycleDiagnostics.recordBattleInfo("JOINED_TEAM_HANDLER_ENTER","packetBattleId=" + param1.battleId + " team=" + (param1.team == null ? "null" : param1.team.name) + " " + this.describeBattleObject(_loc2_));
+         if(param1.battleId != selectedBattleId)
+         {
+            RuntimeLifecycleDiagnostics.recordBattleInfo("BATTLE_ID_MISMATCH","packetBattleId=" + param1.battleId + " resolvedBy=selectedBattleId",true);
+         }
          Model.object = _loc2_;
          try
          {
          this.teamBattleInfoModel.addUser(param1.userInfo,param1.team);
          }          finally          {             Model.popObject();          }
+         RuntimeLifecycleDiagnostics.recordBattleInfo("JOINED_TEAM_HANDLER_EXIT","packetBattleId=" + param1.battleId + " " + this.describeBattleObject(_loc2_));
       }
       
       private function swapTeams(param1:SwapTeamsInPacket) : void
@@ -274,12 +290,15 @@ package scpacker.networking.protocol.packets.battleInfo
       
       private function loadBattleInfo(param1:LoadBattleInfoInPacket) : void
       {
+         RuntimeLifecycleDiagnostics.recordBattleInfo("BATTLE_INFO_LOAD_BEGIN","packetId=" + param1.getId());
          try
          {
          var battleData:Object = JSON.parse(param1.battlesJson);
          selectedBattleId = battleData.itemId;
+         RuntimeLifecycleDiagnostics.recordSelection(selectedBattleId,"packetId=" + param1.getId());
 
          var battleGameObject:IGameObject = this.battleSelectSpace.getObjectByName(battleData.itemId);
+         RuntimeLifecycleDiagnostics.recordBattleInfo("BATTLE_INFO_OBJECT_RESOLVED","mode=" + battleData.battleMode + " " + this.describeBattleObject(battleGameObject));
          BattleSelectionTrace.beginLoadInfo(battleData.itemId,battleGameObject,"mode=" + battleData.battleMode);
          BattleSelectionTrace.record("OBJECT_RESOLVE","BattleInfoPacketHandler.loadBattleInfo",battleData.itemId,battleGameObject,"lookup=exact");
          BattleSelectionTrace.record("MODEL_RELOAD_BEGIN","BattleInfoPacketHandler.loadBattleInfo",battleData.itemId,battleGameObject,"mode=" + battleData.battleMode);
@@ -384,6 +403,7 @@ package scpacker.networking.protocol.packets.battleInfo
          }
          BattleSelectionTrace.record("MODEL_RELOAD_END","BattleInfoPacketHandler.loadBattleInfo",battleData.itemId,battleGameObject,"mode=" + battleData.battleMode);
          ShowInfo(battleGameObject.adapt(ShowInfo)).showInfo();
+         RuntimeLifecycleDiagnostics.recordBattleInfo("BATTLE_INFO_LOAD_END","mode=" + battleData.battleMode + " " + this.describeBattleObject(battleGameObject));
          }
          catch(e:Error)
          {
@@ -412,6 +432,23 @@ package scpacker.networking.protocol.packets.battleInfo
             }
          }
          return 0;
+      }
+
+      private function describeBattleObject(param1:IGameObject) : String
+      {
+         if(param1 == null)
+         {
+            return "battleObjectExists=0 battleObjectName=";
+         }
+         try
+         {
+            return "battleObjectExists=1 battleObjectName=" + param1.name + " hasDmModel=" + (param1.hasModel(BattleDmInfoModel) ? 1 : 0) + " hasTeamModel=" + (param1.hasModel(BattleTeamInfoModel) ? 1 : 0) + " hasEntranceModel=" + (param1.hasModel(BattleEntranceModel) ? 1 : 0);
+         }
+         catch(e:Error)
+         {
+            return "battleObjectExists=1 battleObjectName=unavailable modelInspectionError=" + e.name;
+         }
+         return "battleObjectExists=1 battleObjectName=unavailable";
       }
       
       private function unload(param1:UnloadBattleInfoInPacket) : void
