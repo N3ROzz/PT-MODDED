@@ -12,6 +12,10 @@ package projects.tanks.client.battleselect.model.battle.team
       private var _usersBlue:Vector.<BattleInfoUser>;
       
       private var _usersRed:Vector.<BattleInfoUser>;
+
+      private var _autoBalance:Boolean;
+
+      private var _friendlyFire:Boolean;
       
       public function TeamBattleInfoCC(param1:int = 0, param2:int = 0, param3:Vector.<BattleInfoUser> = null, param4:Vector.<BattleInfoUser> = null)
       {
@@ -61,6 +65,26 @@ package projects.tanks.client.battleselect.model.battle.team
       {
          this._usersRed = param1;
       }
+
+      public function get autoBalance() : Boolean
+      {
+         return this._autoBalance;
+      }
+
+      public function set autoBalance(param1:Boolean) : void
+      {
+         this._autoBalance = param1;
+      }
+
+      public function get friendlyFire() : Boolean
+      {
+         return this._friendlyFire;
+      }
+
+      public function set friendlyFire(param1:Boolean) : void
+      {
+         this._friendlyFire = param1;
+      }
       
       public function toString() : String
       {
@@ -73,4 +97,3 @@ package projects.tanks.client.battleselect.model.battle.team
       }
    }
 }
-

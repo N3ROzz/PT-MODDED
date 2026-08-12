@@ -1,177 +1,75 @@
 package scpacker.networking.protocol.packets.battleitem
 {
-   import scpacker.networking.protocol.AbstractPacketHandler;
-   import projects.tanks.client.battleselect.model.battle.entrance.user.BattleInfoUser;
-   import alternativa.types.Long;
-   import scpacker.networking.protocol.AbstractPacket;
-   import platform.client.fp10.core.model.impl.*;
+   import alternativa.tanks.model.item.BattleItemModel;
+   import alternativa.tanks.model.item.dm.BattleDMItemModel;
+   import alternativa.tanks.model.item.team.BattleTeamItemModel;
+   import platform.client.fp10.core.model.impl.Model;
    import platform.client.fp10.core.type.IGameObject;
-   import alternativa.tanks.model.info.BattleInfoModel;
-   import projects.tanks.client.battleselect.model.battle.BattleInfoModelBase;
-   import projects.tanks.client.battleselect.model.battle.dm.BattleDMInfoModelBase;
-   import alternativa.tanks.model.info.dm.BattleDmInfoModel;
-   import projects.tanks.client.battleselect.model.battle.team.TeamBattleInfoModelBase;
-   import alternativa.tanks.model.info.team.BattleTeamInfoModel;
-   import scpacker.SpaceAndGameObjectIds;
    import platform.client.fp10.core.type.ISpace;
-   
+   import projects.tanks.client.battleselect.model.item.BattleItemModelBase;
+   import projects.tanks.client.battleselect.model.item.dm.BattleDMItemModelBase;
+   import projects.tanks.client.battleselect.model.item.team.BattleTeamItemModelBase;
+   import scpacker.SpaceAndGameObjectIds;
+   import scpacker.networking.protocol.AbstractPacket;
+   import scpacker.networking.protocol.AbstractPacketHandler;
+
    public class BattleItemPacketHandler extends AbstractPacketHandler
    {
-      private var battleInfoModel:BattleInfoModel;
-      private var battleDmInfoModel:BattleDmInfoModel;
-      private var battleTeamInfoModel:BattleTeamInfoModel;
-      
+      private var battleItemModel:BattleItemModel;
+      private var battleDMItemModel:BattleDMItemModel;
+      private var battleTeamItemModel:BattleTeamItemModel;
       private var battleSelectSpace:ISpace;
-     
+
       public function BattleItemPacketHandler()
       {
          super();
          this.id = 32;
-         this.battleInfoModel = BattleInfoModel(modelRegistry.getModel(BattleInfoModelBase.modelId));
-         this.battleDmInfoModel = BattleDmInfoModel(modelRegistry.getModel(BattleDMInfoModelBase.modelId));
-         this.battleTeamInfoModel = BattleTeamInfoModel(modelRegistry.getModel(TeamBattleInfoModelBase.modelId));
-         this.battleSelectSpace = ISpace(spaceRegistry.getSpace(SpaceAndGameObjectIds.BATTLE_SELECT_SPACE_ID));
+         this.battleItemModel = BattleItemModel(modelRegistry.getModel(BattleItemModelBase.modelId));
+         this.battleDMItemModel = BattleDMItemModel(modelRegistry.getModel(BattleDMItemModelBase.modelId));
+         this.battleTeamItemModel = BattleTeamItemModel(modelRegistry.getModel(BattleTeamItemModelBase.modelId));
+         this.battleSelectSpace = spaceRegistry.getSpace(SpaceAndGameObjectIds.BATTLE_SELECT_SPACE_ID);
       }
-      
+
       public function invoke(param1:AbstractPacket) : void
       {
          switch(param1.getId())
          {
             case ItemBattleMadePrivateInPacket.id:
-               this.madePrivate(param1 as ItemBattleMadePrivateInPacket);
+               this.withBattle(ItemBattleMadePrivateInPacket(param1).battleId,this.battleItemModel.madePrivate);
                break;
             case ItemLeftDmBattleInPacket.id:
-               this.onReleaseSlotDm(param1 as ItemLeftDmBattleInPacket);
+               var _loc1_:ItemLeftDmBattleInPacket = ItemLeftDmBattleInPacket(param1);
+               this.withBattle(_loc1_.battleId,function():void { battleDMItemModel.removeUser(_loc1_.userId); });
                break;
             case ItemLeftTeamBattleInPacket.id:
-               this.onReleaseSlotTeam(param1 as ItemLeftTeamBattleInPacket);
+               var _loc2_:ItemLeftTeamBattleInPacket = ItemLeftTeamBattleInPacket(param1);
+               this.withBattle(_loc2_.battleId,function():void { battleTeamItemModel.removeUser(_loc2_.userId); });
                break;
             case ItemJoinedDmBattleInPacket.id:
-               this.onReserveSlotDm(param1 as ItemJoinedDmBattleInPacket);
+               var _loc3_:ItemJoinedDmBattleInPacket = ItemJoinedDmBattleInPacket(param1);
+               this.withBattle(_loc3_.battleId,function():void { battleDMItemModel.addUser(_loc3_.userId); });
                break;
             case ItemJoinedTeamBattleInPacket.id:
-               this.onReserveSlotTeam(param1 as ItemJoinedTeamBattleInPacket);
+               var _loc4_:ItemJoinedTeamBattleInPacket = ItemJoinedTeamBattleInPacket(param1);
+               this.withBattle(_loc4_.battleId,function():void { battleTeamItemModel.addUser(_loc4_.userId,_loc4_.team); });
                break;
             case ItemSwapTeamsInPacket.id:
-               this.swapTeams(param1 as ItemSwapTeamsInPacket);
+               this.withBattle(ItemSwapTeamsInPacket(param1).battleId,this.battleTeamItemModel.swapTeams);
                break;
             case ItemUpdateBattleNameInPacket.id:
-               this.updateName(param1 as ItemUpdateBattleNameInPacket);
+               var _loc5_:ItemUpdateBattleNameInPacket = ItemUpdateBattleNameInPacket(param1);
+               this.withBattle(_loc5_.battleId,function():void { battleItemModel.setBattleName(_loc5_.battleName); });
                break;
             case ItemUpdateBattleSuspicionInPacket.id:
-               this.updateSuspicious(param1 as ItemUpdateBattleSuspicionInPacket);
+               var _loc6_:ItemUpdateBattleSuspicionInPacket = ItemUpdateBattleSuspicionInPacket(param1);
+               this.withBattle(_loc6_.battleId,function():void { battleItemModel.updateSuspicion(_loc6_.suspicionLevel); });
          }
       }
-      
-      private function madePrivate(param1:ItemBattleMadePrivateInPacket) : void
-      {
-         var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(param1.battleId);
-         if(_loc2_ != null)
-         {
-            Model.object = _loc2_;
-            try
-            {
-            //this.newname_5446__END.madePrivate();
-            }             finally             {                Model.popObject();             }
-         }
-      }
-      
-      private function updateName(param1:ItemUpdateBattleNameInPacket) : void
-      {
-         var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(param1.battleId);
-         if(_loc2_ != null)
-         {
-            Model.object = _loc2_;
-            try
-            {
-            this.battleInfoModel.setBattleName(param1.battleName);
-            }             finally             {                Model.popObject();             }
-         }
-      }
-      
-      private function updateSuspicious(param1:ItemUpdateBattleSuspicionInPacket) : void
-      {
-         var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(param1.battleId);
-         if(_loc2_ != null)
-         {
-            Model.object = _loc2_;
-            try
-            {
-            this.battleInfoModel.updateSuspicion(param1.suspicionLevel);
-            }             finally             {                Model.popObject();             }
-         }
-      }
-      
-      private function onReserveSlotDm(param1:ItemJoinedDmBattleInPacket) : void
-      {
-         var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(param1.battleId);
-         if(_loc2_ != null)
-         {
-            var userInfo:BattleInfoUser = new BattleInfoUser();
-            userInfo.user = param1.userId;
 
-            Model.object = _loc2_;
-            try
-            {
-            this.battleDmInfoModel.addUser(userInfo);
-            }             finally             {                Model.popObject();             }
-         }
-      }
-      
-      private function onReleaseSlotDm(param1:ItemLeftDmBattleInPacket) : void
+      private function withBattle(param1:String, param2:Function) : void
       {
-         var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(param1.battleId);
-         if(_loc2_ != null)
-         {
-            Model.object = _loc2_;
-            try
-            {
-            this.battleDmInfoModel.removeUser(param1.userId);
-            }             finally             {                Model.popObject();             }
-         }
-      }
-      
-      private function onReleaseSlotTeam(param1:ItemLeftTeamBattleInPacket) : void
-      {
-         var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(param1.battleId);
-         if(_loc2_ != null)
-         {
-            Model.object = _loc2_;
-            try
-            {
-            this.battleTeamInfoModel.removeUser(param1.userId);
-            }             finally             {                Model.popObject();             }
-         }
-      }
-      
-      private function onReserveSlotTeam(param1:ItemJoinedTeamBattleInPacket) : void
-      {
-         var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(param1.battleId);
-         if(_loc2_ != null)
-         {
-            var userInfo:BattleInfoUser = new BattleInfoUser();
-            userInfo.user = param1.userId;
-
-            Model.object = _loc2_;
-            try
-            {
-            this.battleTeamInfoModel.addUser(userInfo,param1.team);
-            }             finally             {                Model.popObject();             }
-         }
-      }
-      
-      private function swapTeams(param1:ItemSwapTeamsInPacket) : void
-      {
-         var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(param1.battleId);
-         if(_loc2_ != null)
-         {
-            Model.object = _loc2_;
-            try
-            {
-            this.battleTeamInfoModel.swapTeams();
-            }             finally             {                Model.popObject();             }
-         }
+         var _loc1_:IGameObject = this.battleSelectSpace.getObjectByName(param1);
+         Model.withObject(_loc1_,param2);
       }
    }
 }
-

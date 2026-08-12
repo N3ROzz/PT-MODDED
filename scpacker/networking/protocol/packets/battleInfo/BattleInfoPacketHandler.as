@@ -1,53 +1,44 @@
 package scpacker.networking.protocol.packets.battleInfo
 {
-   import scpacker.networking.protocol.AbstractPacketHandler;
-   import projects.tanks.client.battleselect.model.battle.team.TeamBattleInfoCC;
-   import alternativa.types.Long;
+   import alternativa.tanks.model.battle.BattleEntranceModel;
    import alternativa.tanks.model.info.BattleInfoModel;
-   import scpacker.networking.protocol.AbstractPacket;
-   import projects.tanks.client.battleservice.model.createparams.BattleLimits;
-   import platform.client.fp10.core.model.impl.*;
-   import platform.client.fp10.core.type.IGameObject;
-   import platform.client.fp10.core.type.IGameClass;
-   import projects.tanks.client.battleselect.model.battle.entrance.user.BattleInfoUser;
-   import projects.tanks.client.battleselect.model.battle.dm.BattleDMInfoCC;
-   import platform.client.fp10.core.type.ISpace;
-   import scpacker.SpaceAndGameObjectIds;
-   import projects.tanks.client.battleselect.model.battle.BattleInfoModelBase;
    import alternativa.tanks.model.info.dm.BattleDmInfoModel;
    import alternativa.tanks.model.info.team.BattleTeamInfoModel;
-   import projects.tanks.client.battleselect.model.battle.dm.BattleDMInfoModelBase;
-   import alternativa.tanks.model.info.team.BattleTeamInfo;
-   import projects.tanks.client.battleselect.model.battle.team.TeamBattleInfoModelBase;
-   import projects.tanks.client.battleservice.model.statistics.StatisticsModelCC;
-   import alternativa.tanks.model.info.param.BattleParamInfoModel;
-   import projects.tanks.client.battleselect.model.battle.param.BattleParamInfoModelBase;
-   import alternativa.tanks.model.battle.BattleEntrance;
-   import alternativa.tanks.model.battle.BattleEntranceModel;
-   import projects.tanks.client.battleselect.model.battle.entrance.BattleEntranceModelBase;
-   import projects.tanks.client.battleselect.model.battle.param.BattleParamInfoCC;
-   import projects.tanks.client.battleservice.BattleCreateParameters;
-   import scpacker.utils.EnumUtils;
-   import projects.tanks.client.battleservice.Range;
+   import alternativa.types.Long;
+   import platform.client.fp10.core.model.impl.Model;
+   import platform.client.fp10.core.type.IGameClass;
+   import platform.client.fp10.core.type.IGameObject;
+   import platform.client.fp10.core.type.ISpace;
    import projects.tanks.client.battleselect.model.battle.BattleInfoCC;
-   import alternativa.tanks.model.info.ShowInfo;
-   import scpacker.utils.IdTool;
-   import scpacker.networking.protocol.packets.battlelist.BattleListPacketHandler;
+   import projects.tanks.client.battleselect.model.battle.BattleInfoModelBase;
+   import projects.tanks.client.battleselect.model.battle.dm.BattleDMInfoCC;
+   import projects.tanks.client.battleselect.model.battle.dm.BattleDMInfoModelBase;
+   import projects.tanks.client.battleselect.model.battle.entrance.BattleEntranceCC;
+   import projects.tanks.client.battleselect.model.battle.entrance.BattleEntranceModelBase;
+   import projects.tanks.client.battleselect.model.battle.entrance.user.BattleInfoUser;
+   import projects.tanks.client.battleselect.model.battle.team.TeamBattleInfoCC;
+   import projects.tanks.client.battleselect.model.battle.team.TeamBattleInfoModelBase;
+   import projects.tanks.client.battleservice.BattleCreateParameters;
+   import projects.tanks.client.battleservice.Range;
+   import projects.tanks.client.battleservice.model.createparams.BattleLimits;
    import projects.tanks.client.battleservice.model.types.BattleSuspicionLevel;
-   import utils.BattleSelectionTrace;
+   import scpacker.SpaceAndGameObjectIds;
+   import scpacker.networking.protocol.AbstractPacket;
+   import scpacker.networking.protocol.AbstractPacketHandler;
+   import scpacker.networking.protocol.packets.battlelist.BattleListPacketHandler;
+   import scpacker.utils.EnumUtils;
+   import scpacker.utils.IdTool;
    import utils.RuntimeLifecycleDiagnostics;
-   
+
    public class BattleInfoPacketHandler extends AbstractPacketHandler
    {
       private var battleInfoModel:BattleInfoModel;
       private var battleDmInfoModel:BattleDmInfoModel;
       private var teamBattleInfoModel:BattleTeamInfoModel;
       private var battleEntranceModel:BattleEntranceModel;
-      private var battleParamInfoModel:BattleParamInfoModel;
-      
       private var battleSelectSpace:ISpace;
-      private var selectedBattleId:String = "";
-      
+      private var battleInfoSpace:ISpace;
+
       public function BattleInfoPacketHandler()
       {
          super();
@@ -56,413 +47,358 @@ package scpacker.networking.protocol.packets.battleInfo
          this.battleDmInfoModel = BattleDmInfoModel(modelRegistry.getModel(BattleDMInfoModelBase.modelId));
          this.teamBattleInfoModel = BattleTeamInfoModel(modelRegistry.getModel(TeamBattleInfoModelBase.modelId));
          this.battleEntranceModel = BattleEntranceModel(modelRegistry.getModel(BattleEntranceModelBase.modelId));
-         this.battleParamInfoModel = BattleParamInfoModel(modelRegistry.getModel(BattleParamInfoModelBase.modelId));
-         this.battleSelectSpace = ISpace(spaceRegistry.getSpace(SpaceAndGameObjectIds.BATTLE_SELECT_SPACE_ID));
+         this.battleSelectSpace = spaceRegistry.getSpace(SpaceAndGameObjectIds.BATTLE_SELECT_SPACE_ID);
+         this.battleInfoSpace = spaceRegistry.getSpace(SpaceAndGameObjectIds.BATTLE_INFO_SPACE_ID);
       }
-      
+
       public function invoke(param1:AbstractPacket) : void
       {
-         var _loc2_:int = param1.getId();
-         RuntimeLifecycleDiagnostics.recordPreInitHandler("PREINIT_HANDLER_ENTER",_loc2_,this.id);
-         switch(_loc2_)
+         var _loc1_:int = param1.getId();
+         RuntimeLifecycleDiagnostics.recordPreInitHandler("PREINIT_HANDLER_ENTER",_loc1_,this.id);
+         switch(_loc1_)
          {
             case JoinedDmBattleInPacket.id:
-               this.addUserDm(param1 as JoinedDmBattleInPacket);
+               this.addUserDm(JoinedDmBattleInPacket(param1));
                break;
             case JoinedTeamBattleInPacket.id:
-               this.addUserTeam(param1 as JoinedTeamBattleInPacket);
+               this.addUserTeam(JoinedTeamBattleInPacket(param1));
                break;
             case BattleStoppedInPacket.id:
-               this.battleStop(param1 as BattleStoppedInPacket);
+               this.battleStop(BattleStoppedInPacket(param1));
                break;
             case EquipmentNotMatchConstraintsInPacket.id:
-               this.equipmentNotMatchConstraintsDm(param1 as EquipmentNotMatchConstraintsInPacket);
+               this.equipmentNotMatchConstraintsDm(EquipmentNotMatchConstraintsInPacket(param1).battleId);
                break;
             case EquipmentNotMatchTeamConstraintsInPacket.id:
-               this.equipmentNotMatchConstraintsTeam(param1 as EquipmentNotMatchTeamConstraintsInPacket);
+               this.equipmentNotMatchConstraintsTeam(EquipmentNotMatchTeamConstraintsInPacket(param1).battleId);
                break;
             case FightFailedServerHaltingInPacket.id:
-               this.fightFailedServerIsHalting(param1 as FightFailedServerHaltingInPacket);
+               this.fightFailedServerIsHalting(FightFailedServerHaltingInPacket(param1));
                break;
             case UnloadBattleInfoInPacket.id:
-               this.unload(param1 as UnloadBattleInfoInPacket);
+               this.unload(UnloadBattleInfoInPacket(param1));
                break;
             case LeftPacketInPacket.id:
-               this.removeUser(param1 as LeftPacketInPacket);
+               this.removeUser(LeftPacketInPacket(param1));
                break;
             case RoundFinishedInPacket.id:
-               this.roundFinish(param1 as RoundFinishedInPacket);
+               this.roundFinish(RoundFinishedInPacket(param1));
                break;
             case RoundStartedInPacket.id:
-               this.roundStart(param1 as RoundStartedInPacket);
+               this.roundStart(RoundStartedInPacket(param1));
                break;
             case LoadBattleInfoInPacket.id:
-               this.loadBattleInfo(param1 as LoadBattleInfoInPacket);
+               this.loadBattleInfo(LoadBattleInfoInPacket(param1));
                break;
             case SwapTeamsInPacket.id:
-               this.swapTeams(param1 as SwapTeamsInPacket);
+               this.swapTeams(SwapTeamsInPacket(param1));
                break;
             case UpdateBattleNameInPacket.id:
-               this.updateName(param1 as UpdateBattleNameInPacket);
+               this.updateName(UpdateBattleNameInPacket(param1));
                break;
             case UpdateTeamScoreInPacket.id:
-               this.updateTeamScore(param1 as UpdateTeamScoreInPacket);
+               this.updateTeamScore(UpdateTeamScoreInPacket(param1));
                break;
             case UpdatePlayerDmKillsInPacket.id:
-               this.updateUserKills(param1 as UpdatePlayerDmKillsInPacket);
+               this.updateUserKills(UpdatePlayerDmKillsInPacket(param1));
                break;
             case UpdatePlayerTeamScoreInPacket.id:
-               this.updateUserScore(param1 as UpdatePlayerTeamScoreInPacket);
+               this.updateUserScore(UpdatePlayerTeamScoreInPacket(param1));
                break;
             case UpdatePlayerSuspiciousStateInPacket.id:
-               this.updateUserSuspiciousState(param1 as UpdatePlayerSuspiciousStateInPacket);
+               this.updateUserSuspiciousState(UpdatePlayerSuspiciousStateInPacket(param1));
          }
-         RuntimeLifecycleDiagnostics.recordPreInitHandler("PREINIT_HANDLER_EXIT",_loc2_,this.id);
+         RuntimeLifecycleDiagnostics.recordPreInitHandler("PREINIT_HANDLER_EXIT",_loc1_,this.id);
       }
-      
+
+      private function withBattleInfo(param1:String, param2:Function) : void
+      {
+         var _loc1_:IGameObject = this.battleInfoSpace.getObjectByName(param1);
+         Model.withObject(_loc1_,param2);
+      }
+
       private function battleStop(param1:BattleStoppedInPacket) : void
       {
-         var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
-         Model.object = _loc2_;
-         try
+         this.withBattleInfo(param1.battleId,function():void
          {
-         this.battleInfoModel.roundFinished();
-         }          finally          {             Model.popObject();          }
+            battleInfoModel.roundFinished();
+         });
       }
-      
+
       private function fightFailedServerIsHalting(param1:FightFailedServerHaltingInPacket) : void
       {
-         var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
-         Model.object = _loc2_;
-         try
+         this.withBattleInfo(param1.battleId,function():void
          {
-         //this.battleInfoModel.fightFailedServerIsHalting();
-         }          finally          {             Model.popObject();          }
+            battleEntranceModel.fightFailedServerIsHalting();
+         });
       }
-      
+
       private function removeUser(param1:LeftPacketInPacket) : void
       {
-         var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
-         Model.object = _loc2_;
-         try
+         this.withBattleInfo(param1.battleId,function():void
          {
-         if(_loc2_.hasModel(BattleDmInfoModel))
-         {
-            this.battleDmInfoModel.removeUser(param1.userId);
-         } else
-         {
-            this.teamBattleInfoModel.removeUser(param1.userId);
-         }
-         }          finally          {             Model.popObject();          }
+            if(Model.object.hasModel(BattleDmInfoModel))
+            {
+               battleDmInfoModel.removeUser(param1.userId);
+            }
+            else
+            {
+               teamBattleInfoModel.removeUser(param1.userId);
+            }
+         });
       }
-      
+
       private function roundFinish(param1:RoundFinishedInPacket) : void
       {
-         var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
-         Model.object = _loc2_;
-         try
+         this.withBattleInfo(param1.battleId,function():void
          {
-         this.battleInfoModel.roundFinished();
-         }          finally          {             Model.popObject();          }
+            battleInfoModel.roundFinished();
+         });
       }
-      
+
       private function roundStart(param1:RoundStartedInPacket) : void
       {
-         var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
-         Model.object = _loc2_;
-         try
+         this.withBattleInfo(param1.battleId,function():void
          {
-         this.battleInfoModel.roundStarted(5); // 5 is placeholder time
-         }          finally          {             Model.popObject();          }
+            battleInfoModel.roundStarted(5);
+         });
       }
-      
+
       private function updateName(param1:UpdateBattleNameInPacket) : void
       {
-         var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
-         Model.object = _loc2_;
-         try
+         this.withBattleInfo(param1.battleId,function():void
          {
-         this.battleInfoModel.setBattleName(param1.battleName);
-         }          finally          {             Model.popObject();          }
+            battleInfoModel.setBattleName(param1.battleName);
+         });
       }
-      
+
       private function updateUserSuspiciousState(param1:UpdatePlayerSuspiciousStateInPacket) : void
       {
-         var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
-         Model.object = _loc2_;
-         try
+         this.withBattleInfo(param1.battleId,function():void
          {
-         this.battleInfoModel.updateUserSuspiciousState(param1.userId,param1.suspicious);
-         }          finally          {             Model.popObject();          }
+            battleInfoModel.updateUserSuspiciousState(param1.userId,param1.suspicious);
+         });
       }
-      
+
       private function updateUserKills(param1:UpdatePlayerDmKillsInPacket) : void
       {
-         var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
-         Model.object = _loc2_;
-         try
+         this.withBattleInfo(param1.battleId,function():void
          {
-         this.battleDmInfoModel.updateUserScore(param1.userId,param1.kills);
-         }          finally          {             Model.popObject();          }
+            battleDmInfoModel.updateUserScore(param1.userId,param1.kills);
+         });
       }
-      
+
       private function updateUserScore(param1:UpdatePlayerTeamScoreInPacket) : void
       {
-         var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
-         Model.object = _loc2_;
-         try
+         this.withBattleInfo(param1.battleId,function():void
          {
-         this.teamBattleInfoModel.updateUserScore(param1.userId,param1.score);
-         }          finally          {             Model.popObject();          }
+            teamBattleInfoModel.updateUserScore(param1.userId,param1.score);
+         });
       }
-      
+
       private function updateTeamScore(param1:UpdateTeamScoreInPacket) : void
       {
-         var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
-         Model.object = _loc2_;
-         try
+         this.withBattleInfo(param1.battleId,function():void
          {
-         this.teamBattleInfoModel.updateTeamScore(param1.team,param1.score);
-         }          finally          {             Model.popObject();          }
+            teamBattleInfoModel.updateTeamScore(param1.team,param1.score);
+         });
       }
-      
+
       private function addUserDm(param1:JoinedDmBattleInPacket) : void
       {
-         var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
-         RuntimeLifecycleDiagnostics.recordBattleInfo("JOINED_DM_HANDLER_ENTER","packetBattleId=" + param1.battleId + " " + this.describeBattleObject(_loc2_));
-         if(param1.battleId != selectedBattleId)
+         this.withBattleInfo(param1.battleId,function():void
          {
-            RuntimeLifecycleDiagnostics.recordBattleInfo("BATTLE_ID_MISMATCH","packetBattleId=" + param1.battleId + " resolvedBy=selectedBattleId",true);
-         }
-         Model.object = _loc2_;
-         try
-         {
-         this.battleDmInfoModel.addUser(param1.userInfo);
-         }          finally          {             Model.popObject();          }
-         RuntimeLifecycleDiagnostics.recordBattleInfo("JOINED_DM_HANDLER_EXIT","packetBattleId=" + param1.battleId + " " + this.describeBattleObject(_loc2_));
+            battleDmInfoModel.addUser(param1.userInfo);
+         });
       }
-      
+
       private function addUserTeam(param1:JoinedTeamBattleInPacket) : void
       {
-         var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
-         RuntimeLifecycleDiagnostics.recordBattleInfo("JOINED_TEAM_HANDLER_ENTER","packetBattleId=" + param1.battleId + " team=" + (param1.team == null ? "null" : param1.team.name) + " " + this.describeBattleObject(_loc2_));
-         if(param1.battleId != selectedBattleId)
+         this.withBattleInfo(param1.battleId,function():void
          {
-            RuntimeLifecycleDiagnostics.recordBattleInfo("BATTLE_ID_MISMATCH","packetBattleId=" + param1.battleId + " resolvedBy=selectedBattleId",true);
-         }
-         Model.object = _loc2_;
-         try
-         {
-         this.teamBattleInfoModel.addUser(param1.userInfo,param1.team);
-         }          finally          {             Model.popObject();          }
-         RuntimeLifecycleDiagnostics.recordBattleInfo("JOINED_TEAM_HANDLER_EXIT","packetBattleId=" + param1.battleId + " " + this.describeBattleObject(_loc2_));
+            teamBattleInfoModel.addUser(param1.userInfo,param1.team);
+         });
       }
-      
+
       private function swapTeams(param1:SwapTeamsInPacket) : void
       {
-         var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
-         Model.object = _loc2_;
-         try
+         this.withBattleInfo(param1.battleId,function():void
          {
-         this.teamBattleInfoModel.swapTeams();
-         }          finally          {             Model.popObject();          }
+            teamBattleInfoModel.swapTeams();
+         });
       }
-      
-      private function equipmentNotMatchConstraintsDm(param1:EquipmentNotMatchConstraintsInPacket) : void
+
+      private function equipmentNotMatchConstraintsDm(param1:String) : void
       {
-         var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
-         Model.object = _loc2_;
-         try
+         this.withBattleInfo(param1,function():void
          {
-         this.battleEntranceModel.equipmentNotMatchConstraints();
-         }          finally          {             Model.popObject();          }
+            battleDmInfoModel.equipmentNotMatchConstraints();
+         });
       }
-      
-      private function equipmentNotMatchConstraintsTeam(param1:EquipmentNotMatchTeamConstraintsInPacket) : void
+
+      private function equipmentNotMatchConstraintsTeam(param1:String) : void
       {
-         var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
-         Model.object = _loc2_;
-         try
+         this.withBattleInfo(param1,function():void
          {
-         this.battleEntranceModel.equipmentNotMatchConstraints();
-         }          finally          {             Model.popObject();          }
+            teamBattleInfoModel.equipmentNotMatchConstraints();
+         });
       }
-      
+
       private function loadBattleInfo(param1:LoadBattleInfoInPacket) : void
       {
-         RuntimeLifecycleDiagnostics.recordBattleInfo("BATTLE_INFO_LOAD_BEGIN","packetId=" + param1.getId());
+         var _loc1_:Object = JSON.parse(param1.battlesJson);
+         var _loc2_:IGameClass = _loc1_.battleMode == "DM" ? BattleListPacketHandler.dmBattleInfoGameClass : BattleListPacketHandler.teamBattleInfoGameClass;
+         var _loc3_:IGameObject = this.battleInfoSpace.createObject(IdTool.getNextId(),_loc2_,String(_loc1_.itemId));
+         var _loc4_:BattleCreateParameters = this.createBattleParameters(_loc1_);
+         var _loc5_:BattleInfoCC = new BattleInfoCC();
+         _loc5_.battleId = _loc4_.battleId;
+         _loc5_.battleMode = _loc4_.battleMode;
+         _loc5_.dependentCooldownEnabled = _loc4_.dependentCooldownEnabled;
+         _loc5_.equipmentConstraintsMode = _loc4_.equipmentConstraintsMode;
+         _loc5_.esportDropTiming = _loc4_.esportDropTiming;
+         _loc5_.limits = _loc4_.limits;
+         _loc5_.map = this.battleSelectSpace.getObject(Long.getLong(_loc1_.preview * 1000,_loc1_.preview * 1000));
+         _loc5_.maxPeopleCount = _loc4_.maxPeopleCount;
+         _loc5_.name = _loc4_.name;
+         _loc5_.parkourMode = _loc4_.parkourMode;
+         _loc5_.proBattle = _loc4_.proBattle;
+         _loc5_.randomGold = _loc4_.randomGold;
+         _loc5_.rankRange = _loc4_.rankRange;
+         _loc5_.reArmorEnabled = _loc4_.reArmorEnabled;
+         _loc5_.reducedResistance = _loc4_.reducedResistances;
+         _loc5_.roundStarted = Boolean(_loc1_.roundStarted);
+         _loc5_.spectator = Boolean(_loc1_.spectator);
+         _loc5_.suspicionLevel = BattleSuspicionLevel.NONE;
+         _loc5_.timeLeftInSec = int(_loc1_.timeLeftInSec);
+         _loc5_.userPaidNoSuppliesBattle = Boolean(_loc1_.userPaidNoSuppliesBattle);
+         _loc5_.withoutBonuses = _loc4_.withoutBonuses;
+         _loc5_.withoutCrystals = _loc4_.withoutCrystals;
+         _loc5_.withoutDrones = _loc4_.withoutDrones;
+         _loc5_.withoutGoldBoxes = _loc4_.withoutGoldBoxes;
+         _loc5_.withoutGoldSiren = _loc4_.withoutGoldSiren;
+         _loc5_.withoutGoldZone = _loc4_.withoutGoldZone;
+         _loc5_.withoutMedkit = _loc4_.withoutMedkit;
+         _loc5_.withoutMines = _loc4_.withoutMines;
+         _loc5_.withoutSupplies = _loc4_.withoutSupplies;
+         _loc5_.withoutUpgrades = _loc4_.withoutUpgrades;
+
+         var _loc6_:BattleEntranceCC = new BattleEntranceCC(int(_loc1_.proBattleEnterPrice),_loc1_.proBattleTimeLeftInSec == -1 ? 0 : int(_loc1_.proBattleTimeLeftInSec));
+         Model.object = _loc3_;
          try
          {
-         var battleData:Object = JSON.parse(param1.battlesJson);
-         selectedBattleId = battleData.itemId;
-         RuntimeLifecycleDiagnostics.recordSelection(selectedBattleId,"packetId=" + param1.getId());
-
-         var battleGameObject:IGameObject = this.battleSelectSpace.getObjectByName(battleData.itemId);
-         RuntimeLifecycleDiagnostics.recordBattleInfo("BATTLE_INFO_OBJECT_RESOLVED","mode=" + battleData.battleMode + " " + this.describeBattleObject(battleGameObject));
-         BattleSelectionTrace.beginLoadInfo(battleData.itemId,battleGameObject,"mode=" + battleData.battleMode);
-         BattleSelectionTrace.record("OBJECT_RESOLVE","BattleInfoPacketHandler.loadBattleInfo",battleData.itemId,battleGameObject,"lookup=exact");
-         BattleSelectionTrace.record("MODEL_RELOAD_BEGIN","BattleInfoPacketHandler.loadBattleInfo",battleData.itemId,battleGameObject,"mode=" + battleData.battleMode);
-
-         var battleParamInfoCC:BattleParamInfoCC = new BattleParamInfoCC();
-         battleParamInfoCC.map = this.battleSelectSpace.getObject(Long.getLong(battleData.preview * 1000, battleData.preview * 1000));
-         battleParamInfoCC.params = new BattleCreateParameters();
-         battleParamInfoCC.params.battleId = battleData.itemId;
-         battleParamInfoCC.params.autoBalance = battleData.autoBalance;
-         battleParamInfoCC.params.battleMode = EnumUtils.stringToBattleMode(battleData.battleMode);
-         battleParamInfoCC.params.equipmentConstraintsMode = EnumUtils.stringToEquipmentConstraintsMode(battleData.equipmentConstraintsMode);
-         battleParamInfoCC.params.friendlyFire = battleData.friendlyFire;
-         battleParamInfoCC.params.limits = new BattleLimits();
-         battleParamInfoCC.params.limits.scoreLimit = battleData.scoreLimit;
-         battleParamInfoCC.params.limits.timeLimitInSec = battleData.timeLimitInSec;
-         //battleParamInfoCC.params.mapId = ;
-         battleParamInfoCC.params.maxPeopleCount = battleData.maxPeopleCount;
-         battleParamInfoCC.params.name = battleData.name;
-         battleParamInfoCC.params.parkourMode = battleData.parkourMode;
-         battleParamInfoCC.params.privateBattle = false; // not provided in payload
-         battleParamInfoCC.params.proBattle = battleData.proBattle;
-         battleParamInfoCC.params.rankRange = new Range(battleData.maxRank, battleData.minRank);
-         battleParamInfoCC.params.reArmorEnabled = battleData.reArmorEnabled;
-         //battleParamInfoCC.params.theme = null; // no theme info in payload
-         battleParamInfoCC.params.withoutBonuses = battleData.withoutBonuses;
-         battleParamInfoCC.params.withoutCrystals = battleData.withoutCrystals;
-         battleParamInfoCC.params.withoutDrones = true; // not provided
-         battleParamInfoCC.params.withoutSupplies = battleData.withoutSupplies;
-         battleParamInfoCC.params.withoutUpgrades = battleData.withoutUpgrades != null ? battleData.withoutUpgrades : false;
-         battleParamInfoCC.params.reducedResistances = battleData.reducedResistance;
-         battleParamInfoCC.params.esportDropTiming = battleData.esportDropTiming;
-         battleParamInfoCC.params.withoutGoldBoxes = battleData.withoutGoldBoxes;
-         battleParamInfoCC.params.withoutGoldSiren = battleData.withoutGoldSiren;
-         battleParamInfoCC.params.withoutGoldZone = battleData.withoutGoldZone;
-         battleParamInfoCC.params.randomGold = battleData.randomGold;
-         battleParamInfoCC.params.withoutMedkit = battleData.withoutMedkit;
-         battleParamInfoCC.params.withoutMines = battleData.withoutMines;
-         battleParamInfoCC.params.dependentCooldownEnabled = battleData.dependentCooldownEnabled;
-
-         // Load BattleParamInfoModel again
-         Model.object = battleGameObject;
-         try
-         {
-         this.battleParamInfoModel.putInitParams(battleParamInfoCC);
-         }          finally          {             Model.popObject();          }
-
-         var battleInfoCC:BattleInfoCC = new BattleInfoCC();
-         battleInfoCC.roundStarted = battleData.roundStarted;
-         battleInfoCC.suspicionLevel = BattleSuspicionLevel.NONE;
-         battleInfoCC.timeLeftInSec = battleData.timeLeftInSec;
-
-         // Load BattleParamInfoModel again
-         Model.object = battleGameObject;
-         try
-         {
-         this.battleInfoModel.putInitParams(battleInfoCC);
-         }          finally          {             Model.popObject();          }
-
-         if (battleData.battleMode == "DM")
-         {
-            var battleDMInfoCC:BattleDMInfoCC = new BattleDMInfoCC();
-            battleDMInfoCC.users = new Vector.<BattleInfoUser>();
-
-            for each (var dmUser:Object in battleData.users)
+            this.battleEntranceModel.putInitParams(_loc6_);
+            this.battleEntranceModel.objectLoaded();
+            this.battleInfoModel.putInitParams(_loc5_);
+            this.battleInfoModel.objectLoaded();
+            if(_loc1_.battleMode == "DM")
             {
-               battleDMInfoCC.users.push(this.buildBattleInfoUser(dmUser));
+               var _loc7_:BattleDMInfoCC = new BattleDMInfoCC();
+               _loc7_.users = this.buildUsers(_loc1_.users);
+               this.battleDmInfoModel.putInitParams(_loc7_);
+               this.battleDmInfoModel.objectLoadedPost();
             }
-
-            // Load BattleDMInfoModel again
-            Model.object = battleGameObject;
-            try
+            else
             {
-            this.battleDmInfoModel.putInitParams(battleDMInfoCC);
-            this.battleDmInfoModel.reloadCC();
-            }             finally             {                Model.popObject();             }
-         }
-         else
-         {
-            var teamBattleInfoCC:TeamBattleInfoCC = new TeamBattleInfoCC();
-            teamBattleInfoCC.usersBlue = new Vector.<BattleInfoUser>();
-            teamBattleInfoCC.usersRed = new Vector.<BattleInfoUser>();
-            teamBattleInfoCC.scoreBlue = this.getTeamScore(battleData,["scoreBlue","blueScore","score_blue","blue_score"]);
-            teamBattleInfoCC.scoreRed = this.getTeamScore(battleData,["scoreRed","redScore","score_red","red_score"]);
-
-            for each (var blueUser:Object in battleData.usersBlue)
-            {
-               teamBattleInfoCC.usersBlue.push(this.buildBattleInfoUser(blueUser));
+               var _loc8_:TeamBattleInfoCC = new TeamBattleInfoCC();
+               _loc8_.autoBalance = Boolean(_loc1_.autoBalance);
+               _loc8_.friendlyFire = Boolean(_loc1_.friendlyFire);
+               _loc8_.scoreBlue = this.getTeamScore(_loc1_,["scoreBlue","blueScore","score_blue","blue_score"]);
+               _loc8_.scoreRed = this.getTeamScore(_loc1_,["scoreRed","redScore","score_red","red_score"]);
+               _loc8_.usersBlue = this.buildUsers(_loc1_.usersBlue);
+               _loc8_.usersRed = this.buildUsers(_loc1_.usersRed);
+               this.teamBattleInfoModel.putInitParams(_loc8_);
+               this.teamBattleInfoModel.objectLoadedPost();
             }
-
-            for each (var redUser:Object in battleData.usersRed)
-            {
-               teamBattleInfoCC.usersRed.push(this.buildBattleInfoUser(redUser));
-            }
-
-            // Load TeamBattleInfoModel again
-            Model.object = battleGameObject;
-            try
-            {
-            this.teamBattleInfoModel.putInitParams(teamBattleInfoCC);
-            this.teamBattleInfoModel.reloadCC();
-            }             finally             {                Model.popObject();             }
          }
-         BattleSelectionTrace.record("MODEL_RELOAD_END","BattleInfoPacketHandler.loadBattleInfo",battleData.itemId,battleGameObject,"mode=" + battleData.battleMode);
-         ShowInfo(battleGameObject.adapt(ShowInfo)).showInfo();
-         RuntimeLifecycleDiagnostics.recordBattleInfo("BATTLE_INFO_LOAD_END","mode=" + battleData.battleMode + " " + this.describeBattleObject(battleGameObject));
-         }
-         catch(e:Error)
+         finally
          {
-            BattleSelectionTrace.error("loadBattleInfo","BattleInfoPacketHandler",selectedBattleId,battleGameObject,e);
-            throw e;
+            Model.popObject();
          }
+         RuntimeLifecycleDiagnostics.recordBattleInfo("BATTLE_INFO_LOAD_END","battleId=" + _loc1_.itemId + " mode=" + _loc1_.battleMode);
+      }
+
+      private function createBattleParameters(param1:Object) : BattleCreateParameters
+      {
+         var _loc1_:BattleCreateParameters = new BattleCreateParameters();
+         _loc1_.battleId = String(param1.itemId);
+         _loc1_.autoBalance = Boolean(param1.autoBalance);
+         _loc1_.battleMode = EnumUtils.stringToBattleMode(param1.battleMode);
+         _loc1_.equipmentConstraintsMode = EnumUtils.stringToEquipmentConstraintsMode(param1.equipmentConstraintsMode);
+         _loc1_.friendlyFire = Boolean(param1.friendlyFire);
+         _loc1_.limits = new BattleLimits(int(param1.scoreLimit),int(param1.timeLimitInSec));
+         _loc1_.maxPeopleCount = int(param1.maxPeopleCount);
+         _loc1_.name = String(param1.name);
+         _loc1_.parkourMode = Boolean(param1.parkourMode);
+         _loc1_.privateBattle = false;
+         _loc1_.proBattle = Boolean(param1.proBattle);
+         _loc1_.rankRange = new Range(int(param1.maxRank),int(param1.minRank));
+         _loc1_.reArmorEnabled = Boolean(param1.reArmorEnabled);
+         _loc1_.withoutBonuses = Boolean(param1.withoutBonuses);
+         _loc1_.withoutCrystals = Boolean(param1.withoutCrystals);
+         _loc1_.withoutDrones = true;
+         _loc1_.withoutSupplies = Boolean(param1.withoutSupplies);
+         _loc1_.withoutUpgrades = param1.withoutUpgrades != null && Boolean(param1.withoutUpgrades);
+         _loc1_.reducedResistances = Boolean(param1.reducedResistance);
+         _loc1_.esportDropTiming = Boolean(param1.esportDropTiming);
+         _loc1_.withoutGoldBoxes = Boolean(param1.withoutGoldBoxes);
+         _loc1_.withoutGoldSiren = Boolean(param1.withoutGoldSiren);
+         _loc1_.withoutGoldZone = Boolean(param1.withoutGoldZone);
+         _loc1_.randomGold = Boolean(param1.randomGold);
+         _loc1_.withoutMedkit = Boolean(param1.withoutMedkit);
+         _loc1_.withoutMines = Boolean(param1.withoutMines);
+         _loc1_.dependentCooldownEnabled = Boolean(param1.dependentCooldownEnabled);
+         return _loc1_;
+      }
+
+      private function buildUsers(param1:Array) : Vector.<BattleInfoUser>
+      {
+         var _loc1_:Vector.<BattleInfoUser> = new Vector.<BattleInfoUser>();
+         if(param1 != null)
+         {
+            for each(var _loc2_:Object in param1)
+            {
+               _loc1_.push(this.buildBattleInfoUser(_loc2_));
+            }
+         }
+         return _loc1_;
       }
 
       private function buildBattleInfoUser(param1:Object) : BattleInfoUser
       {
-         var _loc2_:BattleInfoUser = new BattleInfoUser();
-         _loc2_.user = param1.user;
-         _loc2_.score = Math.max(param1.kills, param1.score); // Protanki server has kills and score, but in tanki 2019 client there is only score field. So we use the one that is not 0.
-         _loc2_.suspicious = param1.suspicious;
-         return _loc2_;
+         var _loc1_:BattleInfoUser = new BattleInfoUser();
+         _loc1_.user = param1.user;
+         _loc1_.score = Math.max(param1.kills,param1.score);
+         _loc1_.suspicious = param1.suspicious;
+         return _loc1_;
       }
 
       private function getTeamScore(param1:Object, param2:Array) : int
       {
-         var _loc3_:String = null;
-         for each(_loc3_ in param2)
+         for each(var _loc1_:String in param2)
          {
-            if(param1 != null && param1.hasOwnProperty(_loc3_) && param1[_loc3_] != null)
+            if(param1.hasOwnProperty(_loc1_) && param1[_loc1_] != null)
             {
-               return int(param1[_loc3_]);
+               return int(param1[_loc1_]);
             }
          }
          return 0;
       }
 
-      private function describeBattleObject(param1:IGameObject) : String
-      {
-         if(param1 == null)
-         {
-            return "battleObjectExists=0 battleObjectName=";
-         }
-         try
-         {
-            return "battleObjectExists=1 battleObjectName=" + param1.name + " hasDmModel=" + (param1.hasModel(BattleDmInfoModel) ? 1 : 0) + " hasTeamModel=" + (param1.hasModel(BattleTeamInfoModel) ? 1 : 0) + " hasEntranceModel=" + (param1.hasModel(BattleEntranceModel) ? 1 : 0);
-         }
-         catch(e:Error)
-         {
-            return "battleObjectExists=1 battleObjectName=unavailable modelInspectionError=" + e.name;
-         }
-         return "battleObjectExists=1 battleObjectName=unavailable";
-      }
-      
       private function unload(param1:UnloadBattleInfoInPacket) : void
       {
-         // We don't want to unload, because in 2019 client battle info model is used also in battle list.
-         // In protanki there is item model for battle list.
-
-         //var _loc2_:IGameObject = this.battleSelectSpace.getObjectByName(selectedBattleId);
-         //if(_loc2_ != null)
-         //{
-         //   Model.object = _loc2_;
-         //   this.battleSelectSpace.destroyObject(_loc2_.id);
-         //   Model.popObject();
-         //}
+         var _loc1_:IGameObject = this.battleInfoSpace.getObjectByName(param1.battleId);
+         if(_loc1_ != null)
+         {
+            Model.object = _loc1_;
+            try
+            {
+               this.battleInfoSpace.destroyObject(_loc1_.id);
+            }
+            finally
+            {
+               Model.popObject();
+            }
+         }
       }
    }
 }

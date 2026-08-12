@@ -1,7 +1,7 @@
 package scpacker.networking.protocol.packets.battleitem
 {
    import scpacker.networking.protocol.AbstractPacket;
-   import projects.tanks.client.battleservice.model.types.BattleSuspicionLevel;
+   import projects.tanks.client.battleselect.model.item.BattleSuspicionLevel;
    
    public class ItemUpdateBattleSuspicionInPacket extends AbstractPacket
    {

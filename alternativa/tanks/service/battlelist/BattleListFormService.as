@@ -69,7 +69,7 @@ package alternativa.tanks.service.battlelist
          this.battleListController.battleItemRecord(param1);
       }
       
-      public function selectBattleItemFromServer(param1:IGameObject) : void
+      public function selectBattleItemFromServer(param1:String) : void
       {
          this.battleListController.selectBattleItemFromServer(param1);
       }

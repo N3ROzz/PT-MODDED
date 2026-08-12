@@ -1,62 +1,53 @@
 package projects.tanks.client.battleselect.model.battle
 {
+   import platform.client.fp10.core.type.IGameObject;
+   import projects.tanks.client.battleservice.BattleMode;
+   import projects.tanks.client.battleservice.EquipmentConstraintsMode;
+   import projects.tanks.client.battleservice.Range;
+   import projects.tanks.client.battleservice.model.createparams.BattleLimits;
    import projects.tanks.client.battleservice.model.types.BattleSuspicionLevel;
-   
+
    public class BattleInfoCC
    {
-      
-      private var _roundStarted:Boolean;
-      
-      private var _suspicionLevel:BattleSuspicionLevel;
-      
-      private var _timeLeftInSec:int;
-      
-      public function BattleInfoCC(param1:Boolean = false, param2:BattleSuspicionLevel = null, param3:int = 0)
+      public var battleId:String;
+      public var battleMode:BattleMode;
+      public var dependentCooldownEnabled:Boolean;
+      public var equipmentConstraintsMode:EquipmentConstraintsMode;
+      public var esportDropTiming:Boolean;
+      public var limits:BattleLimits;
+      public var map:IGameObject;
+      public var maxPeopleCount:int;
+      public var name:String;
+      public var parkourMode:Boolean;
+      public var proBattle:Boolean;
+      public var randomGold:Boolean;
+      public var rankRange:Range;
+      public var reArmorEnabled:Boolean;
+      public var reducedResistance:Boolean;
+      public var roundStarted:Boolean;
+      public var spectator:Boolean;
+      public var suspicionLevel:BattleSuspicionLevel;
+      public var timeLeftInSec:int;
+      public var userPaidNoSuppliesBattle:Boolean;
+      public var withoutBonuses:Boolean;
+      public var withoutCrystals:Boolean;
+      public var withoutDrones:Boolean;
+      public var withoutGoldBoxes:Boolean;
+      public var withoutGoldSiren:Boolean;
+      public var withoutGoldZone:Boolean;
+      public var withoutMedkit:Boolean;
+      public var withoutMines:Boolean;
+      public var withoutSupplies:Boolean;
+      public var withoutUpgrades:Boolean;
+
+      public function BattleInfoCC()
       {
          super();
-         this._roundStarted = param1;
-         this._suspicionLevel = param2;
-         this._timeLeftInSec = param3;
       }
-      
-      public function get roundStarted() : Boolean
-      {
-         return this._roundStarted;
-      }
-      
-      public function set roundStarted(param1:Boolean) : void
-      {
-         this._roundStarted = param1;
-      }
-      
-      public function get suspicionLevel() : BattleSuspicionLevel
-      {
-         return this._suspicionLevel;
-      }
-      
-      public function set suspicionLevel(param1:BattleSuspicionLevel) : void
-      {
-         this._suspicionLevel = param1;
-      }
-      
-      public function get timeLeftInSec() : int
-      {
-         return this._timeLeftInSec;
-      }
-      
-      public function set timeLeftInSec(param1:int) : void
-      {
-         this._timeLeftInSec = param1;
-      }
-      
+
       public function toString() : String
       {
-         var _loc1_:String = "BattleInfoCC [";
-         _loc1_ += "roundStarted = " + this.roundStarted + " ";
-         _loc1_ += "suspicionLevel = " + this.suspicionLevel + " ";
-         _loc1_ += "timeLeftInSec = " + this.timeLeftInSec + " ";
-         return _loc1_ + "]";
+         return "BattleInfoCC [battleId = " + this.battleId + " battleMode = " + this.battleMode + " name = " + this.name + "]";
       }
    }
 }
-

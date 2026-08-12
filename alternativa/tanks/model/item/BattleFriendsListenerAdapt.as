@@ -1,6 +1,5 @@
 package alternativa.tanks.model.item
 {
-   import alternativa.types.Long;
    import platform.client.fp10.core.model.impl.Model;
    import platform.client.fp10.core.type.IGameObject;
    
@@ -18,9 +17,9 @@ package alternativa.tanks.model.item
          this.impl = param2;
       }
       
-      public function onAddFriend(param1:Long) : void
+      public function onAddFriend(param1:String) : void
       {
-         var userId:Long = param1;
+         var userId:String = param1;
          try
          {
             Model.object = this.object;
@@ -32,9 +31,9 @@ package alternativa.tanks.model.item
          }
       }
       
-      public function onDeleteFriend(param1:Long) : void
+      public function onDeleteFriend(param1:String) : void
       {
-         var userId:Long = param1;
+         var userId:String = param1;
          try
          {
             Model.object = this.object;
@@ -47,4 +46,3 @@ package alternativa.tanks.model.item
       }
    }
 }
-

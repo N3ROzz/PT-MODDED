@@ -31,6 +31,20 @@ package alternativa.tanks.model.item.dm
          }
          return result;
       }
+
+      public function getFriendsCount() : int
+      {
+         var result:int = 0;
+         try
+         {
+            Model.object = this.object;
+            result = int(this.impl.getFriendsCount());
+         }
+         finally
+         {
+            Model.popObject();
+         }
+         return result;
+      }
    }
 }
-

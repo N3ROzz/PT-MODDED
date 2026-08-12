@@ -9,7 +9,7 @@ package projects.tanks.client.battleselect.model.battle
 
       protected var server:BattleInfoModelServer;
 
-      public static const modelId:Long = Long.getLong(678248814,-1039722970);
+      public static const modelId:Long = Long.getLong(-792493736,-1341047415);
 
       public function BattleInfoModelBase()
       {

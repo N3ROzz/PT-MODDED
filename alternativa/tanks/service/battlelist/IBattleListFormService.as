@@ -16,7 +16,7 @@ package alternativa.tanks.service.battlelist
       
       function removeBattleItem(param1:String) : void;
       
-      function selectBattleItemFromServer(param1:IGameObject) : void;
+      function selectBattleItemFromServer(param1:String) : void;
       
       function updateSuspicious(param1:String, param2:BattleSuspicionLevel) : void;
       
@@ -31,4 +31,3 @@ package alternativa.tanks.service.battlelist
       function checkBattleButton() : void;
    }
 }
-

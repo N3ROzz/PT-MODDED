@@ -2,8 +2,6 @@ package alternativa.tanks.model.info
 {
    import alternativa.osgi.service.locale.ILocaleService;
    import alternativa.tanks.loader.ILoaderWindowService;
-   import alternativa.tanks.model.info.param.BattleParams;
-   import alternativa.tanks.model.item.BattleFriendsListener;
    import alternativa.tanks.model.map.mapinfo.IMapInfo;
    import alternativa.tanks.service.battle.IBattleUserInfoService;
    import alternativa.tanks.service.battleinfo.IBattleInfoFormService;
@@ -14,18 +12,23 @@ package alternativa.tanks.model.info
    import flash.utils.getTimer;
    import platform.client.fp10.core.model.ObjectUnloadListener;
    import platform.client.fp10.core.model.ObjectUnloadPostListener;
+   import platform.client.fp10.core.model.ObjectLoadListener;
+   import platform.client.fp10.core.model.ObjectLoadPostListener;
    import platform.client.fp10.core.resource.types.ImageResource;
    import projects.tanks.client.battleselect.model.battle.BattleInfoCC;
    import projects.tanks.client.battleselect.model.battle.entrance.user.BattleInfoUser;
    import projects.tanks.client.battleselect.model.battle.BattleInfoModelBase;
    import projects.tanks.client.battleselect.model.battle.IBattleInfoModelBase;
-   import projects.tanks.client.battleselect.model.battle.param.BattleParamInfoCC;
+   import alternativa.tanks.view.battleinfo.BattleInfoViewEvent;
    import projects.tanks.client.battleservice.model.types.BattleSuspicionLevel;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.alertservices.IAlertService;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.logging.battlelist.UserBattleSelectActionsService;
+   import alternativa.tanks.view.battleinfo.dm.BattleInfoDmParams;
+   import alternativa.tanks.view.battleinfo.team.BattleInfoTeamParams;
+   import alternativa.tanks.model.info.dm.BattleDmInfoModel;
    
    [ModelInfo]
-   public class BattleInfoModel extends BattleInfoModelBase implements IBattleInfoModelBase, ObjectUnloadListener, ObjectUnloadPostListener, IBattleInfo, BattleFriendsListener
+   public class BattleInfoModel extends BattleInfoModelBase implements IBattleInfoModelBase, ObjectLoadListener, ObjectLoadPostListener, ObjectUnloadListener, ObjectUnloadPostListener, IBattleInfo
    {
       
       [Inject] // added
@@ -93,6 +96,7 @@ package alternativa.tanks.model.info
       
       public function objectUnloaded() : void
       {
+         battleInfoFormService.removeEventListener(BattleInfoViewEvent.ENTER_SPECTATOR,getFunctionWrapper(this.onEnterSpectator));
          if(battleInfoFormService.getSelectedBattle() == object)
          {
             battleInfoFormService.hideBattleForms();
@@ -106,31 +110,21 @@ package alternativa.tanks.model.info
       
       public function getPreviewResource() : ImageResource
       {
-         var _loc1_:BattleParamInfoCC = BattleParams(object.adapt(BattleParams)).getConstructor();
-         return IMapInfo(_loc1_.map.adapt(IMapInfo)).getPreviewResource();
+         return IMapInfo(getInitParam().map.adapt(IMapInfo)).getPreviewResource();
       }
       
       public function objectUnloadedPost() : void
       {
          battleUserInfoService.deleteBattleItem(object);
-         battleListFormService.removeBattleItem(object.name);
-      }
-      
-      public function onAddFriend(param1:String) : void
-      {
-         ++this.data().friends;
-         this.updateUsersCount();
-      }
-      
-      public function onDeleteFriend(param1:String) : void
-      {
-         --this.data().friends;
-         this.updateUsersCount();
       }
       
       private function data() : BattleInfoBaseParams
       {
-         return BattleInfoParams(object.adapt(BattleInfoParams)).getParams();
+         if(object.hasModel(BattleDmInfoModel))
+         {
+            return BattleInfoDmParams(getData(BattleInfoDmParams));
+         }
+         return BattleInfoTeamParams(getData(BattleInfoTeamParams));
       }
       
       private function updateUsersCount() : void
@@ -154,6 +148,20 @@ package alternativa.tanks.model.info
       {
          this.data().customName = null;
          this.updateBattleName();
+      }
+
+      public function objectLoaded() : void
+      {
+         battleInfoFormService.addEventListener(BattleInfoViewEvent.ENTER_SPECTATOR,getFunctionWrapper(this.onEnterSpectator));
+      }
+
+      public function objectLoadedPost() : void
+      {
+      }
+
+      private function onEnterSpectator(param1:BattleInfoViewEvent) : void
+      {
+         server.joinAsSpectator();
       }
    }
 }

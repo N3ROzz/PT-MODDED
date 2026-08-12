@@ -12,11 +12,13 @@ package alternativa.tanks.model.info
    import projects.tanks.client.battleselect.model.battle.BattleInfoCC;
    import projects.tanks.client.battleselect.model.battle.entrance.user.BattleInfoUser;
    import projects.tanks.client.battleselect.model.battle.param.BattleParamInfoCC;
+   import projects.tanks.client.battleselect.model.item.BattleItemCC;
    import projects.tanks.client.battleservice.BattleCreateParameters;
    import projects.tanks.clients.fp10.libraries.tanksservices.model.friends.FriendState;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.friend.IFriendInfoService;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.servername.ServerNumberToLocaleServerService;
    import projects.tanks.clients.fp10.libraries.tanksservices.utils.BattleInfoUtils;
+   import scpacker.utils.EnumUtils;
    
    public class BattleParamsUtils
    {
@@ -38,18 +40,67 @@ package alternativa.tanks.model.info
       public static function setBattleInfoParams(param1:IGameObject, param2:BattleInfoBaseParams) : void
       {
          var _loc3_:BattleInfoCC = IBattleInfo(param1.adapt(IBattleInfo)).getConstructor();
-         var _loc4_:BattleParamInfoCC = BattleParams(param1.adapt(BattleParams)).getConstructor();
-         var _loc5_:BattleCreateParameters = _loc4_.params;
+         var _loc5_:BattleCreateParameters = new BattleCreateParameters();
+         _loc5_.battleId = _loc3_.battleId;
+         _loc5_.battleMode = _loc3_.battleMode;
+         _loc5_.dependentCooldownEnabled = _loc3_.dependentCooldownEnabled;
+         _loc5_.equipmentConstraintsMode = _loc3_.equipmentConstraintsMode;
+         _loc5_.esportDropTiming = _loc3_.esportDropTiming;
+         _loc5_.limits = _loc3_.limits;
+         _loc5_.maxPeopleCount = _loc3_.maxPeopleCount;
+         _loc5_.name = _loc3_.name;
+         _loc5_.parkourMode = _loc3_.parkourMode;
+         _loc5_.proBattle = _loc3_.proBattle;
+         _loc5_.randomGold = _loc3_.randomGold;
+         _loc5_.rankRange = _loc3_.rankRange;
+         _loc5_.reArmorEnabled = _loc3_.reArmorEnabled;
+         _loc5_.reducedResistances = _loc3_.reducedResistance;
+         _loc5_.withoutBonuses = _loc3_.withoutBonuses;
+         _loc5_.withoutCrystals = _loc3_.withoutCrystals;
+         _loc5_.withoutDrones = _loc3_.withoutDrones;
+         _loc5_.withoutGoldBoxes = _loc3_.withoutGoldBoxes;
+         _loc5_.withoutGoldSiren = _loc3_.withoutGoldSiren;
+         _loc5_.withoutGoldZone = _loc3_.withoutGoldZone;
+         _loc5_.withoutMedkit = _loc3_.withoutMedkit;
+         _loc5_.withoutMines = _loc3_.withoutMines;
+         _loc5_.withoutSupplies = _loc3_.withoutSupplies;
+         _loc5_.withoutUpgrades = _loc3_.withoutUpgrades;
          param2.battle = Model.object;
          param2.createParams = _loc5_;
-         param2.mapName = IMapInfo(_loc4_.map.adapt(IMapInfo)).getName();
-         param2.customName = _loc4_.params.name;
-         param2.matchmakingMark = IMapInfo(_loc4_.map.adapt(IMapInfo)).hasMatchmakingMark();
+         param2.mapName = IMapInfo(_loc3_.map.adapt(IMapInfo)).getName();
+         param2.customName = _loc3_.name;
+         param2.matchmakingMark = IMapInfo(_loc3_.map.adapt(IMapInfo)).hasMatchmakingMark();
          param2.previewResource = IBattleInfo(param1.adapt(IBattleInfo)).getPreviewResource();
          param2.battleUrl = getBattleUrl(param2.battle.name);
          param2.endTime = getTimer() + _loc3_.timeLeftInSec * 1000;
          param2.roundStarted = _loc3_.roundStarted;
          param2.suspicionLevel = _loc3_.suspicionLevel;
+      }
+
+      public static function setBattleItemParams(param1:IGameObject, param2:BattleItemCC, param3:BattleInfoBaseParams) : void
+      {
+         var _loc4_:BattleCreateParameters = new BattleCreateParameters();
+         _loc4_.battleId = param2.battleId;
+         _loc4_.battleMode = param2.battleMode;
+         _loc4_.equipmentConstraintsMode = param2.equipmentConstraintsMode;
+         _loc4_.maxPeopleCount = param2.maxPeople;
+         _loc4_.name = param2.name;
+         _loc4_.parkourMode = param2.parkourMode;
+         _loc4_.privateBattle = param2.privateBattle;
+         _loc4_.proBattle = param2.proBattle;
+         _loc4_.rankRange = param2.rankRange;
+         _loc4_.withoutSupplies = param2.withoutSupplies;
+         param3.battle = param1;
+         param3.createParams = _loc4_;
+         param3.customName = param2.name;
+         param3.suspicionLevel = EnumUtils.stringToBattleSuspicionLevel(param2.suspicionLevel.name);
+         if(param2.map != null)
+         {
+            param3.mapName = IMapInfo(param2.map.adapt(IMapInfo)).getName();
+            param3.matchmakingMark = IMapInfo(param2.map.adapt(IMapInfo)).hasMatchmakingMark();
+            param3.previewResource = IMapInfo(param2.map.adapt(IMapInfo)).getPreviewResource();
+         }
+         param3.battleUrl = getBattleUrl(param1.name);
       }
       
       private static function getBattleUrl(param1:String) : String

@@ -7,6 +7,9 @@ package alternativa.tanks.model.info.team
       function getUsersCountBlue() : int;
       
       function getUsersCountRed() : int;
+
+      function getFriendsCountBlue() : int;
+
+      function getFriendsCountRed() : int;
    }
 }
-

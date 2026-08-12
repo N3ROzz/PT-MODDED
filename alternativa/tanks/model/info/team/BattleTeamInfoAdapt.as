@@ -46,6 +46,35 @@ package alternativa.tanks.model.info.team
          }
          return result;
       }
+
+      public function getFriendsCountBlue() : int
+      {
+         var result:int = 0;
+         try
+         {
+            Model.object = this.object;
+            result = int(this.impl.getFriendsCountBlue());
+         }
+         finally
+         {
+            Model.popObject();
+         }
+         return result;
+      }
+
+      public function getFriendsCountRed() : int
+      {
+         var result:int = 0;
+         try
+         {
+            Model.object = this.object;
+            result = int(this.impl.getFriendsCountRed());
+         }
+         finally
+         {
+            Model.popObject();
+         }
+         return result;
+      }
    }
 }
-

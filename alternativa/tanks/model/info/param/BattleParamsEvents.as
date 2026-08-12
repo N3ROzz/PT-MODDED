@@ -2,7 +2,7 @@ package alternativa.tanks.model.info.param
 {
    import platform.client.fp10.core.model.impl.Model;
    import platform.client.fp10.core.type.IGameObject;
-   import projects.tanks.client.battleselect.model.battle.param.BattleParamInfoCC;
+   import projects.tanks.client.battleselect.model.item.BattleItemCC;
    
    public class BattleParamsEvents implements BattleParams
    {
@@ -18,9 +18,9 @@ package alternativa.tanks.model.info.param
          this.impl = param2;
       }
       
-      public function getConstructor() : BattleParamInfoCC
+      public function getConstructor() : BattleItemCC
       {
-         var result:BattleParamInfoCC = null;
+         var result:BattleItemCC = null;
          var i:int = 0;
          var m:BattleParams = null;
          try
@@ -42,4 +42,3 @@ package alternativa.tanks.model.info.param
       }
    }
 }
-

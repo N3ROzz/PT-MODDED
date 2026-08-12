@@ -62,6 +62,49 @@ package alternativa.tanks.model.info.team
          }
          return result;
       }
+
+      public function getFriendsCountBlue() : int
+      {
+         var result:int = 0;
+         var i:int = 0;
+         var m:BattleTeamInfo = null;
+         try
+         {
+            Model.object = this.object;
+            while(i < this.impl.length)
+            {
+               m = BattleTeamInfo(this.impl[i]);
+               result = int(m.getFriendsCountBlue());
+               i++;
+            }
+         }
+         finally
+         {
+            Model.popObject();
+         }
+         return result;
+      }
+
+      public function getFriendsCountRed() : int
+      {
+         var result:int = 0;
+         var i:int = 0;
+         var m:BattleTeamInfo = null;
+         try
+         {
+            Model.object = this.object;
+            while(i < this.impl.length)
+            {
+               m = BattleTeamInfo(this.impl[i]);
+               result = int(m.getFriendsCountRed());
+               i++;
+            }
+         }
+         finally
+         {
+            Model.popObject();
+         }
+         return result;
+      }
    }
 }
-

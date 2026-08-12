@@ -218,7 +218,7 @@
          return _loc2_;
       }
       
-      public function selectBattleItemFromServer(param1:IGameObject) : void
+      public function selectBattleItemFromServer(param1:String) : void
       {
          if(param1 == null)
          {
@@ -226,7 +226,11 @@
          }
          else
          {
-            this.selectBattleItem(param1,true,false);
+            var _loc1_:BattleListItemParams = this.findBattleListItem(param1);
+            if(_loc1_ != null)
+            {
+               this.selectBattleItem(_loc1_.params.battle,true,false);
+            }
          }
       }
       

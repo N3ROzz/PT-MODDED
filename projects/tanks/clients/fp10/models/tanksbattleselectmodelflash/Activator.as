@@ -161,7 +161,6 @@ package projects.tanks.clients.fp10.models.tanksbattleselectmodelflash
    import alternativa.tanks.model.info.ShowInfoAdapt;
    import alternativa.tanks.model.info.ShowInfoEvents;
    import alternativa.tanks.model.info.ShowInfo;
-   import alternativa.tanks.model.info.param.BattleParamInfoModel;
    import alternativa.tanks.model.info.dm.BattleDmInfoModel;
    import alternativa.tanks.model.info.param.BattleParams;
    import alternativa.tanks.model.info.param.BattleParamsAdapt;
@@ -188,9 +187,15 @@ package projects.tanks.clients.fp10.models.tanksbattleselectmodelflash
    import alternativa.tanks.service.battle.BattleUserInfoService;
    import alternativa.tanks.service.battleinfo.BattleInfoFormService;
    import alternativa.tanks.model.battle.BattleEntranceModel;
-   import alternativa.tanks.model.battle.BattleEntrance;
-   import alternativa.tanks.model.battle.BattleEntranceAdapt;
-   import alternativa.tanks.model.battle.BattleEntranceEvents;
+   import alternativa.tanks.model.battle.BattleEntranceInfo;
+   import alternativa.tanks.model.battle.BattleEntranceInfoAdapt;
+   import alternativa.tanks.model.battle.BattleEntranceInfoEvents;
+   import alternativa.tanks.model.item.BattleItemModel;
+   import alternativa.tanks.model.item.dm.BattleDMItemModel;
+   import alternativa.tanks.model.item.team.BattleTeamItemModel;
+   import alternativa.tanks.model.item.BattleFriendsListener;
+   import alternativa.tanks.model.item.BattleFriendsListenerAdapt;
+   import alternativa.tanks.model.item.BattleFriendsListenerEvents;
    //import projects.tanks.clients.fp10.libraries.tanksservices.service.logging.gamescreen.UserChangeGameScreenService;
    //import projects.tanks.clients.fp10.libraries.tanksservices.service.matchmakinggroup.MatchmakingGroupService;
    //import projects.tanks.clients.fp10.libraries.tanksservices.service.notifier.battle.IBattleNotifierService;
@@ -668,6 +673,38 @@ package projects.tanks.clients.fp10.models.tanksbattleselectmodelflash
          },function():IFriendInfoService
          {
             return BattleTeamInfoModel.friendsInfoService;
+         });
+         osgi.injectService(IAlertService,function(param1:Object):void
+         {
+            BattleDmInfoModel.alertService = IAlertService(param1);
+            BattleTeamInfoModel.alertService = IAlertService(param1);
+         },function():IAlertService
+         {
+            return BattleDmInfoModel.alertService;
+         });
+         osgi.injectService(ILocaleService,function(param1:Object):void
+         {
+            BattleDmInfoModel.localeService = ILocaleService(param1);
+            BattleTeamInfoModel.localeService = ILocaleService(param1);
+         },function():ILocaleService
+         {
+            return BattleDmInfoModel.localeService;
+         });
+         osgi.injectService(ITrackerService,function(param1:Object):void
+         {
+            BattleDmInfoModel.trackerService = ITrackerService(param1);
+            BattleTeamInfoModel.trackerService = ITrackerService(param1);
+         },function():ITrackerService
+         {
+            return BattleDmInfoModel.trackerService;
+         });
+         osgi.injectService(UserBattleSelectActionsService,function(param1:Object):void
+         {
+            BattleDmInfoModel.userBattleSelectActionsService = UserBattleSelectActionsService(param1);
+            BattleTeamInfoModel.userBattleSelectActionsService = UserBattleSelectActionsService(param1);
+         },function():UserBattleSelectActionsService
+         {
+            return BattleDmInfoModel.userBattleSelectActionsService;
          });
          //osgi.injectService(MatchmakingFormService,function(param1:Object):void
          //{
@@ -1390,30 +1427,51 @@ package projects.tanks.clients.fp10.models.tanksbattleselectmodelflash
          //{
          //   return QuestButton.localeService;
          //});
+         osgi.injectService(IBattleListFormService,function(param1:Object):void
+         {
+            BattleItemModel.battleListFormService = IBattleListFormService(param1);
+            BattleDMItemModel.battleListFormService = IBattleListFormService(param1);
+            BattleTeamItemModel.battleListFormService = IBattleListFormService(param1);
+         },function():IBattleListFormService
+         {
+            return BattleItemModel.battleListFormService;
+         });
+         osgi.injectService(IBattleUserInfoService,function(param1:Object):void
+         {
+            BattleItemModel.battleUserInfoService = IBattleUserInfoService(param1);
+         },function():IBattleUserInfoService
+         {
+            return BattleItemModel.battleUserInfoService;
+         });
+         osgi.injectService(IFriendInfoService,function(param1:Object):void
+         {
+            BattleTeamItemModel.friendsInfoService = IFriendInfoService(param1);
+         },function():IFriendInfoService
+         {
+            return BattleTeamItemModel.friendsInfoService;
+         });
          modelRegisterAdapt = osgi.getService(ModelRegistry) as ModelRegistry;
-         modelRegisterAdapt.registerAdapt(BattleEntrance,BattleEntranceAdapt);
-         modelRegisterAdapt.registerEvents(BattleEntrance,BattleEntranceEvents);
          modelRegister = osgi.getService(ModelRegistry) as ModelRegistry;
          modelRegister.add(new BattleEntranceModel());
+         modelRegisterAdapt.registerAdapt(BattleEntranceInfo,BattleEntranceInfoAdapt);
+         modelRegisterAdapt.registerEvents(BattleEntranceInfo,BattleEntranceInfoEvents);
          modelRegister.add(new BattleSelectModel());
          modelRegister.add(new BattleCreateModel());
+         modelRegister.add(new BattleItemModel());
+         modelRegister.add(new BattleDMItemModel());
+         modelRegister.add(new BattleTeamItemModel());
          //modelRegister.add(new BuyProAbonementModel());
          modelRegister.add(new BattleInfoModel());
-         modelRegisterAdapt.registerAdapt(BattleInfoParams,BattleInfoParamsAdapt);
-         modelRegisterAdapt.registerEvents(BattleInfoParams,BattleInfoParamsEvents);
          modelRegisterAdapt.registerAdapt(IBattleInfo,IBattleInfoAdapt);
          modelRegisterAdapt.registerEvents(IBattleInfo,IBattleInfoEvents);
-         modelRegisterAdapt.registerAdapt(ShowInfo,ShowInfoAdapt);
-         modelRegisterAdapt.registerEvents(ShowInfo,ShowInfoEvents);
          modelRegister.add(new BattleDmInfoModel());
-         modelRegister.add(new BattleParamInfoModel());
          modelRegisterAdapt.registerAdapt(BattleParams,BattleParamsAdapt);
          modelRegisterAdapt.registerEvents(BattleParams,BattleParamsEvents);
          modelRegisterAdapt.registerAdapt(BattleTeamInfo,BattleTeamInfoAdapt);
          modelRegisterAdapt.registerEvents(BattleTeamInfo,BattleTeamInfoEvents);
          modelRegister.add(new BattleTeamInfoModel());
-         //modelRegisterAdapt.registerAdapt(BattleFriendsListener,BattleFriendsListenerAdapt);
-         //modelRegisterAdapt.registerEvents(BattleFriendsListener,BattleFriendsListenerEvents);
+         modelRegisterAdapt.registerAdapt(BattleFriendsListener,BattleFriendsListenerAdapt);
+         modelRegisterAdapt.registerEvents(BattleFriendsListener,BattleFriendsListenerEvents);
          modelRegisterAdapt.registerAdapt(IBattleDMItem,IBattleDMItemAdapt);
          modelRegisterAdapt.registerEvents(IBattleDMItem,IBattleDMItemEvents);
          modelRegisterAdapt.registerAdapt(IMapInfo,IMapInfoAdapt);

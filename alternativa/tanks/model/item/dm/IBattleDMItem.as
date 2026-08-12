@@ -5,6 +5,7 @@ package alternativa.tanks.model.item.dm
    {
       
       function getUsersCount() : int;
+
+      function getFriendsCount() : int;
    }
 }
-

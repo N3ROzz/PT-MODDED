@@ -4,7 +4,6 @@ package alternativa.tanks.service.battleinfo
    import alternativa.tanks.controllers.battleinfo.BattleInfoTeamController;
    import alternativa.tanks.controllers.battleinfo.EmptyBattleInfoController;
    import alternativa.tanks.controllers.battleinfo.IBattleInfoController;
-   import alternativa.tanks.model.battle.BattleEntrance;
    import alternativa.tanks.tracker.ITrackerService;
    import alternativa.tanks.view.battleinfo.BattleInfoViewEvent;
    import alternativa.tanks.view.battleinfo.dm.BattleInfoDmParams;
@@ -68,7 +67,7 @@ package alternativa.tanks.service.battleinfo
       
       private function onEnterBattle(param1:BattleInfoViewEvent) : void
       {
-         BattleEntrance(this.getSelectedBattle().adapt(BattleEntrance)).fight(param1.team);
+         dispatchEvent(param1.clone());
          trackerService.trackEvent(GA_CATEGORY,"enterBattle",param1.team != null ? "Team" : "DM");
       }
       
@@ -91,7 +90,7 @@ package alternativa.tanks.service.battleinfo
       
       private function onEnterSpectator(param1:BattleInfoViewEvent) : void
       {
-         BattleEntrance(this.getSelectedBattle().adapt(BattleEntrance)).enterAsSpectator();
+         dispatchEvent(param1.clone());
          trackerService.trackEvent(GA_CATEGORY,"enterBattle","Spectator");
       }
       

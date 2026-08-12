@@ -39,10 +39,9 @@ package alternativa.tanks.model.battleselect
          super();
       }
       
-      public function select(param1:IGameObject) : void
+      public function select(param1:String) : void
       {
-         TankTraceUtil.logBattleList("BattleSelectModel.select battle=" + (param1 == null ? "null" : param1.name));
-         BattleSelectionTrace.record("MODEL_SELECT_ACK","BattleSelectModel.select",param1 == null ? "" : param1.name,param1,"");
+         TankTraceUtil.logBattleList("BattleSelectModel.select battle=" + param1);
          battleListFormService.selectBattleItemFromServer(param1);
          this.clearSelectTimeout();
       }
@@ -92,10 +91,10 @@ package alternativa.tanks.model.battleselect
       {
          var event:BattleListFormServiceEvent = param1;
          this.clearSelectTimeout();
-         var battleId:String = BattleParams(param1.selectedItem.adapt(BattleParams)).getConstructor().params.battleId;
+         var battleId:String = BattleParams(param1.selectedItem.adapt(BattleParams)).getConstructor().battleId;
          BattleSelectionTrace.record("MODEL_SELECTION_EVENT","BattleSelectModel.onBattleSelected",battleId,param1.selectedItem,"payloadVariant=" + BattleSelectionTrace.BUILD_VARIANT);
          TankTraceUtil.markBattleSelect(battleId);
-         server.onSelect(battleId,param1.selectedItem);
+         server.onSelect(battleId);
       }
       
       private function onBattleByURLNotFound(param1:BattleByURLNotFoundEvent) : void
