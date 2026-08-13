@@ -69,6 +69,10 @@ package scpacker.networking.protocol.packets.battleitem
       private function withBattle(param1:String, param2:Function) : void
       {
          var _loc1_:IGameObject = this.battleSelectSpace.getObjectByName(param1);
+         if(_loc1_ == null)
+         {
+            return;
+         }
          Model.withObject(_loc1_,param2);
       }
    }

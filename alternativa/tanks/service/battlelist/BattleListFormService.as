@@ -65,8 +65,18 @@ package alternativa.tanks.service.battlelist
       
       public function battleItemRecord(param1:BattleInfoBaseParams) : void
       {
+         TankTraceUtil.logBattleListQa("03_BATTLE_ITEM_RECORD_BEGIN battleId=" + (param1 == null || param1.battle == null ? "null" : param1.battle.name));
+         try
+         {
          TankTraceUtil.logBattleList("BattleListFormService.battleItemRecord controllerNull=" + (this.battleListController == null) + " paramsNull=" + (param1 == null));
          this.battleListController.battleItemRecord(param1);
+         }
+         catch(e:Error)
+         {
+            TankTraceUtil.logBattleListQa("03_BATTLE_ITEM_RECORD_FAILED battleId=" + (param1 == null || param1.battle == null ? "null" : param1.battle.name) + " error=" + e.name + " message=" + e.message + " stack=" + e.getStackTrace());
+            throw e;
+         }
+         TankTraceUtil.logBattleListQa("03_BATTLE_ITEM_RECORD_COMPLETE battleId=" + (param1 == null || param1.battle == null ? "null" : param1.battle.name));
       }
       
       public function selectBattleItemFromServer(param1:String) : void
@@ -113,8 +123,18 @@ package alternativa.tanks.service.battlelist
       
       public function battleItemsPacketJoinSuccess() : void
       {
+         TankTraceUtil.logBattleListQa("04_PACKET_JOIN_SUCCESS_BEGIN");
+         try
+         {
          TankTraceUtil.logBattleList("BattleListFormService.battleItemsPacketJoinSuccess controllerNull=" + (this.battleListController == null));
          this.battleListController.battleItemsPacketJoinSuccess();
+         }
+         catch(e:Error)
+         {
+            TankTraceUtil.logBattleListQa("04_PACKET_JOIN_SUCCESS_FAILED error=" + e.name + " message=" + e.message + " stack=" + e.getStackTrace());
+            throw e;
+         }
+         TankTraceUtil.logBattleListQa("04_PACKET_JOIN_SUCCESS_COMPLETE");
       }
       
       private function onCreateBattleClick(param1:CreateBattleClickEvent) : void

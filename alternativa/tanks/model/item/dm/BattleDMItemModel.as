@@ -10,6 +10,7 @@ package alternativa.tanks.model.item.dm
    import projects.tanks.client.battleselect.model.battle.entrance.user.BattleInfoUser;
    import projects.tanks.client.battleselect.model.item.dm.BattleDMItemModelBase;
    import projects.tanks.client.battleselect.model.item.dm.IBattleDMItemModelBase;
+   import utils.TankTraceUtil;
 
    [ModelInfo]
    public class BattleDMItemModel extends BattleDMItemModelBase implements IBattleDMItemModelBase, IBattleDMItem, BattleFriendsListener, ObjectLoadListener
@@ -19,6 +20,9 @@ package alternativa.tanks.model.item.dm
 
       public function objectLoaded() : void
       {
+         TankTraceUtil.logBattleListQa("01_DM_OBJECT_LOADED_BEGIN battleId=" + object.name);
+         try
+         {
          var _loc1_:BattleInfoDmParams = new BattleInfoDmParams();
          var _loc2_:String = null;
          var _loc3_:BattleInfoUser = null;
@@ -34,6 +38,13 @@ package alternativa.tanks.model.item.dm
          }
          BattleItemModel.setItemParams(object,_loc1_);
          BattleParamsUtils.registerUsers(object,_loc1_.users,_loc1_);
+         }
+         catch(e:Error)
+         {
+            TankTraceUtil.logBattleListQa("01_DM_OBJECT_LOADED_FAILED battleId=" + object.name + " error=" + e.name + " message=" + e.message + " stack=" + e.getStackTrace());
+            throw e;
+         }
+         TankTraceUtil.logBattleListQa("01_DM_OBJECT_LOADED_COMPLETE battleId=" + object.name);
       }
 
       private function data() : BattleInfoDmParams

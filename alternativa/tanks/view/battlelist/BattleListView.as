@@ -398,6 +398,9 @@
       
       public function createItem(param1:BattleListItemParams, param2:Boolean) : void
       {
+         TankTraceUtil.logBattleListQa("05_CREATE_ITEM_BEGIN battleId=" + (param1 == null ? "null" : param1.id));
+         try
+         {
          TankTraceUtil.logBattleList("BattleListView.createItem start id=" + param1.id + " mode=" + param1.createParams.battleMode.name + " immediate=" + param2 + " beforeLength=" + this._dataProvider.length + " existingIndex=" + this.getItemIndex(param1.id));
          var _loc3_:Object = new Object();
          var _loc4_:BattleInfoBaseParams = param1.params;
@@ -434,6 +437,13 @@
             helpService.hideHelper(this.HELPER_GROUP_KEY,this.HELPER_NOT_AVAILABLE);
          }
          TankTraceUtil.logBattleList("BattleListView.createItem end id=" + param1.id + " providerLength=" + this._dataProvider.length);
+         }
+         catch(e:Error)
+         {
+            TankTraceUtil.logBattleListQa("05_CREATE_ITEM_FAILED battleId=" + (param1 == null ? "null" : param1.id) + " error=" + e.name + " message=" + e.message + " stack=" + e.getStackTrace());
+            throw e;
+         }
+         TankTraceUtil.logBattleListQa("05_CREATE_ITEM_COMPLETE battleId=" + param1.id + " providerLength=" + this._dataProvider.length);
       }
       
       private function getModeSortIndex(param1:BattleMode) : int

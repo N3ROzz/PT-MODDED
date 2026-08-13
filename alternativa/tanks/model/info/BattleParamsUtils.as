@@ -14,6 +14,7 @@ package alternativa.tanks.model.info
    import projects.tanks.client.battleselect.model.battle.param.BattleParamInfoCC;
    import projects.tanks.client.battleselect.model.item.BattleItemCC;
    import projects.tanks.client.battleservice.BattleCreateParameters;
+   import projects.tanks.client.battleservice.model.createparams.BattleLimits;
    import projects.tanks.clients.fp10.libraries.tanksservices.model.friends.FriendState;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.friend.IFriendInfoService;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.servername.ServerNumberToLocaleServerService;
@@ -83,6 +84,7 @@ package alternativa.tanks.model.info
          _loc4_.battleId = param2.battleId;
          _loc4_.battleMode = param2.battleMode;
          _loc4_.equipmentConstraintsMode = param2.equipmentConstraintsMode;
+         _loc4_.limits = new BattleLimits();
          _loc4_.maxPeopleCount = param2.maxPeople;
          _loc4_.name = param2.name;
          _loc4_.parkourMode = param2.parkourMode;

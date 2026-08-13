@@ -10,7 +10,6 @@ package projects.tanks.client.battleselect.model.battleselect
 
    public class BattleSelectModelServer
    {
-      private static const BATTLE_SELECT_SEND_TRAILING_SPACE:Boolean = true;
       private var model:IModel;
       private var network:Network = Network(OSGi.getInstance().getService(Network));
       
@@ -23,8 +22,7 @@ package projects.tanks.client.battleselect.model.battleselect
       public function onSelect(param1:String) : void
       {
          RuntimeLifecycleDiagnostics.recordSelectRequest(param1,this.network != null && this.network.diagnosticSocketConnected,this.network != null && this.network.diagnosticTransportFailed);
-         var payload:String = BATTLE_SELECT_SEND_TRAILING_SPACE ? param1 + " " : param1;
-         network.send(new SelectBattleInOutPacket(payload));
+         network.send(new SelectBattleInOutPacket(param1));
       }
       
       public function search(param1:String) : void

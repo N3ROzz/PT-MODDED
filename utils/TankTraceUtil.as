@@ -12,6 +12,7 @@ package utils
       public static const ENABLED:Boolean = false;
       public static const BATTLE_LIST_ENABLED:Boolean = false;
       public static const BATTLE_LIST_STALE_DEBUG_ENABLED:Boolean = false;
+      public static const BATTLE_LIST_QA_ENABLED:Boolean = false;
       public static const SET_TANK_HEALTH_SCOPE_ENABLED:Boolean = false;
       public static const HP_LIFECYCLE_ENABLED:Boolean = false;
       public static const SHAFT_SFX_ENABLED:Boolean = false;
@@ -69,6 +70,11 @@ package utils
       public static function logBattleListStale(param1:String) : void
       {
          writeLine("[BattleListStaleDebug] " + param1,BATTLE_LIST_STALE_DEBUG_ENABLED);
+      }
+
+      public static function logBattleListQa(param1:String) : void
+      {
+         writeLine("[BattleListQA] " + param1,BATTLE_LIST_QA_ENABLED);
       }
 
       public static function markBattleSelect(param1:String) : void
