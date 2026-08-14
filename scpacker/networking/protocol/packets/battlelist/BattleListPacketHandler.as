@@ -98,6 +98,7 @@ package scpacker.networking.protocol.packets.battlelist
       private function loadAllBattles(param1:LoadAllBattlesInPacket) : void
       {
          var _loc1_:Object = JSON.parse(param1.battlesJson);
+         var _loc2_:Object = this.collectBattleIds(_loc1_);
          this.battleSelectObject = this.battleSelectSpace.getObject(SpaceAndGameObjectIds.BATTLE_SELECT_OBJECT_ID);
          if(this.battleSelectObject == null)
          {
@@ -107,11 +108,12 @@ package scpacker.networking.protocol.packets.battlelist
          try
          {
             this.battleSelectModel.objectLoadedPost();
+            this.removeStaleBattles(_loc2_);
             if(_loc1_ != null && _loc1_.battles != null)
             {
-               for each(var _loc2_:Object in _loc1_.battles)
+               for each(var _loc3_:Object in _loc1_.battles)
                {
-                  this.addBattle(_loc2_);
+                  this.addBattle(_loc3_);
                }
             }
             this.battleSelectModel.battleItemsPacketJoinSuccess();
@@ -119,6 +121,57 @@ package scpacker.networking.protocol.packets.battlelist
          finally
          {
             Model.popObject();
+         }
+      }
+
+      private function collectBattleIds(param1:Object) : Object
+      {
+         var _loc1_:Object = {};
+         if(param1 == null || param1.battles == null)
+         {
+            return _loc1_;
+         }
+         for each(var _loc2_:Object in param1.battles)
+         {
+            if(_loc2_ != null && _loc2_.battleId != null && String(_loc2_.battleId) != "")
+            {
+               _loc1_[String(_loc2_.battleId)] = true;
+            }
+         }
+         return _loc1_;
+      }
+
+      private function removeStaleBattles(param1:Object) : void
+      {
+         var _loc1_:Vector.<IGameObject> = new Vector.<IGameObject>();
+         for each(var _loc2_:IGameObject in this.battleSelectSpace.objects)
+         {
+            if(this.isBattleListObject(_loc2_) && !param1.hasOwnProperty(_loc2_.name))
+            {
+               _loc1_.push(_loc2_);
+            }
+         }
+         for each(_loc2_ in _loc1_)
+         {
+            this.battleSelectSpace.destroyObject(_loc2_.id);
+            this.destroyBattleInfo(_loc2_.name);
+         }
+      }
+
+      private function isBattleListObject(param1:IGameObject) : Boolean
+      {
+         return param1 != null && (param1.gameClass == dmBattleListGameClass || param1.gameClass == teamBattleListGameClass);
+      }
+
+      private function destroyBattleInfo(param1:String) : void
+      {
+         var _loc1_:Vector.<IGameObject> = this.snapshot(this.battleInfoSpace);
+         for each(var _loc2_:IGameObject in _loc1_)
+         {
+            if(_loc2_.name == param1)
+            {
+               this.battleInfoSpace.destroyObject(_loc2_.id);
+            }
          }
       }
 

@@ -347,6 +347,14 @@
       
       public function removeBattle(param1:String) : void
       {
+         if(this._selectedItem != null && this._selectedItem.name == param1)
+         {
+            this.resetSelectedItem();
+         }
+         if(lastShownItemId == param1)
+         {
+            lastShownItemId = null;
+         }
          this._view.removeItem(param1);
          BattleSelectVectorUtil.deleteElementInVector(this._allItems,param1);
          BattleSelectVectorUtil.deleteElementInArray(this._itemsAwaitPacketJoinSuccess,param1);
