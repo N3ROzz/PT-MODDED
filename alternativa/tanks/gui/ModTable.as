@@ -103,15 +103,18 @@ package alternativa.tanks.gui
          while(_loc4_ < 4)
          {
             _loc2_ = this.rows[_loc4_] as ModInfoRow;
-            _loc5_ = 0;
-            while(_loc5_ < _loc3_)
+            if(_loc2_.visible)
             {
-               _loc6_ = _loc2_.labels[_loc5_] as LabelBase;
-               if(_loc6_.text.indexOf(".") != -1)
+               _loc5_ = 0;
+               while(_loc5_ < _loc3_)
                {
-                  _loc1_.push(_loc5_);
+                  _loc6_ = _loc2_.labels[_loc5_] as LabelBase;
+                  if(_loc6_.text.indexOf(".") != -1)
+                  {
+                     _loc1_.push(_loc5_);
+                  }
+                  _loc5_++;
                }
-               _loc5_++;
             }
             _loc4_++;
          }
@@ -119,16 +122,19 @@ package alternativa.tanks.gui
          while(_loc4_ < 4)
          {
             _loc2_ = this.rows[_loc4_];
-            _loc5_ = 0;
-            while(_loc5_ < _loc1_.length)
+            if(_loc2_.visible)
             {
-               _loc7_ = int(_loc1_[_loc5_]);
-               _loc6_ = _loc2_.labels[_loc7_] as LabelBase;
-               if(_loc6_.text.indexOf(".") == -1)
+               _loc5_ = 0;
+               while(_loc5_ < _loc1_.length)
                {
-                  _loc6_.text += ".0";
+                  _loc7_ = int(_loc1_[_loc5_]);
+                  _loc6_ = _loc2_.labels[_loc7_] as LabelBase;
+                  if(_loc6_.text.indexOf(".") == -1)
+                  {
+                     _loc6_.text += ".0";
+                  }
+                  _loc5_++;
                }
-               _loc5_++;
             }
             _loc4_++;
          }
@@ -149,4 +155,3 @@ package alternativa.tanks.gui
       }
    }
 }
-

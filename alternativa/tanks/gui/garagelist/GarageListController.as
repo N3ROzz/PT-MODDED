@@ -471,7 +471,10 @@ package alternativa.tanks.gui.garagelist
          else if(Boolean(itemService.isModificationItem(param1)) && Boolean(itemService.hasNextModification(param1)))
          {
             _loc3_ = itemService.getMaxAvailableOrNextNotAvailableModification(param1);
-            _loc2_ = int(itemService.getDiscount(_loc3_));
+            if(_loc3_ != null)
+            {
+               _loc2_ = int(itemService.getDiscount(_loc3_));
+            }
          }
          return _loc2_;
       }
@@ -506,6 +509,10 @@ package alternativa.tanks.gui.garagelist
                return null;
             }
             _loc3_ = itemService.getMaxAvailableOrNextNotAvailableModification(param1);
+            if(_loc3_ == null)
+            {
+               return null;
+            }
          }
          return itemService.getEndDiscountTimer(_loc3_);
       }

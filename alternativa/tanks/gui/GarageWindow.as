@@ -228,6 +228,10 @@ package alternativa.tanks.gui
          if(Boolean(itemService.isModificationItem(this._selectedItem)) && this.isItemInDepot(this._selectedItem))
          {
             _loc1_ = itemService.getMaxAvailableModification(this._selectedItem);
+            if(_loc1_ == null)
+            {
+               return;
+            }
             userGarageActionsService.buyItemModification(_loc1_);
             trackerService.trackEvent(GA_CATEGORY,GarageWindowEvent.UPGRADE_ITEM,itemService.getName(this._selectedItem));
          }
@@ -520,4 +524,3 @@ package alternativa.tanks.gui
       }
    }
 }
-

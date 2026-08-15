@@ -797,6 +797,11 @@ package alternativa.tanks.gui
                this.inventoryNumStepper.visible = false;
                this.inventoryNumStepper.enabled = false;
                _loc7_ = itemService.getMaxAvailableOrNextNotAvailableModification(param1);
+               if(_loc7_ == null)
+               {
+                  this.buyButton.visible = false;
+                  return;
+               }
                _loc5_ = int(itemService.getPrice(_loc7_));
                _loc8_ = int(itemService.getMinRankIndex(_loc7_));
                _loc3_ = userPropertiesService.rank >= _loc8_ ? _loc8_ : int(-_loc8_);
@@ -926,7 +931,7 @@ package alternativa.tanks.gui
             while(_loc11_ < this.modTable.rows.length)
             {
                _loc13_ = ModInfoRow(this.modTable.rows[_loc11_]);
-               _loc13_.visible = param3.length != 1 || _loc11_ == 0;
+               _loc13_.visible = _loc11_ < param3.length && param3[_loc11_] != null;
                _loc11_++;
             }
             _loc11_ = 0;
@@ -934,6 +939,11 @@ package alternativa.tanks.gui
             {
                _loc12_ = param3[_loc11_];
                _loc13_ = ModInfoRow(this.modTable.rows[_loc11_]);
+               if(_loc12_ == null)
+               {
+                  _loc11_++;
+                  continue;
+               }
                _loc13_.upgradeIndicator.visible = param3.length != 1;
                _loc13_.costLabel.text = Money.numToString(itemService.getPriceWithoutDiscount(_loc12_),false);
                this.modTable.maxCostWidth = _loc13_.costLabel.width;
@@ -968,6 +978,11 @@ package alternativa.tanks.gui
             else
             {
                _loc4_ = itemService.getMaxAvailableOrNextNotAvailableModification(param1);
+            }
+            if(_loc4_ == null)
+            {
+               this.buyButton.visible = false;
+               return;
             }
             this.buyButton.setText(_loc3_ + " M" + itemService.getModificationIndex(_loc4_));
          }

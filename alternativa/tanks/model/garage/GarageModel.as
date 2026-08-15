@@ -584,6 +584,10 @@ package alternativa.tanks.model.garage
          var _loc2_:Vector.<IGameObject> = itemService.getModifications(param1);
          for each(_loc3_ in _loc2_)
          {
+            if(_loc3_ == null)
+            {
+               continue;
+            }
             _loc4_ = UpgradableItem(_loc3_.adapt(UpgradableItem));
             if(_loc4_.isUpgrading())
             {
@@ -665,6 +669,10 @@ package alternativa.tanks.model.garage
          var _loc2_:Vector.<IGameObject> = itemService.getModifications(param1);
          for each(_loc3_ in _loc2_)
          {
+            if(_loc3_ == null)
+            {
+               continue;
+            }
             if(itemService.isMounted(_loc3_))
             {
                return true;

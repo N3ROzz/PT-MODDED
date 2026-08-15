@@ -131,6 +131,11 @@ package alternativa.tanks.model.item.resistance.view
             if(!_loc2_)
             {
                _loc5_ = itemService.getMaxAvailableOrNextNotAvailableModification(param1);
+               if(_loc5_ == null)
+               {
+                  this.buyButton.visible = false;
+                  return;
+               }
                _loc4_ = int(itemService.getPrice(_loc5_));
                _loc6_ = int(itemService.getMinRankIndex(_loc5_));
                _loc3_ = userPropertiesService.rank >= _loc6_ ? _loc6_ : int(-_loc6_);
@@ -157,6 +162,11 @@ package alternativa.tanks.model.item.resistance.view
             else
             {
                _loc4_ = itemService.getMaxAvailableOrNextNotAvailableModification(param1);
+            }
+            if(_loc4_ == null)
+            {
+               this.buyButton.visible = false;
+               return;
             }
             this.buyButton.setText(_loc3_ + " M" + itemService.getModificationIndex(_loc4_));
          }
@@ -187,6 +197,10 @@ package alternativa.tanks.model.item.resistance.view
       private function onButtonBuyClickInternal() : void
       {
          var _loc1_:IGameObject = garageService.getView().isItemInDepot(this.item) ? itemService.getMaxAvailableModification(this.item) : this.item;
+         if(_loc1_ == null)
+         {
+            return;
+         }
          garageService.getView().dispatchEvent(new GarageWindowEvent(GarageWindowEvent.BUY_ITEM,_loc1_));
       }
       

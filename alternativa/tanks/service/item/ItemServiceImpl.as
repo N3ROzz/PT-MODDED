@@ -748,7 +748,7 @@ package alternativa.tanks.service.item
          while(_loc5_ >= 0)
          {
             _loc6_ = _loc3_[_loc5_];
-            if(userPropertyService.rank >= this.getMinRankIndex(_loc6_))
+            if(_loc6_ != null && userPropertyService.rank >= this.getMinRankIndex(_loc6_))
             {
                _loc2_ = _loc6_;
                break;
