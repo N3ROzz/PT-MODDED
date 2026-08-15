@@ -963,11 +963,7 @@ package alternativa.tanks.gui
          {
             if(param2)
             {
-               _loc4_ = itemService.getMaxAvailableModification(param1);
-               if(_loc4_ == null)
-               {
-                  _loc4_ = param1;
-               }
+               _loc4_ = param1;
             }
             else
             {
@@ -1567,4 +1563,3 @@ package alternativa.tanks.gui
       }
    }
 }
-

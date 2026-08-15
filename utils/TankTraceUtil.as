@@ -22,11 +22,16 @@ package utils
       public static const TWINS_SFX_DEBUG_ENABLED:Boolean = false;
       public static const CLAN_USER_INFO_DEBUG_ENABLED:Boolean = false;
       public static const FRIENDS_DEBUG_ENABLED:Boolean = false;
+      public static const GARAGE_QA_ENABLED:Boolean = true;
+
+      private static const GARAGE_QA_BUILD_ID:String = "GARAGE_ORDER_AND_KITS_PARITY_03";
 
       private static var nextTankId:int = 1;
       private static var tankIds:Dictionary = new Dictionary(true);
       private static var logFile:File = File.desktopDirectory.resolvePath("protanki-debug.log");
       private static var loggerAnnounced:Boolean = false;
+      private static var garageQaSequence:uint = 0;
+      private static var garageQaStarted:Boolean = false;
       public static var lastBattleSelectId:String = "";
       public static var lastBattleJoinId:String = "";
 
@@ -132,6 +137,20 @@ package utils
       public static function logFriends(param1:String) : void
       {
          writeLine("[FRIENDS_DEBUG] " + param1,FRIENDS_DEBUG_ENABLED);
+      }
+
+      public static function logGarageQa(param1:String, param2:String = "") : void
+      {
+         if(!GARAGE_QA_ENABLED)
+         {
+            return;
+         }
+         if(!garageQaStarted)
+         {
+            garageQaStarted = true;
+            writeLine("[" + GARAGE_QA_BUILD_ID + "] seq=" + garageQaSequence++ + " event=SESSION_BEGIN",true);
+         }
+         writeLine("[" + GARAGE_QA_BUILD_ID + "] seq=" + garageQaSequence++ + " event=" + param1 + (param2.length == 0 ? "" : " " + param2),true);
       }
 
       private static function writeLine(param1:String, param2:Boolean) : void

@@ -4,6 +4,9 @@ package scpacker.networking.protocol.packets.garage
    import alternativa.tanks.model.item.present.PresentItemModel;
    import alternativa.model.timeperiod.TimePeriodModel;
    import alternativa.tanks.model.item.kit.GarageKitModel;
+   import alternativa.tanks.model.item.kit.GarageKit;
+   import alternativa.tanks.model.item.grouped.IGroupedItem;
+   import alternativa.model.timeperiod.TimePeriod;
    import projects.tanks.client.garage.models.item.view.ItemViewCategoryCC;
    import projects.tanks.client.garage.models.item.discount.DiscountCC;
    import platform.client.models.commons.periodtime.TimePeriodModelCC;
@@ -104,6 +107,8 @@ package scpacker.networking.protocol.packets.garage
    
    public class GaragePacketHandler extends AbstractPacketHandler
    {
+      private static const AMBIGUOUS_COMPONENT:Object = {};
+
       private var itemModel:ItemModel;
       private var itemCategoryModel:ItemCategoryModel;
       private var itemViewCategoryModel:ItemViewCategoryModel;
@@ -148,6 +153,9 @@ package scpacker.networking.protocol.packets.garage
       private var garageGameClass:IGameClass;
 
       private var garageSpace:ISpace;
+
+      private var ownedDiagnosticIndex:int = 0;
+      private var marketDiagnosticIndex:int = 0;
 
       public function GaragePacketHandler()
       {
@@ -345,13 +353,17 @@ package scpacker.networking.protocol.packets.garage
          var depotItems:Vector.<IGameObject> = new Vector.<IGameObject>();
 
          var parsedJson:Object = JSON.parse(param1.battlesJson);
+         this.ownedDiagnosticIndex = 0;
+         TankTraceUtil.logGarageQa("OWNED_PACKET_BEGIN","items=" + this.arrayLength(parsedJson == null ? null : parsedJson.items));
          for each(var item in parsedJson.items)
          {
+            this.logRawItem("owned",this.ownedDiagnosticIndex,item);
             itemGarageProperties = new Vector.<ItemGaragePropertyData>();
             garageProperties = this.buildGarageProperties(item,itemGarageProperties);
             modificationId = int(item.modificationID);
 
             var gameClass:IGameClass = this.getGameClassForItem(item);
+            TankTraceUtil.logGarageQa("GAME_CLASS_SELECTED","source=owned index=" + this.ownedDiagnosticIndex + " id=" + this.safeValue(item.id) + " class=" + this.gameClassId(gameClass));
             gameObject = this.garageSpace.createObject(Long.getLong(0,EnumUtils.intToItemCategoryEnum(item.type) == ItemCategoryEnum.GIVEN_PRESENT ? int(item.present.date + item.previewResourceId) : int(item.previewResourceId)),gameClass,item.id + "_m" + modificationId);
             
             Model.object = gameObject;
@@ -359,6 +371,7 @@ package scpacker.networking.protocol.packets.garage
             {
             if(item.price == 8000 && item.index > 10000)
             {
+               TankTraceUtil.logGarageQa("MAGIC_INDEX_OVERRIDE","source=owned index=" + this.ownedDiagnosticIndex + " id=" + this.safeValue(item.id) + " price=" + item.price + " originalIndex=" + item.index + " replacementIndex=9897");
                item.index = 9897;
             }
             this.itemModel.putInitParams(new ItemModelCC(30,item.rank,item.index,ImageResource(resourceRegistry.getResource(Long.getLong(0,item.previewResourceId)))));
@@ -366,37 +379,61 @@ package scpacker.networking.protocol.packets.garage
             this.itemCategoryModel.putInitParams(new ItemCategoryCC(EnumUtils.intToItemCategoryEnum(item.type)));
             this.descriptionModel.putInitParams(new DescriptionModelCC(item.description,item.name));
             this.buyableModel.putInitParams(new BuyableCC(true,item.price));
-            this.modificationModel.putInitParams(new ModificationCC(Long.getLong(0,item.baseItemId),item.modificationID == null ? -1 : int(item.modificationID)));
-            this.itemPropertiesModel.putInitParams(new ItemPropertiesCC(itemGarageProperties));
+            if(this.hasModel(gameClass,this.modificationModel.id))
+            {
+               this.modificationModel.putInitParams(new ModificationCC(Long.getLong(0,item.baseItemId),item.modificationID == null ? -1 : int(item.modificationID)));
+            }
+            if(this.hasModel(gameClass,this.itemPropertiesModel.id))
+            {
+               this.itemPropertiesModel.putInitParams(new ItemPropertiesCC(itemGarageProperties));
+            }
             
             var upgradeParamsData:UpgradeParamsData = new UpgradeParamsData();
             upgradeParamsData.properties = garageProperties;
-            this.upgradeParamsModel.putInitParams(new UpgradeParamsCC(0,upgradeParamsData));
+            if(this.hasModel(gameClass,this.upgradeParamsModel.id))
+            {
+               this.upgradeParamsModel.putInitParams(new UpgradeParamsCC(0,upgradeParamsData));
+            }
 
-            this.countableItemModel.putInitParams(new CountableItemCC(item.count == null ? -1 : int(item.count)));
-            this.object3dsModel.putInitParams(new Object3DSCC(Long.getLong(0,item.object3ds)));
-            this.coloringModel.putInitParams(new ColoringCC(null,ImageResource(resourceRegistry.getResource(Long.getLong(0,item.coloring)))));
+            if(this.hasModel(gameClass,this.countableItemModel.id))
+            {
+               this.countableItemModel.putInitParams(new CountableItemCC(item.count == null ? -1 : int(item.count)));
+            }
+            if(this.hasModel(gameClass,this.object3dsModel.id))
+            {
+               this.object3dsModel.putInitParams(new Object3DSCC(Long.getLong(0,item.object3ds)));
+            }
+            if(this.hasModel(gameClass,this.coloringModel.id))
+            {
+               this.coloringModel.putInitParams(new ColoringCC(null,ImageResource(resourceRegistry.getResource(Long.getLong(0,item.coloring)))));
+            }
             if(EnumUtils.intToItemCategoryEnum(item.type) == ItemCategoryEnum.COLOR)
             {
                PaintRegistry.addPaint(item.name,int(item.coloring));
             }
 
-            if(item.remainingTimeInSec > 0)
+            if(this.hasModel(gameClass,this.temporaryItemModel.id) && item.remainingTimeInSec > 0)
             {
                this.temporaryItemModel.putInitParams(new TemporaryItemCC(false,item.remainingTimeInSec,item.remainingTimeInSec));
                this.temporaryItemModel.objectLoaded();
             }
 
-            if(EnumUtils.intToItemCategoryEnum(item.type) == ItemCategoryEnum.GIVEN_PRESENT)
+            if(this.hasModel(gameClass,this.presentItemModel.id) && EnumUtils.intToItemCategoryEnum(item.type) == ItemCategoryEnum.GIVEN_PRESENT)
             {
                this.presentItemModel.putInitParams(new PresentItemCC(item.present.date,ImageResource(resourceRegistry.getResource(Long.getLong(0,item.present.image))),item.present.presenter,item.present.text));
             }
             //this.rentModel.putInitParams(new RentItemCC(item.isForRent));
             //this.discountModel.objectLoadedPost();
-            this.countableItemModel.objectLoaded();
+            if(this.hasModel(gameClass,this.countableItemModel.id))
+            {
+               this.countableItemModel.objectLoaded();
+            }
             }             finally             {                Model.popObject();             }
             depotItems[depotItems.length] = gameObject;
+            TankTraceUtil.logGarageQa("OWNED_ITEM_COMPLETE","index=" + this.ownedDiagnosticIndex + " id=" + this.safeValue(item.id) + " objectName=" + this.safeValue(gameObject.name));
+            ++this.ownedDiagnosticIndex;
          }
+         TankTraceUtil.logGarageQa("OWNED_PACKET_ITEMS_COMPLETE","parsed=" + this.ownedDiagnosticIndex + " depot=" + depotItems.length);
          
          Model.object = this.garageGameObject;
          try
@@ -451,20 +488,81 @@ package scpacker.networking.protocol.packets.garage
          var remainingTime:int = 0;
          var parsed:Object = JSON.parse(packet.battlesJson);
          var marketItems:Vector.<IGameObject> = new Vector.<IGameObject>();
-         for each(var item in parsed.items)
+         var serverKitCount:int = 0;
+         var nullKitComponentCount:int = 0;
+         var filteredKitCount:int = 0;
+         var sourceItems:Array = parsed.items;
+         var processingItems:Array = [];
+         var createdByServerIndex:Array = [];
+         var marketByObjectName:Object = {};
+         var marketByRawId:Object = {};
+         var marketByRawIdAndModification:Object = {};
+         var sourceIndex:int = 0;
+         var sourceItem:Object = null;
+         while(sourceIndex < sourceItems.length)
          {
+            sourceItem = sourceItems[sourceIndex];
+            if(EnumUtils.intToItemCategoryEnum(sourceItem.type) != ItemCategoryEnum.KIT)
+            {
+               processingItems.push({item:sourceItem,serverIndex:sourceIndex});
+            }
+            sourceIndex++;
+         }
+         sourceIndex = 0;
+         while(sourceIndex < sourceItems.length)
+         {
+            sourceItem = sourceItems[sourceIndex];
+            if(EnumUtils.intToItemCategoryEnum(sourceItem.type) == ItemCategoryEnum.KIT)
+            {
+               processingItems.push({item:sourceItem,serverIndex:sourceIndex});
+            }
+            sourceIndex++;
+         }
+         this.marketDiagnosticIndex = 0;
+         TankTraceUtil.logGarageQa("MARKET_PACKET_BEGIN","items=" + this.arrayLength(parsed == null ? null : parsed.items));
+         for each(var processingEntry:Object in processingItems)
+         {
+            var item:Object = processingEntry.item;
+            this.marketDiagnosticIndex = int(processingEntry.serverIndex);
+            this.logRawItem("market",this.marketDiagnosticIndex,item);
             itemPropsForModel = new Vector.<ItemGaragePropertyData>();
             propertyValues = new Vector.<PropertyData>();
             kitItems = new Vector.<KitItem>();
             if(EnumUtils.intToItemCategoryEnum(item.type) == ItemCategoryEnum.KIT)
             {
+               ++serverKitCount;
+               var invalidKit:Boolean = item == null || !item.hasOwnProperty("kit") || item.kit == null;
+               var invalidKitReason:String = invalidKit ? "missing_kit_data" : "";
+               var resolution:Object = null;
+               if(!invalidKit)
+               {
                for each(var kit in item.kit.kitItems)
                {
-                  kitItems.push(new KitItem(kit.count,this.garageSpace.getObjectByName(kit.id),false));
+                  resolution = this.resolveKitComponent(kit,marketByObjectName,marketByRawId,marketByRawIdAndModification);
+                  var resolvedKitItem:IGameObject = resolution.item as IGameObject;
+                  if(resolvedKitItem == null)
+                  {
+                     ++nullKitComponentCount;
+                     invalidKit = true;
+                     invalidKitReason = String(resolution.reason);
+                  }
+                  TankTraceUtil.logGarageQa("KIT_COMPONENT_RESOLUTION","marketIndex=" + this.marketDiagnosticIndex + " kitId=" + this.safeValue(item.id) + " componentId=" + this.safeValue(kit.id) + " count=" + this.safeValue(kit.count) + " componentModification=" + this.fieldValue(kit,"modificationID") + " resolved=" + (resolvedKitItem == null ? 0 : 1) + " source=" + this.safeValue(resolution.source) + " reason=" + this.safeValue(resolution.reason) + " resolvedName=" + (resolvedKitItem == null ? "null" : this.safeValue(resolvedKitItem.name)));
+                  if(resolvedKitItem != null)
+                  {
+                     kitItems.push(new KitItem(kit.count,resolvedKitItem,false));
+                  }
+               }
+               }
+               if(invalidKit)
+               {
+                  ++filteredKitCount;
+                  TankTraceUtil.logGarageQa("KIT_FILTERED","marketIndex=" + this.marketDiagnosticIndex + " kitId=" + this.safeValue(item == null ? null : item.id) + " reason=" + invalidKitReason);
+                  continue;
                }
             }
 
             var gameClass:IGameClass = this.getGameClassForItem(item);
+            TankTraceUtil.logGarageQa("GAME_CLASS_SELECTED","source=market index=" + this.marketDiagnosticIndex + " id=" + this.safeValue(item.id) + " class=" + this.gameClassId(gameClass) + " kitClass=" + (gameClass == this.kitItemGameClass ? 1 : 0) + " renameClass=" + (gameClass == this.renameItemGameClass ? 1 : 0));
             gameObject = this.garageSpace.createObject(Long.getLong(0,item.previewResourceId),gameClass,item.id + "_m" + (item.modificationID == undefined ? "0" : item.modificationID));
             Model.object = gameObject;
             try
@@ -477,16 +575,34 @@ package scpacker.networking.protocol.packets.garage
             this.itemCategoryModel.putInitParams(new ItemCategoryCC(EnumUtils.intToItemCategoryEnum(item.type)));
             this.descriptionModel.putInitParams(new DescriptionModelCC(item.description,item.name));
             this.buyableModel.putInitParams(new BuyableCC(true,item.price));
-            this.modificationModel.putInitParams(new ModificationCC(Long.getLong(0,item.baseItemId),item.modificationID == null ? -1 : int(item.modificationID)));
-            this.itemPropertiesModel.putInitParams(new ItemPropertiesCC(itemPropsForModel));
+            if(this.hasModel(gameClass,this.modificationModel.id))
+            {
+               this.modificationModel.putInitParams(new ModificationCC(Long.getLong(0,item.baseItemId),item.modificationID == null ? -1 : int(item.modificationID)));
+            }
+            if(this.hasModel(gameClass,this.itemPropertiesModel.id))
+            {
+               this.itemPropertiesModel.putInitParams(new ItemPropertiesCC(itemPropsForModel));
+            }
 
             var upgradeParamsData:UpgradeParamsData = new UpgradeParamsData();
             upgradeParamsData.properties = garagePropertyDataList;
-            this.upgradeParamsModel.putInitParams(new UpgradeParamsCC(0,upgradeParamsData));
+            if(this.hasModel(gameClass,this.upgradeParamsModel.id))
+            {
+               this.upgradeParamsModel.putInitParams(new UpgradeParamsCC(0,upgradeParamsData));
+            }
 
-            this.countableItemModel.putInitParams(new CountableItemCC(EnumUtils.intToItemCategoryEnum(item.type) == ItemCategoryEnum.INVENTORY ? 0 : -1));
-            this.object3dsModel.putInitParams(new Object3DSCC(Long.getLong(0,item.object3ds)));
-            this.coloringModel.putInitParams(new ColoringCC(null,ImageResource(resourceRegistry.getResource(Long.getLong(0,item.coloring)))));
+            if(this.hasModel(gameClass,this.countableItemModel.id))
+            {
+               this.countableItemModel.putInitParams(new CountableItemCC(EnumUtils.intToItemCategoryEnum(item.type) == ItemCategoryEnum.INVENTORY ? 0 : -1));
+            }
+            if(this.hasModel(gameClass,this.object3dsModel.id))
+            {
+               this.object3dsModel.putInitParams(new Object3DSCC(Long.getLong(0,item.object3ds)));
+            }
+            if(this.hasModel(gameClass,this.coloringModel.id))
+            {
+               this.coloringModel.putInitParams(new ColoringCC(null,ImageResource(resourceRegistry.getResource(Long.getLong(0,item.coloring)))));
+            }
             if(EnumUtils.intToItemCategoryEnum(item.type) == ItemCategoryEnum.COLOR)
             {
                PaintRegistry.addPaint(item.name,int(item.coloring));
@@ -497,27 +613,53 @@ package scpacker.networking.protocol.packets.garage
             }
 
             remainingTime = Math.max(0,item.remainingTimeInSec);
-            this.temporaryItemModel.putInitParams(new TemporaryItemCC(remainingTime,remainingTime));
+            if(this.hasModel(gameClass,this.temporaryItemModel.id))
+            {
+               this.temporaryItemModel.putInitParams(new TemporaryItemCC(remainingTime,remainingTime));
+            }
 
             this.discountModel.putInitParams(new DiscountCC(item.discount.percent,item.discount.timeLeftInSeconds,item.discount.timeToStartInSeconds));
-            this.groupedItemModel.putInitParams(new GroupedCC(item.grouped));
+            if(this.hasModel(gameClass,this.groupedItemModel.id))
+            {
+               this.groupedItemModel.putInitParams(new GroupedCC(item.grouped));
+            }
             //this.rentModel.putInitParams(new RentItemCC(item.isForRent));
             this.discountModel.objectLoadedPost();
-            if(item.id == "rename")
+            if(this.hasModel(gameClass,this.renameModel.id) && item.id == "rename")
             {
                this.renameModel.objectLoaded();
             }
-            else if(EnumUtils.intToItemCategoryEnum(item.type) == ItemCategoryEnum.KIT)
+            else if(this.hasModel(gameClass,this.garageKitModel.id) && EnumUtils.intToItemCategoryEnum(item.type) == ItemCategoryEnum.KIT)
             {
                this.garageKitModel.putInitParams(new GarageKitCC(item.kit.discountInPercent,ImageResource(resourceRegistry.getResource(Long.getLong(0,item.kit.image))),kitItems));
                this.timePeriodModel.putInitParams(new TimePeriodModelCC(true,item.kit.isTimeless,item.kit.timeLeftInSeconds,10));
                this.timePeriodModel.objectLoaded();
             }
-            this.countableItemModel.objectLoaded();
+            if(this.hasModel(gameClass,this.countableItemModel.id))
+            {
+               this.countableItemModel.objectLoaded();
+            }
             //this.upgradeParamsModel.objectLoadedPost();
-            marketItems[marketItems.length] = gameObject;
+            createdByServerIndex[this.marketDiagnosticIndex] = gameObject;
             }             finally             {                Model.popObject();             }
+            TankTraceUtil.logGarageQa("MARKET_ITEM_COMPLETE","index=" + this.marketDiagnosticIndex + " id=" + this.safeValue(item.id) + " objectName=" + this.safeValue(gameObject.name) + " hasGarageKit=" + (gameObject.hasModel(GarageKit) ? 1 : 0) + " hasGrouped=" + (gameObject.hasModel(IGroupedItem) ? 1 : 0) + " hasTimePeriod=" + (gameObject.hasModel(TimePeriod) ? 1 : 0));
+            if(EnumUtils.intToItemCategoryEnum(item.type) != ItemCategoryEnum.KIT)
+            {
+               this.registerComponentCandidate(marketByObjectName,gameObject.name,gameObject);
+               this.registerComponentCandidate(marketByRawId,String(item.id),gameObject);
+               this.registerComponentCandidate(marketByRawIdAndModification,this.rawModificationKey(item.id,item.modificationID == undefined ? 0 : item.modificationID),gameObject);
+            }
          }
+         sourceIndex = 0;
+         while(sourceIndex < createdByServerIndex.length)
+         {
+            if(createdByServerIndex[sourceIndex] != null)
+            {
+               marketItems.push(createdByServerIndex[sourceIndex]);
+            }
+            sourceIndex++;
+         }
+         TankTraceUtil.logGarageQa("MARKET_PACKET_ITEMS_COMPLETE","parsed=" + sourceItems.length + " market=" + marketItems.length + " serverKits=" + serverKitCount + " filteredKits=" + filteredKitCount + " nullKitComponents=" + nullKitComponentCount);
          Model.object = this.garageGameObject;
          try
          {
@@ -613,11 +755,20 @@ package scpacker.networking.protocol.packets.garage
       
       private function getGameClassForItem(item:Object) : IGameClass
       {
+         var _loc1_:ItemCategoryEnum = EnumUtils.intToItemCategoryEnum(item.type);
+         if(_loc1_ == ItemCategoryEnum.KIT)
+         {
+            return this.kitItemGameClass;
+         }
+         if(item.id == "rename")
+         {
+            return this.renameItemGameClass;
+         }
          if(item.remainingTimeInSec > 0)
          {
             return this.temporaryItemGameClass;
          }
-         else if (EnumUtils.intToItemCategoryEnum(item.type) == ItemCategoryEnum.COLOR)
+         else if (_loc1_ == ItemCategoryEnum.COLOR)
          {
             return this.coloringItemGameClass;
          }
@@ -640,6 +791,140 @@ package scpacker.networking.protocol.packets.garage
             return this.countableItemGameClass;
          }
          return this.countableItemGameClass;
+      }
+
+      private function logRawItem(param1:String, param2:int, param3:Object) : void
+      {
+         var _loc4_:String = "source=" + param1 + " index=" + param2;
+         _loc4_ += " id=" + this.fieldValue(param3,"id");
+         _loc4_ += " name=" + this.fieldValue(param3,"name");
+         _loc4_ += " type=" + this.fieldValue(param3,"type");
+         _loc4_ += " category=" + this.fieldValue(param3,"category");
+         _loc4_ += " rank=" + this.fieldValue(param3,"rank");
+         _loc4_ += " maxRank=" + this.fieldValue(param3,"maxRank");
+         _loc4_ += " itemIndex=" + this.fieldValue(param3,"index");
+         _loc4_ += " baseItemId=" + this.fieldValue(param3,"baseItemId");
+         _loc4_ += " modificationID=" + this.fieldValue(param3,"modificationID");
+         _loc4_ += " price=" + this.fieldValue(param3,"price");
+         _loc4_ += " buyable=" + this.fieldValue(param3,"buyable");
+         _loc4_ += " enabled=" + this.fieldValue(param3,"enabled");
+         _loc4_ += " remainingTimeInSec=" + this.fieldValue(param3,"remainingTimeInSec");
+         _loc4_ += " group=" + this.fieldValue(param3,"group");
+         _loc4_ += " grouped=" + this.fieldValue(param3,"grouped");
+         if(param3 != null && param3.hasOwnProperty("kit") && param3.kit != null)
+         {
+            _loc4_ += " kitIsTimeless=" + this.fieldValue(param3.kit,"isTimeless");
+            _loc4_ += " kitTimeLeft=" + this.fieldValue(param3.kit,"timeLeftInSeconds");
+            _loc4_ += " kitTimeToStart=" + this.fieldValue(param3.kit,"timeToStartInSeconds");
+            _loc4_ += " kitComponents=" + this.arrayLength(param3.kit.kitItems);
+         }
+         TankTraceUtil.logGarageQa("RAW_ITEM",_loc4_);
+      }
+
+      private function fieldValue(param1:Object, param2:String) : String
+      {
+         if(param1 == null || !param1.hasOwnProperty(param2))
+         {
+            return "missing";
+         }
+         return typeof param1[param2] + ":" + this.safeValue(param1[param2]);
+      }
+
+      private function safeValue(param1:Object) : String
+      {
+         if(param1 == null)
+         {
+            return "null";
+         }
+         var _loc2_:String = String(param1).replace(/[\r\n\t]/g," ");
+         return _loc2_.length > 80 ? _loc2_.substr(0,80) : _loc2_;
+      }
+
+      private function arrayLength(param1:Object) : int
+      {
+         return param1 == null || !param1.hasOwnProperty("length") ? 0 : int(param1.length);
+      }
+
+      private function gameClassId(param1:IGameClass) : String
+      {
+         return param1 == null ? "null" : this.safeValue(param1.id);
+      }
+
+      private function hasModel(param1:IGameClass, param2:Long) : Boolean
+      {
+         if(param1 == null || param2 == null)
+         {
+            return false;
+         }
+         for each(var _loc3_:Long in param1.models)
+         {
+            if(_loc3_.equalsTo(param2))
+            {
+               return true;
+            }
+         }
+         return false;
+      }
+
+      private function registerComponentCandidate(param1:Object, param2:String, param3:IGameObject) : void
+      {
+         if(param2 == null || param2.length == 0)
+         {
+            return;
+         }
+         if(!param1.hasOwnProperty(param2))
+         {
+            param1[param2] = param3;
+         }
+         else if(param1[param2] !== param3)
+         {
+            param1[param2] = AMBIGUOUS_COMPONENT;
+         }
+      }
+
+      private function resolveKitComponent(param1:Object, param2:Object, param3:Object, param4:Object) : Object
+      {
+         if(param1 == null || !param1.hasOwnProperty("id") || param1.id == null || String(param1.id).length == 0)
+         {
+            return {item:null,source:"none",reason:"missing_component_id"};
+         }
+         var _loc5_:String = String(param1.id);
+         var _loc6_:Object = param2[_loc5_];
+         if(_loc6_ === AMBIGUOUS_COMPONENT)
+         {
+            return {item:null,source:"object_name",reason:"ambiguous_object_name"};
+         }
+         if(_loc6_ is IGameObject)
+         {
+            return {item:_loc6_,source:"object_name",reason:"resolved"};
+         }
+         if(param1.hasOwnProperty("modificationID"))
+         {
+            _loc6_ = param4[this.rawModificationKey(_loc5_,param1.modificationID)];
+            if(_loc6_ === AMBIGUOUS_COMPONENT)
+            {
+               return {item:null,source:"raw_id_modification",reason:"ambiguous_raw_id_modification"};
+            }
+            if(_loc6_ is IGameObject)
+            {
+               return {item:_loc6_,source:"raw_id_modification",reason:"resolved"};
+            }
+         }
+         _loc6_ = param3[_loc5_];
+         if(_loc6_ === AMBIGUOUS_COMPONENT)
+         {
+            return {item:null,source:"raw_id",reason:"ambiguous_raw_id"};
+         }
+         if(_loc6_ is IGameObject)
+         {
+            return {item:_loc6_,source:"raw_id",reason:"resolved"};
+         }
+         return {item:null,source:"none",reason:"unresolved_component"};
+      }
+
+      private function rawModificationKey(param1:Object, param2:Object) : String
+      {
+         return String(param1) + "|" + String(param2);
       }
    }
 }

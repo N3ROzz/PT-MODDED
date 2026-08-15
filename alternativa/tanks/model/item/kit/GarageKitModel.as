@@ -12,10 +12,14 @@ package alternativa.tanks.model.item.kit
    import projects.tanks.clients.fp10.libraries.tanksservices.service.userproperties.IUserPropertiesService;
    import platform.client.fp10.core.resource.types.ImageResource;
    import projects.tanks.client.garage.models.item.kit.GarageKitCC;
+   import flash.utils.Dictionary;
+   import utils.TankTraceUtil;
    
    [ModelInfo]
    public class GarageKitModel extends GarageKitModelBase implements IGarageKitModelBase, GarageKit, ICollectDiscount
    {
+
+      private var diagnosticLogged:Dictionary = new Dictionary(true);
       
       [Inject] // added
       public static var itemService:ItemService;
@@ -77,10 +81,24 @@ package alternativa.tanks.model.item.kit
          {
             if(!itemService.hasItem(_loc1_.item) && itemService.getMinRankIndex(_loc1_.item) > userPropertyService.rank)
             {
+               this.logCanBuy("component_rank",true,_loc1_.item,0);
                return true;
             }
          }
-         return this.getPriceYouSave() > 0;
+         var _loc2_:int = this.getPriceYouSave();
+         var _loc3_:Boolean = _loc2_ > 0;
+         this.logCanBuy("savings",_loc3_,null,_loc2_);
+         return _loc3_;
+      }
+
+      private function logCanBuy(param1:String, param2:Boolean, param3:Object, param4:int) : void
+      {
+         if(this.diagnosticLogged[object])
+         {
+            return;
+         }
+         this.diagnosticLogged[object] = true;
+         TankTraceUtil.logGarageQa("KIT_CAN_BUY_DECISION","objectName=" + object.name + " reason=" + param1 + " result=" + (param2 ? 1 : 0) + " component=" + (param3 == null ? "null" : param3.name) + " savings=" + param4 + " components=" + (this.getItems() == null ? 0 : this.getItems().length));
       }
       
       public function getItems() : Vector.<KitItem>
@@ -99,4 +117,3 @@ package alternativa.tanks.model.item.kit
       }
    }
 }
-

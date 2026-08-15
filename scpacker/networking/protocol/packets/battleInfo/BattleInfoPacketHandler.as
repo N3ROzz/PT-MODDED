@@ -252,6 +252,7 @@ package scpacker.networking.protocol.packets.battleInfo
       {
          var _loc1_:Object = JSON.parse(param1.battlesJson);
          var _loc2_:IGameClass = _loc1_.battleMode == "DM" ? BattleListPacketHandler.dmBattleInfoGameClass : BattleListPacketHandler.teamBattleInfoGameClass;
+         this.destroyPreviousBattleInfoObjects();
          var _loc3_:IGameObject = this.battleInfoSpace.createObject(IdTool.getNextId(),_loc2_,String(_loc1_.itemId));
          var _loc4_:BattleCreateParameters = this.createBattleParameters(_loc1_);
          var _loc5_:BattleInfoCC = new BattleInfoCC();
@@ -319,6 +320,30 @@ package scpacker.networking.protocol.packets.battleInfo
             Model.popObject();
          }
          RuntimeLifecycleDiagnostics.recordBattleInfo("BATTLE_INFO_LOAD_END","battleId=" + _loc1_.itemId + " mode=" + _loc1_.battleMode);
+      }
+
+      private function destroyPreviousBattleInfoObjects() : void
+      {
+         var _loc1_:Vector.<IGameObject> = new Vector.<IGameObject>();
+         for each(var _loc2_:IGameObject in this.battleInfoSpace.objects)
+         {
+            if(_loc2_.gameClass == BattleListPacketHandler.dmBattleInfoGameClass || _loc2_.gameClass == BattleListPacketHandler.teamBattleInfoGameClass)
+            {
+               _loc1_.push(_loc2_);
+            }
+         }
+         for each(_loc2_ in _loc1_)
+         {
+            Model.object = _loc2_;
+            try
+            {
+               this.battleInfoSpace.destroyObject(_loc2_.id);
+            }
+            finally
+            {
+               Model.popObject();
+            }
+         }
       }
 
       private function createBattleParameters(param1:Object) : BattleCreateParameters
