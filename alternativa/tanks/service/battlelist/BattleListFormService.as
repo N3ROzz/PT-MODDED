@@ -11,8 +11,6 @@ package alternativa.tanks.service.battlelist
    import flash.events.EventDispatcher;
    import platform.client.fp10.core.type.IGameObject;
    import projects.tanks.client.battleservice.model.types.BattleSuspicionLevel;
-   import utils.TankTraceUtil;
-   import utils.BattleSelectionTrace;
    
    public class BattleListFormService extends EventDispatcher implements IBattleListFormService
    {
@@ -28,29 +26,23 @@ package alternativa.tanks.service.battlelist
       public function BattleListFormService()
       {
          super();
-         TankTraceUtil.logBattleList("BattleListFormService.constructor");
       }
       
       public function createAndShow() : void
       {
-         TankTraceUtil.logBattleList("BattleListFormService.createAndShow start existingController=" + (this.battleListController != null));
          if(this.battleListController != null)
          {
             this.hideAndDestroy();
          }
          this.battleListController = new BattleListController();
-         TankTraceUtil.logBattleList("BattleListFormService.createAndShow controllerCreated");
          this.battleListController.showForm();
-         TankTraceUtil.logBattleList("BattleListFormService.createAndShow formShown");
          this.battleListController.addEventListener(CreateBattleClickEvent.CREATE_BATTLE_CLICK,this.onCreateBattleClick);
          this.battleListController.addEventListener(BattleSelectedEvent.BATTLE_SELECTED,this.onBattleSelected);
          this.battleListController.addEventListener(BattleByURLNotFoundEvent.BATTLE_BY_URL_NOT_FOUND,this.onBattleByURLNotFound);
-         TankTraceUtil.logBattleList("BattleListFormService.createAndShow listenersAdded");
       }
       
       public function hideAndDestroy() : void
       {
-         TankTraceUtil.logBattleList("BattleListFormService.hideAndDestroy controllerNull=" + (this.battleListController == null));
          if(this.battleListController == null)
          {
             return;
@@ -65,18 +57,14 @@ package alternativa.tanks.service.battlelist
       
       public function battleItemRecord(param1:BattleInfoBaseParams) : void
       {
-         TankTraceUtil.logBattleListQa("03_BATTLE_ITEM_RECORD_BEGIN battleId=" + (param1 == null || param1.battle == null ? "null" : param1.battle.name));
          try
          {
-         TankTraceUtil.logBattleList("BattleListFormService.battleItemRecord controllerNull=" + (this.battleListController == null) + " paramsNull=" + (param1 == null));
          this.battleListController.battleItemRecord(param1);
          }
          catch(e:Error)
          {
-            TankTraceUtil.logBattleListQa("03_BATTLE_ITEM_RECORD_FAILED battleId=" + (param1 == null || param1.battle == null ? "null" : param1.battle.name) + " error=" + e.name + " message=" + e.message + " stack=" + e.getStackTrace());
             throw e;
          }
-         TankTraceUtil.logBattleListQa("03_BATTLE_ITEM_RECORD_COMPLETE battleId=" + (param1 == null || param1.battle == null ? "null" : param1.battle.name));
       }
       
       public function selectBattleItemFromServer(param1:String) : void
@@ -106,7 +94,6 @@ package alternativa.tanks.service.battlelist
       
       private function onBattleSelected(param1:BattleSelectedEvent) : void
       {
-         BattleSelectionTrace.record("EVENT_DISPATCH","BattleListFormService",param1.selectedItem == null ? "" : param1.selectedItem.name,param1.selectedItem,"event=BattleListFormServiceEvent");
          dispatchEvent(new BattleListFormServiceEvent(BattleListFormServiceEvent.BATTLE_SELECTED,param1.selectedItem));
          battleCreateFormService.hideForm();
       }
@@ -123,23 +110,18 @@ package alternativa.tanks.service.battlelist
       
       public function battleItemsPacketJoinSuccess() : void
       {
-         TankTraceUtil.logBattleListQa("04_PACKET_JOIN_SUCCESS_BEGIN");
          try
          {
-         TankTraceUtil.logBattleList("BattleListFormService.battleItemsPacketJoinSuccess controllerNull=" + (this.battleListController == null));
          this.battleListController.battleItemsPacketJoinSuccess();
          }
          catch(e:Error)
          {
-            TankTraceUtil.logBattleListQa("04_PACKET_JOIN_SUCCESS_FAILED error=" + e.name + " message=" + e.message + " stack=" + e.getStackTrace());
             throw e;
          }
-         TankTraceUtil.logBattleListQa("04_PACKET_JOIN_SUCCESS_COMPLETE");
       }
       
       private function onCreateBattleClick(param1:CreateBattleClickEvent) : void
       {
-         TankTraceUtil.logCreateBattle("BattleListFormService.onCreateBattleClick");
          battleCreateFormService.showForm();
          battleInfoFormService.removeFormFromStage();
       }

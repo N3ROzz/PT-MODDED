@@ -25,7 +25,6 @@ package alternativa.tanks.gui.garagelist
    import projects.tanks.clients.fp10.libraries.tanksservices.service.userproperties.IUserPropertiesService;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.userproperties.UserPropertiesServiceEvent;
    import projects.tanks.clients.fp10.libraries.tanksservices.utils.removeDisplayObject;
-   import utils.TankTraceUtil;
    
    public class GarageListController
    {
@@ -153,11 +152,9 @@ package alternativa.tanks.gui.garagelist
       public function initDepot(param1:Vector.<IGameObject>) : void
       {
          var _loc2_:IGameObject = null;
-         TankTraceUtil.logGarageQa("DEPOT_INIT_BEGIN","items=" + param1.length);
          for each(_loc2_ in param1)
          {
             itemService.addItem(_loc2_);
-            TankTraceUtil.logGarageQa("DEPOT_OWNERSHIP","objectName=" + _loc2_.name + " category=" + itemService.getCategory(_loc2_) + " modification=" + itemService.getModificationIndex(_loc2_) + " grouped=" + (itemService.isGrouped(_loc2_) ? 1 : 0) + (itemService.isGrouped(_loc2_) ? " group=" + itemService.getGroup(_loc2_) : ""));
          }
          for each(_loc2_ in param1)
          {
@@ -166,7 +163,6 @@ package alternativa.tanks.gui.garagelist
                this._itemsInDepot.push(_loc2_);
             }
          }
-         TankTraceUtil.logGarageQa("DEPOT_INIT_COMPLETE","visibleDepot=" + this._itemsInDepot.length);
       }
       
       private function needExcludeFromDepot(param1:IGameObject) : Boolean
@@ -190,10 +186,8 @@ package alternativa.tanks.gui.garagelist
       
       public function initStore(param1:Vector.<IGameObject>) : void
       {
-         TankTraceUtil.logGarageQa("STORE_INIT_BEGIN","serverItems=" + param1.length);
          this._itemsInStoreFromServer = param1;
          this.updateStore();
-         TankTraceUtil.logGarageQa("STORE_INIT_COMPLETE","visibleStore=" + this._itemsInStore.length);
       }
       
       private function updateStore() : void
@@ -218,7 +212,6 @@ package alternativa.tanks.gui.garagelist
             if(itemService.isKit(_loc3_))
             {
                _loc4_ = GarageKit(_loc3_.adapt(GarageKit)).getItems();
-               TankTraceUtil.logGarageQa("VISIBLE_KIT","objectName=" + _loc3_.name + " components=" + (_loc4_ == null ? 0 : _loc4_.length) + " price=" + itemService.getPrice(_loc3_));
                for each(_loc5_ in _loc4_)
                {
                   this._kitsByItem.put(_loc5_.item,_loc3_);
@@ -264,10 +257,6 @@ package alternativa.tanks.gui.garagelist
             _loc3_ = this._itemsInStoreFromServer[_loc2_];
             _loc4_ = itemService.canBuy(_loc3_);
             _loc5_ = this.availableInPartner(_loc3_);
-            if(itemService.getCategory(_loc3_) == ItemCategoryEnum.KIT)
-            {
-               TankTraceUtil.logGarageQa("KIT_STORE_FILTER","objectName=" + _loc3_.name + " isKit=" + (itemService.isKit(_loc3_) ? 1 : 0) + " canBuy=" + (_loc4_ ? 1 : 0) + " partnerAvailable=" + (_loc5_ ? 1 : 0) + " grouped=" + (itemService.isGrouped(_loc3_) ? 1 : 0));
-            }
             if(_loc4_ && _loc5_)
             {
                this._itemsInStore.push(_loc3_);
@@ -307,7 +296,6 @@ package alternativa.tanks.gui.garagelist
                   _loc5_ = itemService.getMaxUserModificationItem(_loc4_);
                   if(_loc5_ == null && itemService.getModificationIndex(_loc4_) == 0)
                   {
-                     TankTraceUtil.logGarageQa("STORE_MODIFICATION_SELECTION","baseObject=" + _loc4_.name + " ownedMax=null serverCandidate=" + _loc4_.name + " selected=" + _loc4_.name + " reason=original_m0");
                      _loc1_.push(_loc4_);
                   }
                }

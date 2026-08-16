@@ -14,7 +14,6 @@ package scpacker.networking.protocol.packets.battlestatistics
    import platform.client.fp10.core.model.impl.Model;
    import projects.tanks.client.battleservice.model.statistics.dm.StatisticsDMModelBase;
    import projects.tanks.client.battleservice.model.statistics.UserReward;
-   import utils.TankTraceUtil;
    
    public class BattleStatisticsPacketHandler extends AbstractPacketHandler
    {
@@ -34,7 +33,6 @@ package scpacker.networking.protocol.packets.battlestatistics
       
       public function invoke(param1:AbstractPacket) : void
       {
-         TankTraceUtil.logRatings("BattleStatistics packet id=" + param1.getId());
          switch(param1.getId())
          {
             case BattleFundInPacket.id:
@@ -70,7 +68,6 @@ package scpacker.networking.protocol.packets.battlestatistics
          {
          param1.statisticsModelCC.valuableRound = true;
          this.lastFund = param1.statisticsModelCC.fund;
-         TankTraceUtil.logRatings("InitStatistics valuableRound=" + param1.statisticsModelCC.valuableRound + " matchBattle=" + param1.statisticsModelCC.matchBattle + " fund=" + param1.statisticsModelCC.fund);
          this.statisticsModel.putInitParams(param1.statisticsModelCC);
          this.statisticsModel.objectLoaded();
          }          finally          {             Model.popObject();          }
@@ -88,7 +85,6 @@ package scpacker.networking.protocol.packets.battlestatistics
       private function fundChange(param1:BattleFundInPacket) : void
       {
          var _loc2_:int = param1.fund - this.lastFund;
-         TankTraceUtil.logRatings("BattleFund old=" + this.lastFund + " new=" + param1.fund + " delta=" + _loc2_);
          this.lastFund = param1.fund;
          if(_loc2_ > 0 && BattlefieldBonusesModel.consumeLocalBonusTaken() && this.moneyService != null)
          {
@@ -103,7 +99,6 @@ package scpacker.networking.protocol.packets.battlestatistics
       
       private function complaintConfirmed() : void
       {
-         TankTraceUtil.logRatings("ComplaintConfirmed");
          Model.object = BattlePacketHandler.battlefieldGameObject;
          try
          {
@@ -113,7 +108,6 @@ package scpacker.networking.protocol.packets.battlestatistics
       
       private function rankChanged(param1:RankUpInPacket) : void
       {
-         TankTraceUtil.logRatings("RankUp userId=" + param1.userId + " rank=" + param1.rank);
          Model.object = BattlePacketHandler.battlefieldGameObject;
          try
          {
@@ -123,7 +117,6 @@ package scpacker.networking.protocol.packets.battlestatistics
       
       private function roundFinish(param1:RoundFinishInPacket) : void
       {
-         TankTraceUtil.logRatings("RoundFinish rewards=" + this.describeRewards(param1.reward) + " timeToRestart=" + param1.timeToRestart);
          if(BattlePacketHandler.battlefieldGameObject == null)
          {
             return;
@@ -142,7 +135,6 @@ package scpacker.networking.protocol.packets.battlestatistics
       
       private function roundStart(param1:RoundStartInPacket) : void
       {
-         TankTraceUtil.logRatings("RoundStart timeLimitInSec=" + param1.timeLimitInSec);
          Model.object = BattlePacketHandler.battlefieldGameObject;
          try
          {
@@ -153,7 +145,6 @@ package scpacker.networking.protocol.packets.battlestatistics
       
       private function statusProbablyCheaterChanged(param1:StatusProbablyCheaterChangedInPacket) : void
       {
-         TankTraceUtil.logRatings("StatusProbablyCheater userId=" + param1.userId + " suspicious=" + param1.suspicious);
          Model.object = BattlePacketHandler.battlefieldGameObject;
          try
          {

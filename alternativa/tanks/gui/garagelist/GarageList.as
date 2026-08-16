@@ -40,7 +40,6 @@ package alternativa.tanks.gui.garagelist
    import projects.tanks.client.commons.types.ItemCategoryEnum;
    import projects.tanks.clients.fp10.libraries.tanksservices.utils.removeDisplayObject;
    import utils.ScrollStyleUtils;
-   import utils.TankTraceUtil;
    
    public class GarageList extends DiscreteSprite implements IResourceLoadingListener
    {
@@ -718,10 +717,6 @@ package alternativa.tanks.gui.garagelist
          while(_loc1_ < this.dp.length)
          {
             _loc2_ = GarageListRendererData(this.dp.getItemAt(_loc1_));
-            if(_loc2_.type == ItemCategoryEnum.ARMOR || _loc2_.type == ItemCategoryEnum.WEAPON || _loc2_.type == ItemCategoryEnum.KIT)
-            {
-               TankTraceUtil.logGarageQa("DATA_PROVIDER_POSITION","position=" + _loc1_ + " objectName=" + (_loc2_.id == null ? "null" : _loc2_.id.name) + " type=" + _loc2_.type + " owned=" + (_loc2_.garageElement ? 1 : 0) + " rank=" + _loc2_.rank + " mod=" + _loc2_.mod + " premiumLock=" + (_loc2_.showLockPremium ? 1 : 0) + " sort=" + _loc2_.sort);
-            }
             _loc1_++;
          }
       }

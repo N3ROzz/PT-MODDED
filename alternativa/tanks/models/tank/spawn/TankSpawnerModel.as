@@ -31,7 +31,6 @@ package alternativa.tanks.models.tank.spawn
    import projects.tanks.client.battlefield.types.Vector3d;
    import projects.tanks.client.battleservice.model.battle.team.BattleTeam;
    import flash.utils.getTimer;
-   import utils.TankTraceUtil;
    
    [ModelInfo]
    public class TankSpawnerModel extends TankSpawnerModelBase implements ITankSpawner, ITankSpawnerModelBase, ObjectUnloadListener, ObjectLoadListener, BattleEventListener
@@ -89,7 +88,6 @@ package alternativa.tanks.models.tank.spawn
          var _loc12_:SpawnHandler = null;
          var _loc6_:ITankModel = ITankModel(object.adapt(ITankModel));
          var _loc7_:Tank = _loc6_.getTank();
-         TankTraceUtil.log("[TankSpawner.spawn] objectName=" + object.name + " objectId=" + object.id + " incomingHealth=" + param4 + " incarnation=" + param5 + " team=" + param1 + " before " + TankTraceUtil.tankInfo(_loc7_));
          if(_loc6_.isLocal())
          {
             LocalTankParams.teamType = param1;
@@ -114,7 +112,6 @@ package alternativa.tanks.models.tank.spawn
             _loc12_.spawn(_loc7_);
             _loc6_.addTankToBattle(_loc7_);
             TankSpawnListener(object.event(TankSpawnListener)).onTankSpawn();
-            TankTraceUtil.log("[TankSpawner.spawn] objectName=" + object.name + " objectId=" + object.id + " after " + TankTraceUtil.tankInfo(_loc7_));
          }
       }
       

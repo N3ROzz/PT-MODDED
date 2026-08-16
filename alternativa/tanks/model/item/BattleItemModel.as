@@ -16,7 +16,6 @@ package alternativa.tanks.model.item
    import projects.tanks.client.battleselect.model.item.IBattleItemModelBase;
    import projects.tanks.client.battleselect.model.item.BattleSuspicionLevel;
    import scpacker.utils.EnumUtils;
-   import utils.TankTraceUtil;
 
    [ModelInfo]
    public class BattleItemModel extends BattleItemModelBase implements IBattleItemModelBase, BattleParams, ObjectLoadListener, ObjectLoadPostListener, ObjectUnloadListener, ObjectUnloadPostListener
@@ -50,7 +49,6 @@ package alternativa.tanks.model.item
 
       public function objectLoadedPost() : void
       {
-         TankTraceUtil.logBattleListQa("02_COMMON_OBJECT_LOADED_POST_BEGIN battleId=" + object.name);
          try
          {
          var _loc1_:BattleInfoBaseParams = getItemParams(object);
@@ -59,10 +57,8 @@ package alternativa.tanks.model.item
          }
          catch(e:Error)
          {
-            TankTraceUtil.logBattleListQa("02_COMMON_OBJECT_LOADED_POST_FAILED battleId=" + object.name + " error=" + e.name + " message=" + e.message + " stack=" + e.getStackTrace());
             throw e;
          }
-         TankTraceUtil.logBattleListQa("02_COMMON_OBJECT_LOADED_POST_COMPLETE battleId=" + object.name);
       }
 
       public function objectUnloaded() : void

@@ -6,7 +6,6 @@ package projects.tanks.client.battleselect.model.battleselect
    import scpacker.networking.Network;
    import alternativa.osgi.OSGi;
    import scpacker.networking.protocol.packets.battlelist.SelectBattleInOutPacket;
-   import utils.RuntimeLifecycleDiagnostics;
 
    public class BattleSelectModelServer
    {
@@ -21,7 +20,6 @@ package projects.tanks.client.battleselect.model.battleselect
       
       public function onSelect(param1:String) : void
       {
-         RuntimeLifecycleDiagnostics.recordSelectRequest(param1,this.network != null && this.network.diagnosticSocketConnected,this.network != null && this.network.diagnosticTransportFailed);
          network.send(new SelectBattleInOutPacket(param1));
       }
       

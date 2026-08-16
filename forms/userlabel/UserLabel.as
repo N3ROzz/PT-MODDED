@@ -24,7 +24,6 @@ package forms.userlabel
    import projects.tanks.clients.fp10.libraries.tanksservices.service.user.UserInfoLabelUpdaterEvent;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.userproperties.IUserPropertiesService;
    import services.contextmenu.IContextMenuService;
-   import utils.TankTraceUtil;
    
    public class UserLabel extends Sprite
    {
@@ -333,16 +332,13 @@ package forms.userlabel
          var _loc2_:UserClanInfo = null;
          if(!this._showClanTag || clanUserInfoService == null)
          {
-            TankTraceUtil.logClanUserInfo("UserLabel lookup userId=" + this.userId + ", rawUid=" + param1 + ", showClanTag=" + this._showClanTag + ", serviceNull=" + (clanUserInfoService == null) + ", infoExists=false, isInClan=null, clanTag=null");
             return param1;
          }
          _loc2_ = clanUserInfoService.userClanInfoByUserId(this.userId);
          if(_loc2_ == null || !_loc2_.isInClan || _loc2_.clanTag == null || _loc2_.clanTag == "")
          {
-            TankTraceUtil.logClanUserInfo("UserLabel lookup userId=" + this.userId + ", rawUid=" + param1 + ", showClanTag=" + this._showClanTag + ", serviceNull=false, infoExists=" + (_loc2_ != null) + ", isInClan=" + (_loc2_ == null ? "null" : _loc2_.isInClan) + ", clanTag=" + (_loc2_ == null ? "null" : _loc2_.clanTag));
             return param1;
          }
-         TankTraceUtil.logClanUserInfo("UserLabel lookup userId=" + this.userId + ", rawUid=" + param1 + ", showClanTag=" + this._showClanTag + ", serviceNull=false, infoExists=true, isInClan=" + _loc2_.isInClan + ", clanTag=" + _loc2_.clanTag);
          return "[" + _loc2_.clanTag + "] " + param1;
       }
       

@@ -31,7 +31,6 @@ package alternativa.tanks.view.battlecreate
    import projects.tanks.client.battleservice.model.map.params.MapTheme;
    import projects.tanks.clients.flash.commons.services.timeunit.ITimeUnitService;
    import projects.tanks.clients.fp10.libraries.TanksLocale;
-   import utils.TankTraceUtil;
    
    public class CreateBattleFormView extends DiscreteSprite
    {
@@ -521,7 +520,6 @@ package alternativa.tanks.view.battlecreate
       
       public function show() : void
       {
-         TankTraceUtil.logCreateBattle("CreateBattleFormView.show start stage=" + display.stage.stageWidth + "x" + display.stage.stageHeight + " inLayer=" + display.systemLayer.contains(this));
          this.setEvents();
          this.onResize(null);
          if(!display.systemLayer.contains(this))
@@ -529,7 +527,6 @@ package alternativa.tanks.view.battlecreate
             display.systemLayer.addChild(this);
          }
          display.systemLayer.setChildIndex(this,display.systemLayer.numChildren - 1);
-         TankTraceUtil.logCreateBattle("CreateBattleFormView.show end x=" + this.x + " y=" + this.y + " w=" + this.width + " h=" + this.height + " children=" + display.systemLayer.numChildren);
       }
       
       public function hide() : void

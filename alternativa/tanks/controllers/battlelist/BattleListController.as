@@ -25,8 +25,6 @@
    import projects.tanks.clients.fp10.libraries.tanksservices.service.storage.IStorageService;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.userproperties.IUserPropertiesService;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.userproperties.UserPropertiesServiceEvent;
-   import utils.TankTraceUtil;
-   import utils.BattleSelectionTrace;
    
    public class BattleListController extends EventDispatcher implements IBattleListViewControllerCallback
    {
@@ -90,7 +88,6 @@
          this._itemsAwaitPacketJoinSuccess = new Array();
          this._view.setCallBack(this);
          this.setFilterBattleModeFormStorage();
-         TankTraceUtil.logBattleList("BattleListController.constructor filter=" + (this.filteredMode == null ? "ALL" : this.filteredMode.name));
       }
       
       private static function getModeFromStorage() : BattleMode
@@ -129,10 +126,8 @@
       
       public function showForm() : void
       {
-         TankTraceUtil.logBattleList("BattleListController.showForm filter=" + (this.filteredMode == null ? "ALL" : this.filteredMode.name));
          this._view.show(this.filteredMode);
          this.setEvents();
-         TankTraceUtil.logBattleList("BattleListController.showForm eventsSet");
       }
       
       private function setEvents() : void
@@ -237,9 +232,7 @@
       private function selectBattleItem(param1:IGameObject, param2:Boolean, param3:Boolean) : void
       {
          var _loc4_:BattleListItemParams = null;
-         BattleSelectionTrace.record("CONTROLLER_SELECT","BattleListController.selectBattleItem",param1 == null ? "" : param1.name,param1,"fromServer=" + param2 + " dispatch=" + param3);
          this._selectedItem = param1;
-         BattleSelectionTrace.setControllerSelection(param1 == null ? "" : param1.name);
          if(param2)
          {
             if(this._view.getItemIndex(param1.name) < 0)
@@ -258,7 +251,6 @@
          }
          if(param3)
          {
-            BattleSelectionTrace.record("EVENT_DISPATCH","BattleListController",this._selectedItem.name,this._selectedItem,"event=BattleSelectedEvent");
             dispatchEvent(new BattleSelectedEvent(BattleSelectedEvent.BATTLE_SELECTED,this._selectedItem));
          }
          if(lastShownItemId == this._selectedItem.name)
@@ -270,7 +262,6 @@
       
       public function onBattleListItemClick(param1:IGameObject) : void
       {
-         BattleSelectionTrace.record("CONTROLLER_INPUT","BattleListController.ITEM_CLICK",param1 == null ? "" : param1.name,param1,"");
          this.selectBattleItem(param1,false,true);
       }
       
@@ -281,7 +272,6 @@
       
       public function onBattleListItemChange(param1:IGameObject) : void
       {
-         BattleSelectionTrace.record("CONTROLLER_INPUT","BattleListController.CHANGE",param1 == null ? "" : param1.name,param1,"sameReference=" + (this._selectedItem == param1));
          if(this._selectedItem != null)
          {
             if(this._selectedItem != param1)
@@ -321,7 +311,6 @@
       public function battleItemRecord(param1:BattleInfoBaseParams) : void
       {
          var _loc2_:BattleListItemParams = new BattleListItemParams(param1);
-         TankTraceUtil.logBattleList("battleItemRecord id=" + _loc2_.id + " mode=" + _loc2_.createParams.battleMode.name + " joined=" + this._isItemsPacketJoinSuccess);
          if(this._isItemsPacketJoinSuccess)
          {
             this._allItems.push(_loc2_);
@@ -331,7 +320,6 @@
             }
             else
             {
-               TankTraceUtil.logBattleList("battleItemRecord hiddenByFilter id=" + _loc2_.id + " filter=" + (this.filteredMode == null ? "ALL" : this.filteredMode.name));
             }
          }
          else
@@ -395,7 +383,6 @@
          var _loc6_:String = null;
          this._isItemsPacketJoinSuccess = true;
          var _loc1_:int = int(this._itemsAwaitPacketJoinSuccess.length);
-         TankTraceUtil.logBattleList("battleItemsPacketJoinSuccess awaiting=" + _loc1_ + " filter=" + (this.filteredMode == null ? "ALL" : this.filteredMode.name));
          if(_loc1_ != 0)
          {
             this._itemsAwaitPacketJoinSuccess.sortOn(["currentBattle","suspicionLevel","accessible","friends","id"],[Array.NUMERIC | Array.DESCENDING,Array.NUMERIC | Array.DESCENDING,Array.DESCENDING,Array.NUMERIC | Array.DESCENDING,Array.NUMERIC | Array.DESCENDING]);
@@ -410,7 +397,6 @@
                }
                else
                {
-                  TankTraceUtil.logBattleList("battleItemsPacketJoinSuccess hiddenByFilter id=" + _loc4_.id + " mode=" + _loc4_.params.createParams.battleMode.name);
                }
                _loc3_++;
             }
@@ -418,7 +404,6 @@
          }
          this._itemsAwaitPacketJoinSuccess.length = 0;
          this._view.resize();
-         TankTraceUtil.logBattleList("battleItemsPacketJoinSuccess after resize allItems=" + this._allItems.length);
          if(lastShownItemId != null)
          {
             _loc5_ = this.findBattleListItem(lastShownItemId);

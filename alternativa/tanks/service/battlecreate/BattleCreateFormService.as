@@ -1,7 +1,6 @@
 package alternativa.tanks.service.battlecreate
 {
    import flash.events.EventDispatcher;
-   import utils.TankTraceUtil;
    
    public class BattleCreateFormService extends EventDispatcher implements IBattleCreateFormService
    {
@@ -15,13 +14,11 @@ package alternativa.tanks.service.battlecreate
       
       public function showForm() : void
       {
-         TankTraceUtil.logCreateBattle("BattleCreateFormService.showForm listeners=" + this.hasEventListener(BattleCreateFormServiceEvent.SHOW_FORM));
          dispatchEvent(new BattleCreateFormServiceEvent(BattleCreateFormServiceEvent.SHOW_FORM));
       }
       
       public function hideForm() : void
       {
-         TankTraceUtil.logCreateBattle("BattleCreateFormService.hideForm listeners=" + this.hasEventListener(BattleCreateFormServiceEvent.HIDE_FORM));
          dispatchEvent(new BattleCreateFormServiceEvent(BattleCreateFormServiceEvent.HIDE_FORM));
       }
       

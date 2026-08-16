@@ -5,7 +5,6 @@ package projects.tanks.client.battlefield.models.user.suicide
    import scpacker.networking.Network;
    import alternativa.osgi.OSGi;
    import scpacker.networking.protocol.packets.selfdestruct.SuicideOutPacket;
-   import utils.RuntimeLifecycleDiagnostics;
 
    public class SuicideModelServer
    {
@@ -21,9 +20,7 @@ package projects.tanks.client.battlefield.models.user.suicide
 
       public function suicideCommand() : void
       {
-         RuntimeLifecycleDiagnostics.recordSuicide("SUICIDE_OUT_SEND_REQUEST","packetId=" + SuicideOutPacket.id,true);
          this.network.send(new SuicideOutPacket());
-         RuntimeLifecycleDiagnostics.recordSuicide("SUICIDE_OUT_SEND_RETURNED","packetId=" + SuicideOutPacket.id,true);
       }
    }
 }

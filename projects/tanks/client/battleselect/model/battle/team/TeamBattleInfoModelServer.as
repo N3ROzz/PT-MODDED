@@ -7,8 +7,6 @@ package projects.tanks.client.battleselect.model.battle.team
    import projects.tanks.client.battleservice.model.battle.team.BattleTeam;
    import platform.client.fp10.core.model.impl.Model;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.layout.ILobbyLayoutService;
-   import utils.BattleSelectionTrace;
-   import utils.RuntimeLifecycleDiagnostics;
 
    public class TeamBattleInfoModelServer
    {
@@ -26,11 +24,6 @@ package projects.tanks.client.battleselect.model.battle.team
       public function fight(param1:BattleTeam) : void
       {
          var _loc1_:String = Model.object == null ? "" : Model.object.name;
-         if(RuntimeLifecycleDiagnostics.enabled)
-         {
-            RuntimeLifecycleDiagnostics.beginPreInit(_loc1_,_loc1_,param1 == null ? "null" : param1.name,this.network != null && this.network.diagnosticSocketConnected,this.network != null && this.network.diagnosticTransportFailed,this.lobbyLayoutService != null && this.lobbyLayoutService.isSwitchInProgress(),this.lobbyLayoutService != null && this.lobbyLayoutService.inBattle());
-         }
-         BattleSelectionTrace.recordJoinRequest(_loc1_,Model.object,param1 == null ? "null" : param1.name);
          this.network.send(new JoinBattleOutPacket(param1));
       }
    }

@@ -20,7 +20,6 @@ package alternativa.tanks.models.battle.battlefield
    import projects.tanks.clients.fp10.libraries.tanksservices.service.battle.IBattleInfoService;
    import alternativa.tanks.models.tank.ultimate.hornet.radar.BattleRadarHudIndicators;
    import flash.utils.getTimer;
-   import utils.TankTraceUtil;
    
    [ModelInfo]
    public class WallHackSystem
@@ -88,7 +87,6 @@ package alternativa.tanks.models.battle.battlefield
          var _loc2_:Tank = param1.tank;
          var _loc3_:Long = _loc2_.getUser().id;
          this.tanksInBattle[_loc3_] = _loc2_;
-         TankTraceUtil.log("[WallHackSystem:onAdded] key=" + _loc3_ + " " + TankTraceUtil.tankInfo(_loc2_));
          if(this.isDiscovered(_loc3_))
          {
             this.revealTank(_loc2_);
@@ -105,7 +103,6 @@ package alternativa.tanks.models.battle.battlefield
          var _loc2_:Tank = param1.tank;
          var _loc3_:Long = _loc2_.getUser().id;
          delete this.tanksInBattle[_loc3_];
-         TankTraceUtil.log("[WallHackSystem:onRemoved] key=" + _loc3_ + " " + TankTraceUtil.tankInfo(_loc2_));
          if(this.isDiscovered(_loc3_))
          {
             this.concealTank(_loc2_);
@@ -128,7 +125,6 @@ package alternativa.tanks.models.battle.battlefield
             this.battleEventSupport.activateHandlers();
          }
          this.isLoaded = true;
-         TankTraceUtil.log("[WallHackSystem:load] enabled=" + isEnabled + " nick=" + showNickname + " mode=" + visualMode);
       }
 
       public function unload() : void
@@ -144,7 +140,6 @@ package alternativa.tanks.models.battle.battlefield
          this.battleRadarHudIndicators = null;
          this.tanksInBattle = new Dictionary();
          this.isLoaded = false;
-         TankTraceUtil.log("[WallHackSystem:unload]");
       }
       
       public function concealTanks() : void
@@ -166,7 +161,6 @@ package alternativa.tanks.models.battle.battlefield
          if(!this.isLoaded)
             return;
 
-         TankTraceUtil.log("[WallHackSystem] revealTanks enabled=" + isEnabled + " nick=" + showNickname + " mode=" + visualMode);
          for each(var tank:Tank in tanksInBattle)
          {
             if(tank != null)

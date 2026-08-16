@@ -22,7 +22,6 @@ package alternativa.tanks.model.userproperties
    import projects.tanks.clients.fp10.libraries.tanksservices.service.user.UserInfoLabelUpdaterEvent;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.userproperties.IUserPropertiesService;
    import utils.LoginDebugTrace;
-   import utils.TankTraceUtil;
    
    [ModelInfo]
    public class UserPropertiesModel extends UserPropertiesModelBase implements IUserPropertiesModelBase, ObjectLoadListener, ObjectLoadPostListener, IUserProperties
@@ -134,7 +133,6 @@ package alternativa.tanks.model.userproperties
       public function updateScore(param1:int, param2:Boolean = false) : void
       {
          var _loc2_:int = this._score;
-         TankTraceUtil.logRatings("UserPropertiesModel.updateScore old=" + _loc2_ + " new=" + param1 + " silent=" + param2 + " next=" + this._nextScore + " low=" + this._currentRankScore);
          this._score = param1;
          panelView.getPanel().playerInfo.updateScore(param1,this._nextScore);
          this.updateProgress(param2);
@@ -147,7 +145,6 @@ package alternativa.tanks.model.userproperties
       public function updateRank(param1:int, param2:int, param3:RankBounds, param4:int, param5:Boolean, param6:Boolean, param7:Boolean = false) : void
       {
          var _loc7_:int = this._rank;
-         TankTraceUtil.logRatings("UserPropertiesModel.updateRank oldRank=" + _loc7_ + " newRank=" + param1 + " oldScore=" + this._score + " newScore=" + param2 + " low=" + param3.lowBound + " top=" + param3.topBound + " reward=" + param4 + " alert=" + !param6 + " silent=" + param7);
          this._rank = param1;
          this._score = param2;
          this._nextScore = param3.topBound;
@@ -293,7 +290,6 @@ package alternativa.tanks.model.userproperties
       {
          var _loc2_:PlayerInfo = this.getPlayerInfo();
          var _loc3_:int = param2;
-         TankTraceUtil.logRatings("UserPropertiesModel.updateUserRating initialRating=" + this._initialUserRating + " currentRating=" + this._userRating + " newRating=" + param1 + " oldPlace=" + this._place + " requestedPlace=" + param2 + " initPlace=" + getInitParam().place);
          if(_loc3_ <= 0)
          {
             _loc3_ = getInitParam().place;

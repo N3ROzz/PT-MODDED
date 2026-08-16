@@ -2,7 +2,6 @@ package scpacker.networking.protocol
 {
    import flash.utils.ByteArray;
    import scpacker.networking.protocol.codec.ICodec;
-   import utils.BattleSelectionTrace;
    
    public class AbstractPacket
    {
@@ -40,9 +39,7 @@ package scpacker.networking.protocol
                codec.encode(payloadBuffer,this.propertyValues[_loc3_]);
                _loc3_++;
             }
-            BattleSelectionTrace.recordPreEncryptionFrame(this.getId(),payloadBuffer);
             protocolInitializer.getProtection().encrypt(payloadBuffer);
-            BattleSelectionTrace.recordEncryptedPayloadLength(this.getId(),payloadBuffer.length);
             param1.writeBytes(payloadBuffer);
             this.packetLength = 8 + payloadBuffer.length;
             param1.position = 0;

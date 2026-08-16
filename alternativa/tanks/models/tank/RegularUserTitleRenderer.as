@@ -21,7 +21,6 @@ package alternativa.tanks.models.tank
    import flash.utils.Dictionary;
    import flash.utils.getTimer;
    import platform.client.fp10.core.type.AutoClosable;
-   import utils.TankTraceUtil;
 
    public class RegularUserTitleRenderer implements UserTitleRenderer, AutoClosable, BattleEventListener
    {
@@ -48,7 +47,6 @@ package alternativa.tanks.models.tank
       {
          super();
          this.localTank = param1;
-         TankTraceUtil.log("[RTR:ctor] local " + TankTraceUtil.tankInfo(param1));
          this.remoteTankAddToBattle(param2);
          this.battleEventSupport = new BattleEventSupport(battleEventDispatcher,this);
          this.battleEventSupport.addEventHandler(TankAddedToBattleEvent,this.onTankAddedToBattle);
@@ -64,7 +62,6 @@ package alternativa.tanks.models.tank
             if(_loc2_ != this.localTank)
             {
                this.remoteTanksInBattle[_loc2_] = true;
-               TankTraceUtil.log("[RTR:addInitial] " + TankTraceUtil.tankInfo(_loc2_) + " inRemote=" + (this.remoteTanksInBattle[_loc2_] == true));
             }
          }
       }
@@ -74,7 +71,6 @@ package alternativa.tanks.models.tank
          if(param1.tank != this.localTank)
          {
             this.remoteTanksInBattle[param1.tank] = true;
-            TankTraceUtil.log("[RTR:onAdded] " + TankTraceUtil.tankInfo(param1.tank) + " inRemote=" + (this.remoteTanksInBattle[param1.tank] == true));
          }
       }
 
@@ -82,9 +78,7 @@ package alternativa.tanks.models.tank
       {
          if(param1.tank != this.localTank)
          {
-            TankTraceUtil.log("[RTR:onRemoved] beforeDelete " + TankTraceUtil.tankInfo(param1.tank) + " inRemote=" + (this.remoteTanksInBattle[param1.tank] == true));
             delete this.remoteTanksInBattle[param1.tank];
-            TankTraceUtil.log("[RTR:onRemoved] afterDelete " + TankTraceUtil.tankId(param1.tank) + " inRemote=" + (this.remoteTanksInBattle[param1.tank] == true));
          }
       }
 
@@ -141,10 +135,6 @@ package alternativa.tanks.models.tank
          param1.setTitleDepthTest(true);
          param1.setTitleLabelText(param1.userId);
          param1.setTitleConfiguration(TitleConfigFlags.LABEL | TitleConfigFlags.EFFECTS);
-         if(TankTraceUtil.ENABLED && this.shouldTraceTitle(param1))
-         {
-            TankTraceUtil.log("[RegularTitle] " + TankTraceUtil.tankInfo(param1) + " flags=" + (TitleConfigFlags.LABEL | TitleConfigFlags.EFFECTS) + " wallHack=" + WallHackSystem.isEnabled + " nick=" + WallHackSystem.showNickname + " mode=" + WallHackSystem.visualMode + " inRemote=" + (this.remoteTanksInBattle[param1] == true));
-         }
          if(_loc9_ >= DISTANCE_TO_HIDE_TITLES.getNumber() || param1.isInvisible(param2))
          {
             param1.hideTitle();
@@ -163,10 +153,6 @@ package alternativa.tanks.models.tank
             _loc2_ |= TitleConfigFlags.LABEL | TitleConfigFlags.EFFECTS;
             param1.setTitleLabelText(this.getWallHackLabel(param1));
          }
-         if(TankTraceUtil.ENABLED && this.shouldTraceTitle(param1))
-         {
-            TankTraceUtil.log("[WallHackRenderer] " + TankTraceUtil.tankInfo(param1) + " flags=" + _loc2_ + " wallHack=" + WallHackSystem.isEnabled + " nick=" + WallHackSystem.showNickname + " mode=" + WallHackSystem.visualMode + " inRemote=" + (this.remoteTanksInBattle[param1] == true));
-         }
          if(_loc2_ == 0)
          {
             param1.hideTitle();
@@ -182,19 +168,6 @@ package alternativa.tanks.models.tank
          return param1.userId;
       }
 
-      private function shouldTraceTitle(param1:Tank) : Boolean
-      {
-         var _loc2_:int = getTimer();
-         var _loc3_:Object = this.lastTraceHealthByTank[param1];
-         var _loc4_:Object = this.lastTraceTimeByTank[param1];
-         if(_loc3_ == null || Number(_loc3_) != param1.health || _loc4_ == null || _loc2_ - int(_loc4_) >= 2000)
-         {
-            this.lastTraceHealthByTank[param1] = param1.health;
-            this.lastTraceTimeByTank[param1] = _loc2_;
-            return true;
-         }
-         return false;
-      }
 
       [Obfuscation(rename="false")]
       public function close() : void

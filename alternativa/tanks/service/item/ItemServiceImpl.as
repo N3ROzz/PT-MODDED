@@ -39,7 +39,6 @@ package alternativa.tanks.service.item
    import projects.tanks.clients.fp10.libraries.TanksLocale;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.userproperties.IUserPropertiesService;
    import projects.tanks.clients.fp10.libraries.tanksservices.utils.LocaleServiceLangValues;
-   import utils.TankTraceUtil;
    
    public class ItemServiceImpl extends EventDispatcher implements ItemService
    {
@@ -80,11 +79,8 @@ package alternativa.tanks.service.item
       
       private var resistanceModuleDescription:Dictionary = new Dictionary();
 
-      private var garageDiagnosticModificationFamilies:Dictionary = new Dictionary();
 
-      private var garageDiagnosticKitClassification:Dictionary = new Dictionary(true);
 
-      private var garageDiagnosticEligibility:Dictionary = new Dictionary(true);
       
       private const delayItemAppearingInSeconds:int = 5;
       
@@ -265,7 +261,6 @@ package alternativa.tanks.service.item
             _loc7_++;
          }
          this.itemToModifications[param1] = modifcations;
-         this.logModificationFamily(param1,targetBaseId,_loc8_,_loc9_,modifcations);
          return modifcations;
       }
       
@@ -490,11 +485,6 @@ package alternativa.tanks.service.item
          var _loc2_:Boolean = this.getCategory(param1) == ItemCategoryEnum.KIT;
          var _loc3_:Boolean = param1.hasModel(GarageKit);
          var _loc4_:Boolean = _loc2_ && _loc3_ && GarageKit(param1.adapt(GarageKit)).getImage != null;
-         if(_loc2_ && this.garageDiagnosticKitClassification[param1] == null)
-         {
-            this.garageDiagnosticKitClassification[param1] = true;
-            TankTraceUtil.logGarageQa("KIT_CLASSIFICATION","objectName=" + param1.name + " categoryKit=" + (_loc2_ ? 1 : 0) + " hasGarageKit=" + (_loc3_ ? 1 : 0) + " result=" + (_loc4_ ? 1 : 0));
-         }
          return _loc4_;
       }
       
@@ -689,11 +679,6 @@ package alternativa.tanks.service.item
       public function isEnabledItem(param1:IGameObject) : Boolean
       {
          var timePeriod:TimePeriod = TimePeriod(param1.adapt(TimePeriod));
-         if(this.garageDiagnosticEligibility[param1] == null)
-         {
-            this.garageDiagnosticEligibility[param1] = true;
-            TankTraceUtil.logGarageQa("TIME_ELIGIBILITY_CURRENT","objectName=" + param1.name + " hasTimePeriod=" + (param1.hasModel(TimePeriod) ? 1 : 0) + " adapterNull=" + (timePeriod == null ? 1 : 0) + " currentResult=" + (timePeriod == null ? "would_evaluate" : "true"));
-         }
          if(timePeriod == null)
          {
             var timeEnabled:Boolean = Boolean(TimePeriod(param1.adapt(TimePeriod)).isEnabled());
@@ -702,27 +687,6 @@ package alternativa.tanks.service.item
          return true;
       }
 
-      private function logModificationFamily(param1:IGameObject, param2:Long, param3:Dictionary, param4:int, param5:Vector.<IGameObject>) : void
-      {
-         var _loc6_:String = String(param2);
-         if(this.garageDiagnosticModificationFamilies[_loc6_])
-         {
-            return;
-         }
-         this.garageDiagnosticModificationFamilies[_loc6_] = true;
-         var _loc7_:String = "";
-         var _loc8_:int = 0;
-         while(_loc8_ < param4)
-         {
-            if(_loc8_ > 0)
-            {
-               _loc7_ += ",";
-            }
-            _loc7_ += _loc8_ + ":" + (param3[_loc8_] == null ? "missing" : IGameObject(param3[_loc8_]).name);
-            _loc8_++;
-         }
-         TankTraceUtil.logGarageQa("MODIFICATION_FAMILY","baseId=" + _loc6_ + " requestedBy=" + param1.name + " maxSlotCount=" + param4 + " compactedLength=" + param5.length + " slots=" + _loc7_);
-      }
       
       public function getMaxAvailableOrNextNotAvailableModification(param1:IGameObject) : IGameObject
       {

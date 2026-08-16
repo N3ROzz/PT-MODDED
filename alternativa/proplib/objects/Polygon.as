@@ -18,9 +18,6 @@ package alternativa.proplib.objects
             indices[i + 1] = i;
          }
          addVerticesAndFaces(vertices,uv,indices,true);
-         if(twoSided)
-         {
-         }
          calculateFacesNormals();
          calculateBounds();
          sorting = Sorting.DYNAMIC_BSP;
@@ -28,4 +25,3 @@ package alternativa.proplib.objects
       }
    }
 }
-

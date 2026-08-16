@@ -16,7 +16,6 @@ package alternativa.tanks.model.info.team
    import projects.tanks.client.battleselect.model.battle.team.TeamBattleInfoModelBase;
    import projects.tanks.client.battleservice.model.battle.team.BattleTeam;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.friend.IFriendInfoService;
-   import utils.BattleSelectionTrace;
    import alternativa.osgi.service.locale.ILocaleService;
    import alternativa.tanks.model.info.IBattleInfo;
    import alternativa.tanks.tracker.ITrackerService;
@@ -25,7 +24,6 @@ package alternativa.tanks.model.info.team
    import projects.tanks.clients.fp10.libraries.tanksservices.service.alertservices.IAlertService;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.alertservices.AlertServiceEvent;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.logging.battlelist.UserBattleSelectActionsService;
-   import utils.TankTraceUtil;
    
    [ModelInfo]
    public class BattleTeamInfoModel extends TeamBattleInfoModelBase implements ITeamBattleInfoModelBase, ObjectLoadPostListener, ObjectUnloadListener
@@ -204,7 +202,6 @@ package alternativa.tanks.model.info.team
          if(getData(ServerFightCommandAlreadySentFlag) == null)
          {
             putData(ServerFightCommandAlreadySentFlag,this.fightCommandFlag);
-            TankTraceUtil.markBattleJoin(object.name);
             server.fight(this.selectedTeam);
          }
       }

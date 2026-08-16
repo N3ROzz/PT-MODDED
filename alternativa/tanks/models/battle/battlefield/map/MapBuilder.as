@@ -35,7 +35,6 @@ package alternativa.tanks.models.battle.battlefield.map
    import flash.utils.setTimeout;
    import platform.client.fp10.core.type.AutoClosable;
    import alternativa.engine3d.alternativa3d;
-   import utils.RuntimeLifecycleDiagnostics;
 
    use namespace alternativa3d;
    
@@ -99,7 +98,6 @@ package alternativa.tanks.models.battle.battlefield.map
       {
          this.buildCompleteCallback = param2;
          var _loc3_:String = "init_physics";
-         RuntimeLifecycleDiagnostics.recordMap("MAP_BUILDER_BEGIN","xmlNull=" + (param1 == null ? 1 : 0),true);
          try
          {
             this.initPhysicsGeometry(param1);
@@ -110,7 +108,6 @@ package alternativa.tanks.models.battle.battlefield.map
          }
          catch(e:Error)
          {
-            RuntimeLifecycleDiagnostics.recordMap("MAP_BUILDER_FAILURE","stage=" + _loc3_ + " errorName=" + e.name + " errorMessage=" + e.message,true);
             throw e;
          }
       }
@@ -148,14 +145,12 @@ package alternativa.tanks.models.battle.battlefield.map
          this.mapGeometryParser = new MapGeometryParser(this.propLibRegistry);
          this.mapGeometryParser.parse(param1);
          this.mapBounds = this.mapGeometryParser.getMapBounds();
-         RuntimeLifecycleDiagnostics.recordMap("MAP_GEOMETRY_PARSED","mapPropCount=" + this.mapGeometryParser.getMapPropCount() + " resolvedPropCount=" + this.mapGeometryParser.getResolvedPropCount() + " missingLibraryCount=" + this.mapGeometryParser.getMissingLibraryCount() + " missingGroupCount=" + this.mapGeometryParser.getMissingGroupCount() + " missingPropCount=" + this.mapGeometryParser.getMissingPropCount() + " texturedCollectionCount=" + this.mapGeometryParser.getTexturedPropsCollections().length,true);
       }
       
       private function buildTextures() : void
       {
          this.texturesBuilder = new MapTexturesBuilder(this.materialRegistry,TEXTURE_BUILDER_BATCH_SIZE);
          this.texturesBuilder.addEventListener(Event.COMPLETE,this.onTexturesReady);
-         RuntimeLifecycleDiagnostics.recordMap("MAP_TEXTURES_BEGIN","texturedCollectionCount=" + this.mapGeometryParser.getTexturedPropsCollections().length,true);
          this.texturesBuilder.run(this.mapGeometryParser.getTexturedPropsCollections());
       }
       
@@ -163,7 +158,6 @@ package alternativa.tanks.models.battle.battlefield.map
       {
          var _loc2_:int = 0;
          this.texturesReady = true;
-         RuntimeLifecycleDiagnostics.recordMap("MAP_TEXTURES_COMPLETE","textureCount=" + this.texturesBuilder.getTextures().length,true);
          this.texturesBuilder.removeEventListener(Event.COMPLETE,this.onTexturesReady);
          this.completeTimeoutId = setTimeout(this.complete,_loc2_);
       }
@@ -182,7 +176,6 @@ package alternativa.tanks.models.battle.battlefield.map
          this.texturesBuilder = null;
          this.materialRegistry = null;
          this.propLibRegistry = null;
-         RuntimeLifecycleDiagnostics.recordMap("MAP_BUILDER_COMPLETE","textureCount=" + this.textures.length,true);
          this.buildCompleteCallback();
       }
       

@@ -29,7 +29,6 @@ package alternativa.tanks.controllers.battlecreate
    import projects.tanks.clients.fp10.libraries.tanksservices.service.userproperties.IUserPropertiesService;
    import projects.tanks.clients.fp10.libraries.tanksservices.utils.BattleFormatUtil;
    import projects.tanks.client.battleservice.EquipmentConstraintsMode;
-   import utils.TankTraceUtil;
    
    public class CreateBattleFormController extends EventDispatcher
    {
@@ -285,7 +284,6 @@ package alternativa.tanks.controllers.battlecreate
       
       public function showForm() : void
       {
-         TankTraceUtil.logCreateBattle("CreateBattleFormController.showForm start maps=" + (this._mapsParams == null ? -1 : this._mapsParams.length) + " rank=" + (userPropertiesService == null ? -1 : userPropertiesService.rank));
          this._isShowForm = true;
          if(this._currentRank != userPropertiesService.rank)
          {
@@ -299,9 +297,7 @@ package alternativa.tanks.controllers.battlecreate
             this.selectDefaultMap();
          }
          achievementService.showStartButtonHelper();
-         TankTraceUtil.logCreateBattle("CreateBattleFormController.showForm before view.show currentRank=" + this._currentRank + " availableMaps=" + (this._mapParamsForCurrentRank == null ? -1 : this._mapParamsForCurrentRank.length));
          this._view.show();
-         TankTraceUtil.logCreateBattle("CreateBattleFormController.showForm end");
       }
       
       public function hideForm() : void
@@ -441,10 +437,8 @@ package alternativa.tanks.controllers.battlecreate
          {
             this._mapParamsForCurrentRank.sortOn(["currentRank","gameName"],[Array.NUMERIC,null]);
             this._view.setMapsInfo(this._mapParamsForCurrentRank);
-            TankTraceUtil.logCreateBattle("CreateBattleFormController.updateAvailableMaps count=" + this._mapParamsForCurrentRank.length);
             return;
          }
-         TankTraceUtil.logCreateBattle("CreateBattleFormController.updateAvailableMaps no maps for rank=" + this._currentRank);
          throw new ArgumentError("For your rank is not available maps");
       }
       
@@ -609,7 +603,6 @@ package alternativa.tanks.controllers.battlecreate
             //_loc1_.clanBattle = this._view.isClanBattle;
             //_loc1_.ultimatesEnabled = this._view.isUltimatesEnabled();
             _loc1_.name = this._view.getBattleName();
-            TankTraceUtil.logRatings("CreateBattle name=" + _loc1_.name + " mode=" + _loc1_.battleMode.name + " proBattle=" + _loc1_.proBattle + " private=" + _loc1_.privateBattle + " noSupplies=" + _loc1_.withoutSupplies + " noBonuses=" + _loc1_.withoutBonuses + " equipment=" + this.getEquipmentConstraintsMode() + " parkour=" + _loc1_.parkourMode);
             dispatchEvent(new CreateBattleEvent(_loc1_));
             this.hideForm();
             achievementService.hideAllBubbles(true);

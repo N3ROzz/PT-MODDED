@@ -8,7 +8,6 @@ package juho.hacking {
    import juho.hacking.hacks.ShaftFovHack;
    import juho.hacking.hacks.WallHack;
    import juho.hacking.hacks.GoldBoxDiagnosticsHack;
-   import utils.TankTraceUtil;
    
    public class HackRegistry {
       
@@ -16,7 +15,6 @@ package juho.hacking {
       
       public function HackRegistry() {
          trace("HackRegistry constructor starting");
-         TankTraceUtil.log("[TankTraceUtil] startup logger check");
          allHacks = new Vector.<Hack>();
          
          var tankIgnoreHack:TankIgnoreHack = new TankIgnoreHack()

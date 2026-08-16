@@ -35,7 +35,6 @@ package alternativa.tanks.gui.friends
    import projects.tanks.clients.fp10.libraries.tanksservices.service.friend.NewFriendEvent;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.logging.gamescreen.UserChangeGameScreenService;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.user.IUserInfoService;
-   import utils.TankTraceUtil;
    
    public class FriendsWindow extends DialogWindow
    {
@@ -313,7 +312,6 @@ package alternativa.tanks.gui.friends
       
       private function onChangeState(param1:MouseEvent) : void
       {
-         TankTraceUtil.logFriends("FriendsWindow.changeState state=" + FriendsWindowButtonType(param1.currentTarget).getType().value);
          this.show(FriendsWindowButtonType(param1.currentTarget).getType());
       }
       
@@ -385,7 +383,6 @@ package alternativa.tanks.gui.friends
       
       public function show(param1:FriendsWindowState) : void
       {
-         TankTraceUtil.logFriends("FriendsWindow.show requestedState=" + param1.value);
          if(param1 == FriendsWindowState.CLAN_MEMBERS)
          {
             param1 = FriendsWindowState.ACCEPTED;
@@ -503,7 +500,6 @@ package alternativa.tanks.gui.friends
       
       public function set currentState(param1:FriendsWindowState) : void
       {
-         TankTraceUtil.logFriends("FriendsWindow.currentState state=" + param1.value);
          if(param1 == FriendsWindowState.CLAN_MEMBERS)
          {
             param1 = FriendsWindowState.ACCEPTED;

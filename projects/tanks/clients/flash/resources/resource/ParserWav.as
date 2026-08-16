@@ -18,9 +18,6 @@ package projects.tanks.clients.flash.resources.resource
          var _loc14_:Number = NaN;
          var _loc15_:Number = NaN;
          var _loc16_:Number = NaN;
-         if(param3)
-         {
-         }
          param1.position = 0;
          param1.endian = Endian.LITTLE_ENDIAN;
          var _loc4_:ByteArray = new ByteArray();
@@ -39,33 +36,18 @@ package projects.tanks.clients.flash.resources.resource
             throw new Error("Incorrect file format.");
          }
          var _loc5_:int = param1.readShort();
-         if(param3)
-         {
-         }
          if(_loc5_ < 1 || _loc5_ > 2)
          {
             throw new Error("Incorrect channels count.");
          }
          var _loc6_:int = int(param1.readUnsignedInt());
-         if(param3)
-         {
-         }
          if(_loc6_ != 22050 && _loc6_ != 44100)
          {
             throw new Error("Incorrect sample rate.");
          }
          var _loc7_:int = int(param1.readUnsignedInt());
-         if(param3)
-         {
-         }
          var _loc8_:int = param1.readShort();
-         if(param3)
-         {
-         }
          var _loc9_:int = param1.readShort();
-         if(param3)
-         {
-         }
          if(_loc9_ != 16 && _loc9_ != 32)
          {
             throw new Error("Incorrect bit depth.");
@@ -73,9 +55,6 @@ package projects.tanks.clients.flash.resources.resource
          if(_loc8_ <= 0)
          {
             _loc8_ = _loc5_ * _loc9_ / 8;
-            if(param3)
-            {
-            }
          }
          param1.position += 4;
          var _loc10_:int = int(param1.readUnsignedInt());
@@ -85,9 +64,6 @@ package projects.tanks.clients.flash.resources.resource
          }
          param1.position = 44;
          var _loc11_:int = _loc10_ / _loc5_ / (_loc9_ / 8);
-         if(param3)
-         {
-         }
          var _loc17_:Vector.<Number> = new Vector.<Number>();
          var _loc18_:int = 0;
          if(_loc6_ == 22050)
@@ -165,11 +141,7 @@ package projects.tanks.clients.flash.resources.resource
             _loc17_[_loc18_] = (_loc16_ + _loc17_[1]) * 0.5;
             _loc18_++;
          }
-         if(param3)
-         {
-         }
          return _loc17_;
       }
    }
 }
-

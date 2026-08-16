@@ -110,8 +110,6 @@ package alternativa.tanks.models.tank
    import juho.hacking.event.HackEventDispatcher;
    import juho.hacking.Hack;
    import juho.hacking.event.LocalTankUnloadedEvent;
-   import utils.TankTraceUtil;
-   import utils.RuntimeLifecycleDiagnostics;
    
    [ModelInfo]
    public class TankModel extends TankModelBase implements ITankModelBase, ObjectLoadListener, ObjectUnloadListener, ITankModel, LocalTankInfoService, ChassisControlListener, BattleEventListener, ITurretControllerListener
@@ -536,22 +534,12 @@ package alternativa.tanks.models.tank
       [Obfuscation(rename="false")]
       public function kill(param1:String, param2:int, param3:DamageType) : void
       {
-         RuntimeLifecycleDiagnostics.recordDeath("TANKMODEL_KILL_ENTER",object.name,"",true);
-         TankTraceUtil.log("[TankModel.kill] objectName=" + object.name + " killer=" + param1 + " delay=" + param2 + " " + TankTraceUtil.tankInfo(this.getTank()));
-         if(this.isLocal() && this.getTank() != null)
-         {
-            TankTraceUtil.logHpLifecycle("[LocalLifecycle] event=death localTank=" + object.name + " health=" + this.getTank().health + " max=" + this.getTank().getMaxHealth() + " team=" + this.getTank().teamType + " incarnation=" + this.getTank().incarnation);
-         }
          this.die(param2);
-         RuntimeLifecycleDiagnostics.recordDeath("TANK_KILLED_EVENT_DISPATCH_BEGIN",object.name,"",true);
          battleEventDispatcher.dispatchEvent(new TankKilledEvent(param1,getUserInfo().name,param3));
-         RuntimeLifecycleDiagnostics.recordDeath("TANK_KILLED_EVENT_DISPATCH_END",object.name,"",true);
       }
       
       public function die(param1:int) : void
       {
-         RuntimeLifecycleDiagnostics.recordTankLifecycle("TANKMODEL_DIE_ENTER",object.name,"delay=" + param1,true);
-         TankTraceUtil.log("[TankModel.die] objectName=" + object.name + " delay=" + param1 + " " + TankTraceUtil.tankInfo(this.getTank()));
          var _loc2_:TankDieHandler = TankDieHandler(getData(TankDieHandler));
          _loc2_.handleTankDie(object,param1);
       }
@@ -559,8 +547,6 @@ package alternativa.tanks.models.tank
       [Obfuscation(rename="false")]
       public function deathConfirmed() : void
       {
-         RuntimeLifecycleDiagnostics.recordDeath("DEATH_CONFIRMED_ENTER",object.name,"",true);
-         TankTraceUtil.log("[TankModel.deathConfirmed] objectName=" + object.name + " " + TankTraceUtil.tankInfo(this.getTank()));
          var _loc1_:TankDeathConfirmationHandler = TankDeathConfirmationHandler(getData(TankDeathConfirmationHandler));
          _loc1_.handleDeathConfirmation(object);
       }
@@ -1055,7 +1041,6 @@ package alternativa.tanks.models.tank
       
       private function initLocalTank(param1:Tank, param2:Boolean) : void
       {
-         TankTraceUtil.log("[TankModel.initLocalTank] objectName=" + object.name + " " + TankTraceUtil.tankInfo(param1));
          this.localObject = object;
          this.chassisStateCorrectionTask = new ChassisStateCorrectionTask(param1,this.tanksInBattle);
          this.turretDirectionCorrectionTask = new TurretDirectionCorrectionTask(param1);
@@ -1082,7 +1067,6 @@ package alternativa.tanks.models.tank
       {
          var _loc1_:Tank = this.getTank();
          var _loc2_:ITankSpawner = ITankSpawner(object.adapt(ITankSpawner));
-         TankTraceUtil.log("[TankModel.addExisting] objectName=" + object.name + " initHealth=" + getInitParam().health + " incarnation=" + _loc2_.getIncarnationId() + " before " + TankTraceUtil.tankInfo(_loc1_));
          _loc1_.spawn(getInitParam().team,_loc2_.getIncarnationId());
          this.doSetHealth(getInitParam().health);
          if(getInitParam().health <= 0)
@@ -1110,17 +1094,14 @@ package alternativa.tanks.models.tank
                _loc1_.setActivatedState();
          }
          this.addTankToBattle(_loc1_);
-         TankTraceUtil.log("[TankModel.addExisting] objectName=" + object.name + " after " + TankTraceUtil.tankInfo(_loc1_));
       }
       
       public function doSetHealth(param1:Number) : void
       {
          var _loc2_:IGameObject = null;
          var _loc3_:Boolean = false;
-         TankTraceUtil.log("[TankModel.doSetHealth] objectName=" + object.name + " incoming=" + param1 + " before " + TankTraceUtil.tankInfo(this.getTank()));
          this.getTank().health = param1;
          this.getTitle().setHealth(param1);
-         TankTraceUtil.log("[TankModel.doSetHealth] objectName=" + object.name + " after " + TankTraceUtil.tankInfo(this.getTank()));
          if(this.isLocal())
          {
             _loc2_ = battleService.getBattle();
@@ -1347,11 +1328,6 @@ package alternativa.tanks.models.tank
       
       public function addTankToBattle(param1:Tank) : void
       {
-         TankTraceUtil.log("[TankModel.addTankToBattle] objectName=" + object.name + " isLocal=" + this.isLocal() + " " + TankTraceUtil.tankInfo(param1));
-         if(this.isLocal())
-         {
-            TankTraceUtil.logHpLifecycle("[LocalLifecycle] event=add localTank=" + object.name + " health=" + param1.health + " max=" + param1.getMaxHealth() + " team=" + param1.teamType + " incarnation=" + param1.incarnation);
-         }
          this.tanksInBattle[param1.getUserId()] = param1;
          param1.addToBattle(battleService);
          this.battleEventSupport.dispatchEvent(new TankAddedToBattleEvent(param1,this.isLocal()));
@@ -1362,11 +1338,6 @@ package alternativa.tanks.models.tank
          var _loc1_:Tank = this.getTank();
          if(Boolean(this.tanksInBattle[_loc1_.getUserId()]))
          {
-            TankTraceUtil.log("[TankModel.removeTankFromBattle] objectName=" + object.name + " " + TankTraceUtil.tankInfo(_loc1_));
-            if(this.isLocal())
-            {
-               TankTraceUtil.logHpLifecycle("[LocalLifecycle] event=remove localTank=" + object.name + " health=" + _loc1_.health + " max=" + _loc1_.getMaxHealth() + " team=" + _loc1_.teamType + " incarnation=" + _loc1_.incarnation);
-            }
             delete this.tanksInBattle[_loc1_.getUserId()];
             _loc1_.removeFromBattle();
             battleEventDispatcher.dispatchEvent(new TankRemovedFromBattleEvent(_loc1_));

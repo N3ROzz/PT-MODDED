@@ -19,7 +19,6 @@ package alternativa.tanks.gui.panel
    import projects.tanks.clients.fp10.libraries.tanksservices.service.reconnect.ReconnectService;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.userproperties.IUserPropertiesService;
    import platform.client.fp10.core.registry.ModelRegistry;
-   import utils.TankTraceUtil;
    
    public class MainPanel extends Sprite
    {
@@ -175,14 +174,12 @@ package alternativa.tanks.gui.panel
       public function set rank(param1:int) : void
       {
          this.playerInfo.rank = param1;
-         TankTraceUtil.logPremium("MainPanel.rank rank=" + param1 + " hasPremium=" + premiumService.hasPremium() + " timeLeft=" + premiumService.getTimeLeft() + " userId=" + userPropertiesService.userId);
          this.rankIcon.init(premiumService.hasPremium(),param1);
          this.alignRankIcon();
       }
       
       private function onPremiumChanged(param1:Event) : void
       {
-         TankTraceUtil.logPremium("MainPanel.onPremiumChanged rank=" + userPropertiesService.rank + " hasPremium=" + premiumService.hasPremium() + " timeLeft=" + premiumService.getTimeLeft() + " userId=" + userPropertiesService.userId);
          this.rankIcon.init(premiumService.hasPremium(),userPropertiesService.rank);
          this.alignRankIcon();
       }

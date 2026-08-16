@@ -41,8 +41,6 @@
    import projects.tanks.clients.fp10.libraries.tanksservices.service.reconnect.ReconnectService;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.userproperties.IUserPropertiesService;
    import utils.ScrollStyleUtils;
-   import utils.BattleSelectionTrace;
-   import utils.TankTraceUtil;
    
    public class BattleListView extends Sprite implements IBattleListView
    {
@@ -116,7 +114,6 @@
       public function BattleListView()
       {
          super();
-         TankTraceUtil.logBattleList("BattleListView.constructor start displayNull=" + (display == null) + " battleCreateServiceNull=" + (battleCreateFormService == null));
          this._window = TankWindowWithHeader.createWindow(TanksLocale.TEXT_HEADER_CURRENT_BATTLES);
          addChild(this._window);
          this._inner = new TankWindowInner(100,100,TankWindowInner.GREEN);
@@ -138,7 +135,6 @@
          addChild(this._createBattleButton);
          this.initBattleModeFilter();
          this.resize();
-         TankTraceUtil.logBattleList("BattleListView.constructor end filters=" + this.battleModeItems.length);
       }
       
       private function initBattleModeFilter() : void
@@ -167,13 +163,11 @@
       
       public function show(param1:BattleMode) : void
       {
-         TankTraceUtil.logBattleList("BattleListView.show start inContainer=" + this.getContainer().contains(this) + " filter=" + (param1 == null ? "ALL" : param1.name));
          if(!this.getContainer().contains(this))
          {
             this.resize();
             this.setEvents();
             this.getContainer().addChild(this);
-            TankTraceUtil.logBattleList("BattleListView.show addedToContainer children=" + this.getContainer().numChildren);
             this._lockedMapsHelper = new LockedMapsHelper();
             helpService.registerHelper(this.HELPER_GROUP_KEY,this.HELPER_NOT_AVAILABLE,this._lockedMapsHelper,false);
             if(param1 != null)
@@ -181,7 +175,6 @@
                this.getBattleModeCheckBox(param1).isPressed = true;
             }
          }
-         TankTraceUtil.logBattleList("BattleListView.show end providerLength=" + this._dataProvider.length);
       }
       
       private function setEvents() : void
@@ -383,7 +376,6 @@
       
       public function sortBattleList() : void
       {
-         TankTraceUtil.logBattleList("BattleListView.sortBattleList length=" + this._dataProvider.length);
          if(this._dataProvider.length == 0)
          {
             return;
@@ -398,10 +390,8 @@
       
       public function createItem(param1:BattleListItemParams, param2:Boolean) : void
       {
-         TankTraceUtil.logBattleListQa("05_CREATE_ITEM_BEGIN battleId=" + (param1 == null ? "null" : param1.id));
          try
          {
-         TankTraceUtil.logBattleList("BattleListView.createItem start id=" + param1.id + " mode=" + param1.createParams.battleMode.name + " immediate=" + param2 + " beforeLength=" + this._dataProvider.length + " existingIndex=" + this.getItemIndex(param1.id));
          var _loc3_:Object = new Object();
          var _loc4_:BattleInfoBaseParams = param1.params;
          var _loc5_:BattleCreateParameters = _loc4_.createParams;
@@ -424,11 +414,9 @@
          if(this.getItemIndex(param1.id) < 0)
          {
             this._dataProvider.addItem(_loc3_);
-            TankTraceUtil.logBattleList("BattleListView.createItem added id=" + param1.id + " afterLength=" + this._dataProvider.length);
          }
          else
          {
-            TankTraceUtil.logBattleList("BattleListView.createItem skippedDuplicate id=" + param1.id);
          }
          if(param2)
          {
@@ -436,14 +424,11 @@
             this.resize();
             helpService.hideHelper(this.HELPER_GROUP_KEY,this.HELPER_NOT_AVAILABLE);
          }
-         TankTraceUtil.logBattleList("BattleListView.createItem end id=" + param1.id + " providerLength=" + this._dataProvider.length);
          }
          catch(e:Error)
          {
-            TankTraceUtil.logBattleListQa("05_CREATE_ITEM_FAILED battleId=" + (param1 == null ? "null" : param1.id) + " error=" + e.name + " message=" + e.message + " stack=" + e.getStackTrace());
             throw e;
          }
-         TankTraceUtil.logBattleListQa("05_CREATE_ITEM_COMPLETE battleId=" + param1.id + " providerLength=" + this._dataProvider.length);
       }
       
       private function getModeSortIndex(param1:BattleMode) : int
@@ -609,15 +594,12 @@
       
       private function onShowCreateBattleFormButtonClick(param1:MouseEvent) : void
       {
-         TankTraceUtil.logCreateBattle("BattleListView.createButtonClick callbackNull=" + (this._callback == null) + " buttonVisible=" + this._createBattleButton.visible + " mouseEnabled=" + this._createBattleButton.mouseEnabled);
          this._callback.onShowCreateBattleFormButtonClick();
       }
       
       private function onBattleListItemClick(param1:ListEvent) : void
       {
          var _loc2_:String = BattleListItemParams(param1.item.dat).id;
-         BattleSelectionTrace.setInputSource("ITEM_CLICK");
-         BattleSelectionTrace.record("UI_CLICK","BattleListView.ITEM_CLICK",_loc2_,BattleListItemParams(param1.item.dat).params.battle,"selectedIndex=" + this._battleList.selectedIndex);
          if(_loc2_ != this.lastSelectedBattleId)
          {
             this.lastSelectedBattleId = _loc2_;
@@ -636,8 +618,6 @@
       {
          if(this._battleList.selectedItem != null)
          {
-            BattleSelectionTrace.setInputSource("CHANGE");
-            BattleSelectionTrace.record("UI_CHANGE","BattleListView.CHANGE",BattleListItemParams(this._battleList.selectedItem.dat).id,BattleListItemParams(this._battleList.selectedItem.dat).params.battle,"selectedIndex=" + this._battleList.selectedIndex);
             this._callback.onBattleListItemChange(BattleListItemParams(this._battleList.selectedItem.dat).params.battle);
          }
       }

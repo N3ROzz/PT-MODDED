@@ -6,7 +6,6 @@ package alternativa.tanks.gui.friends.list
    import projects.tanks.clients.fp10.libraries.tanksservices.service.friend.FriendStateChangeEvent;
    import services.contextmenu.ContextMenuServiceEvent;
    import services.contextmenu.IContextMenuService;
-   import utils.TankTraceUtil;
    
    public class OutgoingList extends FriendsList implements IFriendsListState
    {
@@ -23,12 +22,10 @@ package alternativa.tanks.gui.friends.list
       public function initList() : void
       {
          var _loc1_:int = friendInfoService.getFriendsIdByState(FriendState.OUTGOING).length;
-         TankTraceUtil.logFriends("OutgoingList.initList outgoingCountBeforeFill=" + _loc1_);
          friendInfoService.addEventListener(FriendStateChangeEvent.CHANGE,this.onChangeFriendState);
          contextMenuService.addEventListener(ContextMenuServiceEvent.CANCEL_REQUEST,this.onCancelRequest);
          _dataProvider.sortOn(["uid"],[Array.CASEINSENSITIVE]);
          fillFriendsList(FriendState.OUTGOING);
-         TankTraceUtil.logFriends("OutgoingList.fillFriendsList state=OUTGOING count=" + _loc1_);
          _list.scrollToIndex(0);
          resize(_width,_height);
       }
@@ -42,7 +39,6 @@ package alternativa.tanks.gui.friends.list
       
       private function onChangeFriendState(param1:FriendStateChangeEvent) : void
       {
-         TankTraceUtil.logFriends("OutgoingList.stateChange userId=" + param1.userId + " state=" + param1.state.state + " previous=" + param1.prevState.state);
          if(param1.state != FriendState.OUTGOING)
          {
             _dataProvider.removeUser(param1.userId);

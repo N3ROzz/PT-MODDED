@@ -5,7 +5,6 @@ package scpacker.networking.protocol.packets.userproperties
    import projects.tanks.client.users.model.userbattlestatistics.rank.RankBounds;
    import scpacker.networking.protocol.AbstractPacket;
    import scpacker.networking.protocol.AbstractPacketHandler;
-   import utils.TankTraceUtil;
    
    public class UserPropertiesPacketHandler extends AbstractPacketHandler
    {
@@ -20,7 +19,6 @@ package scpacker.networking.protocol.packets.userproperties
       
       public function invoke(param1:AbstractPacket) : void
       {
-         TankTraceUtil.logRatings("UserProperties packet id=" + param1.getId());
          switch(param1.getId())
          {
             case UpdateCrystalsInPacket.id:
@@ -41,7 +39,6 @@ package scpacker.networking.protocol.packets.userproperties
       {
          if(param1 != null)
          {
-            TankTraceUtil.logRatings("UpdateCrystals crystals=" + param1.crystals);
             this.userPropertiesModel.changeCrystal(param1.crystals);
          }
       }
@@ -50,7 +47,6 @@ package scpacker.networking.protocol.packets.userproperties
       {
          if(param1 != null)
          {
-            TankTraceUtil.logRatings("UpdateRank rank=" + param1.rank + " score=" + param1.score + " min=" + param1.rankBoundMin + " max=" + param1.rankBoundMax + " reward=" + param1.rankReward);
             this.userPropertiesModel.updateRank(param1.rank,param1.score,new RankBounds(param1.rankBoundMin,param1.rankBoundMax),param1.rankReward,false,false,true);
          }
       }
@@ -59,7 +55,6 @@ package scpacker.networking.protocol.packets.userproperties
       {
          if(param1 != null)
          {
-            TankTraceUtil.logRatings("UpdateUserRating rawRating=" + param1.userRating + " rawPlace=" + param1.place + " displayPlace=" + (param1.place + 1));
             this.userPropertiesModel.updateUserRating(param1.userRating,param1.place + 1);
          }
       }
@@ -68,7 +63,6 @@ package scpacker.networking.protocol.packets.userproperties
       {
          if(param1 != null)
          {
-            TankTraceUtil.logRatings("UpdateScore score=" + param1.score);
             this.userPropertiesModel.updateScore(param1.score,true);
          }
       }

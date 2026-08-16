@@ -21,7 +21,6 @@ package utils
       public static function addMapping(tankName:String, gameObject:IGameObject) : void
       {
          mappings[tankName] = gameObject;
-         TankTraceUtil.log("[TankMapper:add] tankName=" + tankName + " objectName=" + (gameObject != null ? gameObject.name : "null") + " objectId=" + (gameObject != null ? gameObject.id : "null"));
       }
       
       /**
@@ -61,10 +60,8 @@ package utils
          if (mappings.hasOwnProperty(tankName))
          {
             delete mappings[tankName];
-            TankTraceUtil.log("[TankMapper:remove] tankName=" + tankName);
             return true;
          }
-         TankTraceUtil.log("[TankMapper:removeMissing] tankName=" + tankName);
          return false;
       }
       
@@ -73,7 +70,6 @@ package utils
        */
       public static function clearMappings() : void
       {
-         TankTraceUtil.log("[TankMapper:clear]");
          mappings = {};
       }
    }

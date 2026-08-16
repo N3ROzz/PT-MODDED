@@ -87,7 +87,6 @@ package scpacker.networking.protocol.packets.battle
    import alternativa.tanks.models.mapbonuslight.MapBonusLightModel;
    import projects.tanks.client.battlefield.models.mapbonuslight.MapBonusLightModelBase;
    import projects.tanks.client.battlefield.models.coloradjust.ColorAdjustParams;
-   import utils.RuntimeLifecycleDiagnostics;
    import alternativa.tanks.models.teamlight.TeamLightModel;
    import projects.tanks.client.battlefield.models.teamlight.TeamLightModelBase;
    import projects.tanks.client.battlefield.models.teamlight.TeamLightCC;
@@ -186,7 +185,6 @@ package scpacker.networking.protocol.packets.battle
    import alternativa.tanks.models.battle.gui.inventory.InventorySfxModel;
    import projects.tanks.client.battlefield.models.inventory.sfx.InventorySfxModelBase;
    import projects.tanks.client.battlefield.models.inventory.sfx.InventorySfxCC;
-   import utils.TankTraceUtil;
    
    public class BattlePacketHandler extends AbstractPacketHandler
    {
@@ -420,7 +418,6 @@ package scpacker.networking.protocol.packets.battle
       
       private function initBattle(param1:InitBattleInPacket) : void
       {
-         RuntimeLifecycleDiagnostics.recordPacketStage("HANDLER_ENTER",InitBattleInPacket.id,this.id,-1,false);
          GoldBoxDiagnostics.beginBattle();
          this.createBattleSpaceIfNotExists();
          spaceRegistry.addSpace(this.battleSpace);
@@ -430,8 +427,6 @@ package scpacker.networking.protocol.packets.battle
          var mapGraphicDataJsonObject:Object = JSON.parse(jsonObject.map_graphic_data);
          var skyboxJsonObject:Object = JSON.parse(jsonObject.skybox);
          var lightingJsonObject:Object = JSON.parse(jsonObject.lighting);
-         RuntimeLifecycleDiagnostics.beginMap(String(jsonObject.battleId),String(jsonObject.mapId));
-         RuntimeLifecycleDiagnostics.recordMap("INIT_BATTLE_HANDLER_ENTER","packetId=" + InitBattleInPacket.id,true);
 
          var _loc4_:SkyboxSides = new SkyboxSides();
          _loc4_.back = ImageResource(resourceRegistry.getResource(Long.getLong(0,skyboxJsonObject.back)));
@@ -588,7 +583,6 @@ package scpacker.networking.protocol.packets.battle
          battlefieldModelCC.withoutBonuses = this.getBoolean(jsonObject,"withoutBonuses",false);
          battlefieldModelCC.withoutDrones = this.getBoolean(jsonObject,"withoutDrones",true);
          battlefieldModelCC.withoutSupplies = this.getBoolean(jsonObject,"withoutSupplies",false);
-         TankTraceUtil.logRatings("InitBattle battleId=" + battlefieldModelCC.battleId + " proBattle=" + battlefieldModelCC.proBattle + " withoutSupplies=" + battlefieldModelCC.withoutSupplies + " withoutBonuses=" + battlefieldModelCC.withoutBonuses + " spectator=" + battlefieldModelCC.spectator);
 
          this.battlefieldModel.putInitParams(battlefieldModelCC);
          this.battlefieldModel.objectLoaded();
@@ -618,8 +612,6 @@ package scpacker.networking.protocol.packets.battle
          this.hullSmokeCC.nearDistance = jsonObject.dustNearDistance;
          this.hullSmokeCC.particle = MultiframeImageResource(resourceRegistry.getResource(Long.getLong(0,jsonObject.smokeTextureId)));
          this.hullSmokeCC.size = jsonObject.dustSize;
-         RuntimeLifecycleDiagnostics.recordMap("INIT_BATTLE_HANDLER_EXIT","packetId=" + InitBattleInPacket.id,true);
-         RuntimeLifecycleDiagnostics.recordPacketStage("HANDLER_EXIT",InitBattleInPacket.id,this.id,-1,false);
       }
 
       private function recordMapResourceState(param1:MapResource) : void
@@ -652,11 +644,9 @@ package scpacker.networking.protocol.packets.battle
                   }
                }
             }
-            RuntimeLifecycleDiagnostics.recordMap("MAP_RESOURCE_LOOKUP","mapResourceExists=" + (param1 != null ? 1 : 0) + " mapResourceIsLoaded=" + (param1 != null && param1.isLoaded ? 1 : 0) + " mapResourceIsLoading=" + (param1 != null && param1.isLoading ? 1 : 0) + " mapResourceStatus=" + (param1 == null ? "null" : param1.status) + " mapDataNull=" + (param1 == null || param1.mapData == null ? 1 : 0) + " mapDataLength=" + (param1 == null || param1.mapData == null ? -1 : param1.mapData.length) + " libRegistryNull=" + (param1 == null || param1.libRegistry == null ? 1 : 0) + " propLibCount=" + _loc2_ + " requiredPropLibCount=" + _loc2_ + " availablePropLibCount=" + _loc3_ + " loadedPropLibCount=" + _loc4_ + " nullLibCount=" + _loc5_,true);
          }
          catch(e:Error)
          {
-            RuntimeLifecycleDiagnostics.recordMap("MAP_RESOURCE_DIAGNOSTIC_FAILURE","errorName=" + e.name + " errorMessage=" + e.message,true);
          }
       }
       
@@ -894,7 +884,6 @@ package scpacker.networking.protocol.packets.battle
          }
          if(selectedData == null)
          {
-            TankTraceUtil.logTwinsSfx("turretId=" + turretId + " selectedKey=" + selectedKey + " selectedData=null");
             return;
          }
          bcshKeys = "";
@@ -909,7 +898,6 @@ package scpacker.networking.protocol.packets.battle
                bcshKeys += bcshEntry.key;
             }
          }
-         TankTraceUtil.logTwinsSfx("turretId=" + turretId + " selectedKey=" + selectedKey + " explosionTexture=" + selectedData.explosionTexture + " shotTexture=" + selectedData.shotTexture + " muzzleFlashTexture=" + selectedData.muzzleFlashTexture + " hitMarkTexture=" + selectedData.hitMarkTexture + " bcshKeys=" + bcshKeys);
       }
 
       private function copySfxData(source:Object) : Object

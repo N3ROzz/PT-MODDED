@@ -36,7 +36,6 @@ package scpacker.networking.protocol.packets.usernotifier
    import projects.tanks.clients.fp10.libraries.tanksservices.service.userproperties.IUserPropertiesService;
    import alternativa.osgi.OSGi;
    import projects.tanks.client.tanksservices.model.notifier.premium.PremiumNotifierData;
-   import utils.TankTraceUtil;
    
    public class UserNotifierPacketHandler extends AbstractPacketHandler
    {
@@ -69,7 +68,6 @@ package scpacker.networking.protocol.packets.usernotifier
          this.clanUserInfoService = OSGi.getInstance().getService(ClanUserInfoService) as ClanUserInfoService;
          this.userInfoService = OSGi.getInstance().getService(IUserInfoService) as IUserInfoService;
          this.userPropertiesService = OSGi.getInstance().getService(IUserPropertiesService) as IUserPropertiesService;
-         TankTraceUtil.logPremium("UserNotifierPacketHandler ctor premiumServiceNull=" + (this.premiumService == null) + " userPropertiesServiceNull=" + (this.userPropertiesService == null) + " localUserId=" + (this.userPropertiesService == null ? "null" : this.userPropertiesService.userId));
       }
       
       public function invoke(param1:AbstractPacket) : void
@@ -89,7 +87,6 @@ package scpacker.networking.protocol.packets.usernotifier
                this.setPremiumTimeLeft(param1 as PremiumStatusInPacket);
                break;
             case ClanUserInfoInPacket.id:
-               TankTraceUtil.logClanUserInfo("packet received handler=18 packet=" + ClanUserInfoInPacket.id);
                this.setClanUserInfo(param1 as ClanUserInfoInPacket);
                break;
             case InBattleStatusInPacket.id:
@@ -119,10 +116,8 @@ package scpacker.networking.protocol.packets.usernotifier
       {
          if(param1 == null || param1.premiumData == null)
          {
-            TankTraceUtil.logPremium("setPremiumTimeLeft skipped nullPacketOrData packetNull=" + (param1 == null));
             return;
          }
-         TankTraceUtil.logPremium("setPremiumTimeLeft packet userId=" + param1.premiumData.userId + " localUserId=" + (this.userPropertiesService == null ? "null" : this.userPropertiesService.userId) + " timeLeft=" + param1.premiumData.premiumTimeLeftInSeconds + " isLocal=" + this.isLocalPremiumData(param1.premiumData));
          if(this.battleUserPremiumService != null)
          {
             this.battleUserPremiumService.setUsersPremiumProtanki(new <PremiumNotifierData>[param1.premiumData]);
@@ -130,11 +125,9 @@ package scpacker.networking.protocol.packets.usernotifier
          if(this.premiumService != null && this.isLocalPremiumData(param1.premiumData))
          {
             this.premiumService.updateTimeLeft(param1.premiumData.premiumTimeLeftInSeconds);
-            TankTraceUtil.logPremium("updated global PremiumService timeLeft=" + param1.premiumData.premiumTimeLeftInSeconds + " hasPremium=" + this.premiumService.hasPremium());
          }
          else
          {
-            TankTraceUtil.logPremium("did not update global PremiumService premiumServiceNull=" + (this.premiumService == null) + " isLocal=" + this.isLocalPremiumData(param1.premiumData));
          }
       }
 
@@ -152,19 +145,15 @@ package scpacker.networking.protocol.packets.usernotifier
          var _loc2_:UserClanInfo = null;
          if(param1 == null || param1.userClanInfo == null)
          {
-            TankTraceUtil.logClanUserInfo("ClanUserInfo skipped nullPacketOrData packetNull=" + (param1 == null));
             return;
          }
          if(this.clanUserInfoService == null)
          {
-            TankTraceUtil.logClanUserInfo("ClanUserInfo skipped serviceNull=true userId=" + param1.userClanInfo.userId);
             return;
          }
          this.clanUserInfoService.updateUserClanInfo(new UserClanInfo(param1.userClanInfo.isInClan,param1.userClanInfo.clanTag,param1.userClanInfo.userId));
          this.notifyClanTagUpdated(param1.userClanInfo.userId,param1.userClanInfo.clanTag);
          _loc2_ = this.clanUserInfoService.userClanInfoByUserId(param1.userClanInfo.userId);
-         TankTraceUtil.logClanUserInfo("ClanUserInfo received: userId=" + param1.userClanInfo.userId + ", isInClan=" + param1.userClanInfo.isInClan + ", clanTag=" + param1.userClanInfo.clanTag);
-         TankTraceUtil.logClanUserInfo("ClanUserInfo cacheCheck userId=" + param1.userClanInfo.userId + ", infoExists=" + (_loc2_ != null) + ", isInClan=" + (_loc2_ == null ? "null" : _loc2_.isInClan) + ", clanTag=" + (_loc2_ == null ? "null" : _loc2_.clanTag));
       }
       
       private function notifyClanTagUpdated(param1:String, param2:String) : void

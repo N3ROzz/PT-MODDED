@@ -14,7 +14,6 @@ package alternativa.tanks.model.item.team
    import projects.tanks.client.battleservice.model.battle.team.BattleTeam;
    import projects.tanks.clients.fp10.libraries.tanksservices.model.friends.FriendState;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.friend.IFriendInfoService;
-   import utils.TankTraceUtil;
 
    [ModelInfo]
    public class BattleTeamItemModel extends BattleTeamItemModelBase implements IBattleTeamItemModelBase, BattleTeamInfo, BattleFriendsListener, ObjectLoadListener
@@ -27,7 +26,6 @@ package alternativa.tanks.model.item.team
 
       public function objectLoaded() : void
       {
-         TankTraceUtil.logBattleListQa("01_TEAM_OBJECT_LOADED_BEGIN battleId=" + object.name);
          try
          {
          var _loc1_:BattleInfoTeamParams = new BattleInfoTeamParams();
@@ -39,10 +37,8 @@ package alternativa.tanks.model.item.team
          }
          catch(e:Error)
          {
-            TankTraceUtil.logBattleListQa("01_TEAM_OBJECT_LOADED_FAILED battleId=" + object.name + " error=" + e.name + " message=" + e.message + " stack=" + e.getStackTrace());
             throw e;
          }
-         TankTraceUtil.logBattleListQa("01_TEAM_OBJECT_LOADED_COMPLETE battleId=" + object.name);
       }
 
       private function convertUsers(param1:Vector.<String>) : Vector.<BattleInfoUser>

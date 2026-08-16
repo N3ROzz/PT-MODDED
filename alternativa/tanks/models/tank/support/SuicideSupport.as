@@ -31,7 +31,6 @@ package alternativa.tanks.models.tank.support
    import platform.client.fp10.core.type.AutoClosable;
    import platform.client.fp10.core.type.IGameObject;
    import projects.tanks.client.battlefield.models.user.suicide.SuicideModelServer;
-   import utils.RuntimeLifecycleDiagnostics;
    
    public class SuicideSupport implements AutoClosable, BattleEventListener, LogicUnit
    {
@@ -128,7 +127,6 @@ package alternativa.tanks.models.tank.support
          if(this.canRequest())
          {
             this.indicatorZeroLogged = false;
-            RuntimeLifecycleDiagnostics.beginSuicide(this._user.name,this.serverSuicideDelayMS,SUICIDE_PING_DELAY);
             this.showIndicator();
             this._requested = true;
             Model.withObject(this._user,this._server.suicideCommand);
@@ -139,7 +137,6 @@ package alternativa.tanks.models.tank.support
       {
          this._idleTimeoutEndTime = getTimer() + this.SUICIDE_DELAY;
          this._suicideIndicator.show(this.SUICIDE_DELAY / 1000);
-         RuntimeLifecycleDiagnostics.recordSuicide("SUICIDE_INDICATOR_START","totalDelayMS=" + this.SUICIDE_DELAY + " suicideDelayMS=" + this.serverSuicideDelayMS + " SUICIDE_PING_DELAY=" + SUICIDE_PING_DELAY,true);
          battleService.getBattleRunner().addLogicUnit(this);
          battleEventDispatcher.dispatchEvent(new SuicideActivationEvent());
       }
@@ -157,7 +154,6 @@ package alternativa.tanks.models.tank.support
          if(!this.indicatorZeroLogged && param1 >= this._idleTimeoutEndTime)
          {
             this.indicatorZeroLogged = true;
-            RuntimeLifecycleDiagnostics.recordSuicide("SUICIDE_INDICATOR_ZERO","expectedZeroAt=" + this._idleTimeoutEndTime,true);
          }
       }
       

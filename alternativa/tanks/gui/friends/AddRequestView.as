@@ -23,7 +23,6 @@ package alternativa.tanks.gui.friends
    import projects.tanks.clients.fp10.libraries.tanksservices.service.friend.IFriendActionService;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.friend.IFriendInfoService;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.userproperties.IUserPropertiesService;
-   import utils.TankTraceUtil;
    
    public class AddRequestView extends Sprite
    {
@@ -145,7 +144,6 @@ package alternativa.tanks.gui.friends
       
       private function onClickAddRequestButton(param1:MouseEvent) : void
       {
-         TankTraceUtil.logFriends("AddRequestView.clickSend uid=" + this._searchFriendUid + " exists=" + this._searchFriendExist + " buttonEnabled=" + this._addRequestButton.enable);
          this.addRequest();
       }
       
@@ -153,7 +151,6 @@ package alternativa.tanks.gui.friends
       {
          if(this._searchFriendExist && this._searchFriendUid != null)
          {
-            TankTraceUtil.logFriends("AddRequestView.sendRequest uid=" + this._searchFriendUid);
             friendsActionService.addByUid(this._searchFriendUid);
             if(friendInfoService != null)
             {
@@ -163,7 +160,6 @@ package alternativa.tanks.gui.friends
          }
          else
          {
-            TankTraceUtil.logFriends("AddRequestView.sendRequestBlocked uid=" + this._searchFriendUid + " exists=" + this._searchFriendExist);
          }
       }
       
@@ -220,20 +216,17 @@ package alternativa.tanks.gui.friends
          else
          {
             this._searchFriendUid = this._searchFriendTextInput.value;
-            TankTraceUtil.logFriends("AddRequestView.checkUid uid=" + this._searchFriendUid);
             friendsActionService.check(this._searchFriendUid);
          }
       }
       
       private function onUidExist(param1:FriendActionServiceUidEvent) : void
       {
-         TankTraceUtil.logFriends("AddRequestView.uidExists searchedUid=" + this._searchFriendUid);
          this.checkUid(true);
       }
       
       private function onUidNotExist(param1:FriendActionServiceUidEvent) : void
       {
-         TankTraceUtil.logFriends("AddRequestView.uidNotExists searchedUid=" + this._searchFriendUid);
          this.checkUid(false);
       }
       

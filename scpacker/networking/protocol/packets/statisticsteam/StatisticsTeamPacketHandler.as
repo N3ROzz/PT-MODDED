@@ -13,7 +13,6 @@ package scpacker.networking.protocol.packets.statisticsteam
    import projects.tanks.client.battleservice.model.statistics.UserStat;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.userproperties.IUserPropertiesService;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.premium.PremiumService;
-   import utils.TankTraceUtil;
    
    public class StatisticsTeamPacketHandler extends AbstractPacketHandler
    {
@@ -69,7 +68,6 @@ package scpacker.networking.protocol.packets.statisticsteam
          try
          {
             this.localScore = 0;
-            TankTraceUtil.logRatings("Team initStatistics localScore=0 red=" + param1.statisticsTeamCC.redScore + " blue=" + param1.statisticsTeamCC.blueScore);
             this.statisticsTeamModel.putInitParams(param1.statisticsTeamCC);
             this.statisticsTeamModel.objectLoaded();
             this.statisticsTeamModel.objectLoadedPost();
@@ -89,7 +87,6 @@ package scpacker.networking.protocol.packets.statisticsteam
          Model.object = BattlePacketHandler.battlefieldGameObject;
          try
          {
-            TankTraceUtil.logRatings("Team changeUserStat user=" + (param1.userStats == null ? "null" : param1.userStats.user) + " score=" + (param1.userStats == null ? -1 : param1.userStats.score) + " team=" + param1.team);
             this.updateLocalScore(param1.userStats);
             this.statisticsTeamModel.changeUserStat(param1.userStats,param1.team);
          }
@@ -108,7 +105,6 @@ package scpacker.networking.protocol.packets.statisticsteam
          Model.object = BattlePacketHandler.battlefieldGameObject;
          try
          {
-            TankTraceUtil.logRatings("Team changeTeamScore team=" + param1.team + " score=" + param1.score);
             this.statisticsTeamModel.changeTeamScore(param1.team,param1.score);
          }
          finally
@@ -126,7 +122,6 @@ package scpacker.networking.protocol.packets.statisticsteam
          Model.object = BattlePacketHandler.battlefieldGameObject;
          try
          {
-            TankTraceUtil.logRatings("Team swapTeam aCount=" + (param1.teamAUserStats == null ? -1 : param1.teamAUserStats.length) + " bCount=" + (param1.teamBUserStats == null ? -1 : param1.teamBUserStats.length));
             this.statisticsTeamModel.swapTeam(param1.teamAUserStats,param1.teamBUserStats);
          }
          finally
@@ -177,7 +172,6 @@ package scpacker.networking.protocol.packets.statisticsteam
             return;
          }
          _loc2_ = param1.score - this.localScore;
-         TankTraceUtil.logRatings("Team localScore user=" + param1.user + " oldBattleScore=" + this.localScore + " newBattleScore=" + param1.score + " delta=" + _loc2_ + " accountScore=" + this.userPropertiesService.score + " premium=" + (this.premiumService != null && this.premiumService.hasPremium()));
          this.localScore = param1.score;
          if(_loc2_ > 0)
          {

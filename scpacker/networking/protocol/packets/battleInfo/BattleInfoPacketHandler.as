@@ -28,7 +28,6 @@ package scpacker.networking.protocol.packets.battleInfo
    import scpacker.networking.protocol.packets.battlelist.BattleListPacketHandler;
    import scpacker.utils.EnumUtils;
    import scpacker.utils.IdTool;
-   import utils.RuntimeLifecycleDiagnostics;
 
    public class BattleInfoPacketHandler extends AbstractPacketHandler
    {
@@ -54,7 +53,6 @@ package scpacker.networking.protocol.packets.battleInfo
       public function invoke(param1:AbstractPacket) : void
       {
          var _loc1_:int = param1.getId();
-         RuntimeLifecycleDiagnostics.recordPreInitHandler("PREINIT_HANDLER_ENTER",_loc1_,this.id);
          switch(_loc1_)
          {
             case JoinedDmBattleInPacket.id:
@@ -108,7 +106,6 @@ package scpacker.networking.protocol.packets.battleInfo
             case UpdatePlayerSuspiciousStateInPacket.id:
                this.updateUserSuspiciousState(UpdatePlayerSuspiciousStateInPacket(param1));
          }
-         RuntimeLifecycleDiagnostics.recordPreInitHandler("PREINIT_HANDLER_EXIT",_loc1_,this.id);
       }
 
       private function withBattleInfo(param1:String, param2:Function) : void
@@ -319,7 +316,6 @@ package scpacker.networking.protocol.packets.battleInfo
          {
             Model.popObject();
          }
-         RuntimeLifecycleDiagnostics.recordBattleInfo("BATTLE_INFO_LOAD_END","battleId=" + _loc1_.itemId + " mode=" + _loc1_.battleMode);
       }
 
       private function destroyPreviousBattleInfoObjects() : void

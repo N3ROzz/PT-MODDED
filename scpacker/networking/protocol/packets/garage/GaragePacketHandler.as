@@ -29,7 +29,6 @@ package scpacker.networking.protocol.packets.garage
    import alternativa.tanks.model.item.countable.CountableItemModel;
    import projects.tanks.client.garage.models.item.item3d.Item3DCC;
    import alternativa.tanks.model.item.item.ItemModel;
-   import utils.TankTraceUtil;
    import projects.tanks.client.garage.models.item.kit.GarageKitCC;
    import projects.tanks.client.garage.models.item.kit.KitItem;
    import projects.tanks.client.garage.models.item.present.PresentItemCC;
@@ -154,8 +153,6 @@ package scpacker.networking.protocol.packets.garage
 
       private var garageSpace:ISpace;
 
-      private var ownedDiagnosticIndex:int = 0;
-      private var marketDiagnosticIndex:int = 0;
 
       public function GaragePacketHandler()
       {
@@ -353,17 +350,13 @@ package scpacker.networking.protocol.packets.garage
          var depotItems:Vector.<IGameObject> = new Vector.<IGameObject>();
 
          var parsedJson:Object = JSON.parse(param1.battlesJson);
-         this.ownedDiagnosticIndex = 0;
-         TankTraceUtil.logGarageQa("OWNED_PACKET_BEGIN","items=" + this.arrayLength(parsedJson == null ? null : parsedJson.items));
          for each(var item in parsedJson.items)
          {
-            this.logRawItem("owned",this.ownedDiagnosticIndex,item);
             itemGarageProperties = new Vector.<ItemGaragePropertyData>();
             garageProperties = this.buildGarageProperties(item,itemGarageProperties);
             modificationId = int(item.modificationID);
 
             var gameClass:IGameClass = this.getGameClassForItem(item);
-            TankTraceUtil.logGarageQa("GAME_CLASS_SELECTED","source=owned index=" + this.ownedDiagnosticIndex + " id=" + this.safeValue(item.id) + " class=" + this.gameClassId(gameClass));
             gameObject = this.garageSpace.createObject(Long.getLong(0,EnumUtils.intToItemCategoryEnum(item.type) == ItemCategoryEnum.GIVEN_PRESENT ? int(item.present.date + item.previewResourceId) : int(item.previewResourceId)),gameClass,item.id + "_m" + modificationId);
             
             Model.object = gameObject;
@@ -371,7 +364,6 @@ package scpacker.networking.protocol.packets.garage
             {
             if(item.price == 8000 && item.index > 10000)
             {
-               TankTraceUtil.logGarageQa("MAGIC_INDEX_OVERRIDE","source=owned index=" + this.ownedDiagnosticIndex + " id=" + this.safeValue(item.id) + " price=" + item.price + " originalIndex=" + item.index + " replacementIndex=9897");
                item.index = 9897;
             }
             this.itemModel.putInitParams(new ItemModelCC(30,item.rank,item.index,ImageResource(resourceRegistry.getResource(Long.getLong(0,item.previewResourceId)))));
@@ -430,10 +422,7 @@ package scpacker.networking.protocol.packets.garage
             }
             }             finally             {                Model.popObject();             }
             depotItems[depotItems.length] = gameObject;
-            TankTraceUtil.logGarageQa("OWNED_ITEM_COMPLETE","index=" + this.ownedDiagnosticIndex + " id=" + this.safeValue(item.id) + " objectName=" + this.safeValue(gameObject.name));
-            ++this.ownedDiagnosticIndex;
          }
-         TankTraceUtil.logGarageQa("OWNED_PACKET_ITEMS_COMPLETE","parsed=" + this.ownedDiagnosticIndex + " depot=" + depotItems.length);
          
          Model.object = this.garageGameObject;
          try
@@ -488,9 +477,6 @@ package scpacker.networking.protocol.packets.garage
          var remainingTime:int = 0;
          var parsed:Object = JSON.parse(packet.battlesJson);
          var marketItems:Vector.<IGameObject> = new Vector.<IGameObject>();
-         var serverKitCount:int = 0;
-         var nullKitComponentCount:int = 0;
-         var filteredKitCount:int = 0;
          var sourceItems:Array = parsed.items;
          var processingItems:Array = [];
          var createdByServerIndex:Array = [];
@@ -518,21 +504,15 @@ package scpacker.networking.protocol.packets.garage
             }
             sourceIndex++;
          }
-         this.marketDiagnosticIndex = 0;
-         TankTraceUtil.logGarageQa("MARKET_PACKET_BEGIN","items=" + this.arrayLength(parsed == null ? null : parsed.items));
          for each(var processingEntry:Object in processingItems)
          {
             var item:Object = processingEntry.item;
-            this.marketDiagnosticIndex = int(processingEntry.serverIndex);
-            this.logRawItem("market",this.marketDiagnosticIndex,item);
             itemPropsForModel = new Vector.<ItemGaragePropertyData>();
             propertyValues = new Vector.<PropertyData>();
             kitItems = new Vector.<KitItem>();
             if(EnumUtils.intToItemCategoryEnum(item.type) == ItemCategoryEnum.KIT)
             {
-               ++serverKitCount;
                var invalidKit:Boolean = item == null || !item.hasOwnProperty("kit") || item.kit == null;
-               var invalidKitReason:String = invalidKit ? "missing_kit_data" : "";
                var resolution:Object = null;
                if(!invalidKit)
                {
@@ -542,11 +522,8 @@ package scpacker.networking.protocol.packets.garage
                   var resolvedKitItem:IGameObject = resolution.item as IGameObject;
                   if(resolvedKitItem == null)
                   {
-                     ++nullKitComponentCount;
                      invalidKit = true;
-                     invalidKitReason = String(resolution.reason);
                   }
-                  TankTraceUtil.logGarageQa("KIT_COMPONENT_RESOLUTION","marketIndex=" + this.marketDiagnosticIndex + " kitId=" + this.safeValue(item.id) + " componentId=" + this.safeValue(kit.id) + " count=" + this.safeValue(kit.count) + " componentModification=" + this.fieldValue(kit,"modificationID") + " resolved=" + (resolvedKitItem == null ? 0 : 1) + " source=" + this.safeValue(resolution.source) + " reason=" + this.safeValue(resolution.reason) + " resolvedName=" + (resolvedKitItem == null ? "null" : this.safeValue(resolvedKitItem.name)));
                   if(resolvedKitItem != null)
                   {
                      kitItems.push(new KitItem(kit.count,resolvedKitItem,false));
@@ -555,14 +532,11 @@ package scpacker.networking.protocol.packets.garage
                }
                if(invalidKit)
                {
-                  ++filteredKitCount;
-                  TankTraceUtil.logGarageQa("KIT_FILTERED","marketIndex=" + this.marketDiagnosticIndex + " kitId=" + this.safeValue(item == null ? null : item.id) + " reason=" + invalidKitReason);
                   continue;
                }
             }
 
             var gameClass:IGameClass = this.getGameClassForItem(item);
-            TankTraceUtil.logGarageQa("GAME_CLASS_SELECTED","source=market index=" + this.marketDiagnosticIndex + " id=" + this.safeValue(item.id) + " class=" + this.gameClassId(gameClass) + " kitClass=" + (gameClass == this.kitItemGameClass ? 1 : 0) + " renameClass=" + (gameClass == this.renameItemGameClass ? 1 : 0));
             gameObject = this.garageSpace.createObject(Long.getLong(0,item.previewResourceId),gameClass,item.id + "_m" + (item.modificationID == undefined ? "0" : item.modificationID));
             Model.object = gameObject;
             try
@@ -640,9 +614,8 @@ package scpacker.networking.protocol.packets.garage
                this.countableItemModel.objectLoaded();
             }
             //this.upgradeParamsModel.objectLoadedPost();
-            createdByServerIndex[this.marketDiagnosticIndex] = gameObject;
+            createdByServerIndex[int(processingEntry.serverIndex)] = gameObject;
             }             finally             {                Model.popObject();             }
-            TankTraceUtil.logGarageQa("MARKET_ITEM_COMPLETE","index=" + this.marketDiagnosticIndex + " id=" + this.safeValue(item.id) + " objectName=" + this.safeValue(gameObject.name) + " hasGarageKit=" + (gameObject.hasModel(GarageKit) ? 1 : 0) + " hasGrouped=" + (gameObject.hasModel(IGroupedItem) ? 1 : 0) + " hasTimePeriod=" + (gameObject.hasModel(TimePeriod) ? 1 : 0));
             if(EnumUtils.intToItemCategoryEnum(item.type) != ItemCategoryEnum.KIT)
             {
                this.registerComponentCandidate(marketByObjectName,gameObject.name,gameObject);
@@ -659,7 +632,6 @@ package scpacker.networking.protocol.packets.garage
             }
             sourceIndex++;
          }
-         TankTraceUtil.logGarageQa("MARKET_PACKET_ITEMS_COMPLETE","parsed=" + sourceItems.length + " market=" + marketItems.length + " serverKits=" + serverKitCount + " filteredKits=" + filteredKitCount + " nullKitComponents=" + nullKitComponentCount);
          Model.object = this.garageGameObject;
          try
          {
@@ -697,7 +669,6 @@ package scpacker.networking.protocol.packets.garage
       
       private function initMounted(param1:CheckItemMountedInPacket) : void
       {
-         TankTraceUtil.logRatings("Garage initMounted itemId=" + param1.itemId + " mounted=" + param1.mounted);
          var _loc2_:Vector.<IGameObject> = new Vector.<IGameObject>();
          var _loc3_:IGameObject = this.garageSpace.getObjectByName(param1.itemId);
          _loc2_.push(_loc3_);
@@ -793,62 +764,10 @@ package scpacker.networking.protocol.packets.garage
          return this.countableItemGameClass;
       }
 
-      private function logRawItem(param1:String, param2:int, param3:Object) : void
-      {
-         var _loc4_:String = "source=" + param1 + " index=" + param2;
-         _loc4_ += " id=" + this.fieldValue(param3,"id");
-         _loc4_ += " name=" + this.fieldValue(param3,"name");
-         _loc4_ += " type=" + this.fieldValue(param3,"type");
-         _loc4_ += " category=" + this.fieldValue(param3,"category");
-         _loc4_ += " rank=" + this.fieldValue(param3,"rank");
-         _loc4_ += " maxRank=" + this.fieldValue(param3,"maxRank");
-         _loc4_ += " itemIndex=" + this.fieldValue(param3,"index");
-         _loc4_ += " baseItemId=" + this.fieldValue(param3,"baseItemId");
-         _loc4_ += " modificationID=" + this.fieldValue(param3,"modificationID");
-         _loc4_ += " price=" + this.fieldValue(param3,"price");
-         _loc4_ += " buyable=" + this.fieldValue(param3,"buyable");
-         _loc4_ += " enabled=" + this.fieldValue(param3,"enabled");
-         _loc4_ += " remainingTimeInSec=" + this.fieldValue(param3,"remainingTimeInSec");
-         _loc4_ += " group=" + this.fieldValue(param3,"group");
-         _loc4_ += " grouped=" + this.fieldValue(param3,"grouped");
-         if(param3 != null && param3.hasOwnProperty("kit") && param3.kit != null)
-         {
-            _loc4_ += " kitIsTimeless=" + this.fieldValue(param3.kit,"isTimeless");
-            _loc4_ += " kitTimeLeft=" + this.fieldValue(param3.kit,"timeLeftInSeconds");
-            _loc4_ += " kitTimeToStart=" + this.fieldValue(param3.kit,"timeToStartInSeconds");
-            _loc4_ += " kitComponents=" + this.arrayLength(param3.kit.kitItems);
-         }
-         TankTraceUtil.logGarageQa("RAW_ITEM",_loc4_);
-      }
 
-      private function fieldValue(param1:Object, param2:String) : String
-      {
-         if(param1 == null || !param1.hasOwnProperty(param2))
-         {
-            return "missing";
-         }
-         return typeof param1[param2] + ":" + this.safeValue(param1[param2]);
-      }
 
-      private function safeValue(param1:Object) : String
-      {
-         if(param1 == null)
-         {
-            return "null";
-         }
-         var _loc2_:String = String(param1).replace(/[\r\n\t]/g," ");
-         return _loc2_.length > 80 ? _loc2_.substr(0,80) : _loc2_;
-      }
 
-      private function arrayLength(param1:Object) : int
-      {
-         return param1 == null || !param1.hasOwnProperty("length") ? 0 : int(param1.length);
-      }
 
-      private function gameClassId(param1:IGameClass) : String
-      {
-         return param1 == null ? "null" : this.safeValue(param1.id);
-      }
 
       private function hasModel(param1:IGameClass, param2:Long) : Boolean
       {
@@ -918,6 +837,11 @@ package scpacker.networking.protocol.packets.garage
          if(_loc6_ is IGameObject)
          {
             return {item:_loc6_,source:"raw_id",reason:"resolved"};
+         }
+         _loc6_ = this.garageSpace.getObjectByName(_loc5_);
+         if(_loc6_ != null)
+         {
+            return {item:_loc6_,source:"garage_space_object_name",reason:"resolved"};
          }
          return {item:null,source:"none",reason:"unresolved_component"};
       }

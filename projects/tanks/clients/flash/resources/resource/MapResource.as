@@ -17,7 +17,6 @@ package projects.tanks.clients.flash.resources.resource
    import platform.client.fp10.core.resource.ResourceInfo;
    import platform.client.fp10.core.resource.ResourceStatus;
    import platform.client.fp10.core.resource.SafeURLLoader;
-   import utils.RuntimeLifecycleDiagnostics;
    
    public class MapResource extends Resource
    {
@@ -211,14 +210,12 @@ package projects.tanks.clients.flash.resources.resource
          }
          catch(e:Error)
          {
-            RuntimeLifecycleDiagnostics.recordMap("RESOURCE_FATAL","resourceId=" + this.id + " resourceClass=MapResource status=" + this.status + " isLoaded=" + (this.isLoaded ? 1 : 0) + " isLoading=" + (this.isLoading ? 1 : 0) + " errorMessage=" + e.message,true);
             listener.onResourceLoadingFatalError(this,e.message + " " + e.getStackTrace());
          }
       }
       
       private function onLoadingError(param1:ErrorEvent) : void
       {
-         RuntimeLifecycleDiagnostics.recordMap("RESOURCE_FATAL","resourceId=" + this.id + " resourceClass=MapResource status=" + this.status + " isLoaded=" + (this.isLoaded ? 1 : 0) + " isLoading=" + (this.isLoading ? 1 : 0) + " errorMessage=" + param1.text,true);
          listener.onResourceLoadingFatalError(this,param1.text);
       }
       

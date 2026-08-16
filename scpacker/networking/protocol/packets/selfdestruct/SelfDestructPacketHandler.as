@@ -10,7 +10,6 @@ package scpacker.networking.protocol.packets.selfdestruct
    import platform.client.fp10.core.type.IGameObject;
    import utils.TankNameGameObjectMapper;
    import projects.tanks.client.battlefield.models.user.suicide.SuicideModelBase;
-   import utils.RuntimeLifecycleDiagnostics;
    
    public class SelfDestructPacketHandler extends AbstractPacketHandler
    {
@@ -34,8 +33,6 @@ package scpacker.networking.protocol.packets.selfdestruct
       
       private function handleSuicide(param1:SuicideInPacket) : void
       {
-         RuntimeLifecycleDiagnostics.beginSuicideResponse(param1.tankId,param1.delay);
-         RuntimeLifecycleDiagnostics.recordPacketStage("HANDLER_ENTER",SuicideInPacket.id,this.id,-1,false);
          var tankGameObject:IGameObject = TankNameGameObjectMapper.getGameObjectByTankName(param1.tankId);
          if(tankGameObject != null)
          {
@@ -45,8 +42,6 @@ package scpacker.networking.protocol.packets.selfdestruct
             this.suicideModel.suicide(param1.delay);
             }             finally             {                Model.popObject();             }
          }
-         RuntimeLifecycleDiagnostics.recordSuicide("SUICIDE_HANDLER_EXIT","tankObjectExists=" + (tankGameObject != null ? 1 : 0),true);
-         RuntimeLifecycleDiagnostics.recordPacketStage("HANDLER_EXIT",SuicideInPacket.id,this.id,-1,false);
       }
    }
 }

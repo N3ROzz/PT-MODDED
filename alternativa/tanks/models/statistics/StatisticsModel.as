@@ -42,7 +42,6 @@ package alternativa.tanks.models.statistics
    import projects.tanks.clients.fp10.libraries.tanksservices.utils.BattleFormatUtil;
    import projects.tanks.clients.fp10.libraries.tanksservices.utils.BattleInfoUtils;
    import scpacker.utils.EnumUtils;
-   import utils.RuntimeLifecycleDiagnostics;
    
    [ModelInfo]
    public class StatisticsModel extends StatisticsModelBase implements IStatisticsModelBase, IStatisticsModel, ObjectLoadListener, ObjectLoadPostListener, ObjectUnloadListener, BattlefieldGUI, LogicUnit
@@ -168,7 +167,6 @@ package alternativa.tanks.models.statistics
          var _loc4_:IClientUserInfo = IClientUserInfo(object.adapt(IClientUserInfo));
          var _loc5_:ShortUserInfo = _loc4_.getShortUserInfo(param1);
          var _loc6_:ShortUserInfo = _loc4_.getShortUserInfo(param2);
-         RuntimeLifecycleDiagnostics.recordDeath("KILL_MESSAGE_USER_LOOKUP",param2,"killerId=" + param1 + " victimId=" + param2 + " killerInfoNull=" + (_loc5_ == null ? 1 : 0) + " victimInfoNull=" + (_loc6_ == null ? 1 : 0),true);
          this.battleMessages.addKillMessage(_loc5_,_loc6_,param3);
       }
       

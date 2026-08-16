@@ -34,7 +34,6 @@ package scpacker.networking.protocol.packets.battlecreate
    import projects.tanks.clients.fp10.libraries.tanksservices.service.probattle.UserProBattleService;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.probattle.IUserProBattleService;
    import alternativa.osgi.OSGi;
-   import utils.TankTraceUtil;
    
    public class BattleCreatePacketHandler extends AbstractPacketHandler
    {
@@ -174,7 +173,6 @@ package scpacker.networking.protocol.packets.battlecreate
             }
             catch(error:Error)
             {
-               TankTraceUtil.logCreateBattle("BattleCreatePacketHandler.skipMode mode=" + _loc4_ + " reason=" + error.message);
             }
          }
          return _loc2_;
@@ -238,7 +236,6 @@ package scpacker.networking.protocol.packets.battlecreate
       
       private function initBattleList(param1:InitBattleSelectInPacket) : void
       {
-          TankTraceUtil.logCreateBattle("BattleCreatePacketHandler.initBattleList jsonLength=" + (param1.battlesJson == null ? -1 : param1.battlesJson.length));
           var mapObjectInstance:IGameObject = null;
           var mapInfoInstance:MapInfoCC = null;
           //var clanInfoInstance:ClanInfoCC = null;
@@ -246,8 +243,6 @@ package scpacker.networking.protocol.packets.battlecreate
           this.battleSelectObject = spaceInstance.createObject(SpaceAndGameObjectIds.BATTLE_SELECT_OBJECT_ID,this.battleSelectGameClass,"BattleSelectObject");
           
           var battlesData:Object = JSON.parse(param1.battlesJson);
-          TankTraceUtil.logCreateBattle("BattleCreatePacketHandler.parsed maps=" + (battlesData.maps == null ? -1 : battlesData.maps.length) + " battleCreationDisabled=" + battlesData.battleCreationDisabled);
-          TankTraceUtil.logCreateBattle("BattleCreatePacketHandler.beforeMapRegistration");
           var mapObjectId:Long = null;
           var mapRegisterIndex:int = 0;
           var validMapsRegistered:int = 0;
@@ -259,7 +254,6 @@ package scpacker.networking.protocol.packets.battlecreate
             {
                if(mapData == null)
                {
-                  TankTraceUtil.logCreateBattle("BattleCreatePacketHandler.skipMap index=" + mapRegisterIndex + " reason=nullMap");
                   mapRegisterIndex++;
                   continue;
                }
@@ -267,7 +261,6 @@ package scpacker.networking.protocol.packets.battlecreate
                mapTheme = this.parseMapTheme(mapData.theme);
                if(mapTheme == null || supportedModes.length == 0)
                {
-                  TankTraceUtil.logCreateBattle("BattleCreatePacketHandler.skipMap index=" + mapRegisterIndex + " mapId=" + mapData.mapId + " preview=" + mapData.preview + " theme=" + mapData.theme + " modes=" + this.describeSupportedModes(mapData.supportedModes) + " reason=unsupportedMapParams");
                   mapRegisterIndex++;
                   continue;
                }
@@ -279,7 +272,6 @@ package scpacker.networking.protocol.packets.battlecreate
                }
                else
                {
-                  TankTraceUtil.logCreateBattle("BattleCreatePacketHandler.reuseMapObject index=" + mapRegisterIndex + " mapId=" + mapData.mapId + " preview=" + mapData.preview + " theme=" + mapData.theme);
                }
                mapInfoInstance = new MapInfoCC();
                mapInfoInstance.additionalCrystalsPercent = mapData.additionalCrystalsPercent;
@@ -310,14 +302,11 @@ package scpacker.networking.protocol.packets.battlecreate
             }
             catch(mapError:Error)
             {
-               TankTraceUtil.logCreateBattle("BattleCreatePacketHandler.skipMap index=" + mapRegisterIndex + " mapId=" + mapData.mapId + " preview=" + mapData.preview + " theme=" + mapData.theme + " modes=" + this.describeSupportedModes(mapData.supportedModes) + " reason=" + mapError.message);
             }
             mapRegisterIndex++;
           }
-          TankTraceUtil.logCreateBattle("BattleCreatePacketHandler.afterMapRegistration mapsRegistered=" + MapInfoModel.getMaps().length + " validThisPacket=" + validMapsRegistered);
           if(validMapsRegistered == 0)
           {
-             TankTraceUtil.logCreateBattle("BattleCreatePacketHandler.noValidMaps abortCreateInit");
              return;
           }
 
@@ -359,10 +348,8 @@ package scpacker.networking.protocol.packets.battlecreate
           battleCreateParams.ultimatesEnabled = true;
           //battleCreateParams.proBattleTimeLeftInSec = battlesData.proBattleTimeLeftInSec;
           this.battleCreateModel.putInitParams(battleCreateParams);
-          TankTraceUtil.logCreateBattle("BattleCreatePacketHandler.beforeBattleCreateModelLoad mapsRegistered=" + MapInfoModel.getMaps().length);
           this.battleCreateModel.objectLoaded();
           this.battleCreateModel.objectLoadedPost();
-          TankTraceUtil.logCreateBattle("BattleCreatePacketHandler.afterBattleCreateModelLoad");
           }           finally           {              Model.popObject();           }
       }
       

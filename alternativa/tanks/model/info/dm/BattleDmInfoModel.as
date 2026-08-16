@@ -15,7 +15,6 @@ package alternativa.tanks.model.info.dm
    import projects.tanks.client.battleselect.model.battle.dm.IBattleDMInfoModelBase;
    import projects.tanks.client.battleselect.model.battle.entrance.user.BattleInfoUser;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.friend.IFriendInfoService;
-   import utils.BattleSelectionTrace;
    import alternativa.osgi.service.locale.ILocaleService;
    import alternativa.tanks.model.info.IBattleInfo;
    import alternativa.tanks.model.battle.BattleEntranceModel;
@@ -25,7 +24,6 @@ package alternativa.tanks.model.info.dm
    import projects.tanks.clients.fp10.libraries.tanksservices.service.alertservices.IAlertService;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.alertservices.AlertServiceEvent;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.logging.battlelist.UserBattleSelectActionsService;
-   import utils.TankTraceUtil;
    
    [ModelInfo]
    public class BattleDmInfoModel extends BattleDMInfoModelBase implements IBattleDMInfoModelBase, ObjectLoadPostListener, ObjectUnloadListener
@@ -162,7 +160,6 @@ package alternativa.tanks.model.info.dm
          if(getData(ServerFightCommandAlreadySentFlag) == null)
          {
             putData(ServerFightCommandAlreadySentFlag,this.fightCommandFlag);
-            TankTraceUtil.markBattleJoin(object.name);
             server.fight();
          }
       }

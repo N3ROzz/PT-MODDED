@@ -42,7 +42,6 @@ package scpacker.networking.protocol.packets.tank
    import alternativa.tanks.models.effects.durationTime.DurationModel;
    import projects.tanks.client.battlefield.models.effects.duration.time.DurationModelBase;
    import projects.tanks.client.battlefield.models.effects.duration.time.DurationCC;
-   import utils.RuntimeLifecycleDiagnostics;
    
    public class TankPacketHandler extends AbstractPacketHandler
    {
@@ -148,23 +147,15 @@ package scpacker.networking.protocol.packets.tank
             try
             {
             var isLocalTank:Boolean = param1.tankId == this.userPropertiesService.userId;
-            RuntimeLifecycleDiagnostics.beginDeath(param1.tankId,param1.killer,param1.delay,isLocalTank);
-            RuntimeLifecycleDiagnostics.recordPacketStage("HANDLER_ENTER",KillTankInPacket.id,this.id,-1,false);
-            RuntimeLifecycleDiagnostics.recordDeath("KILL_PACKET_HANDLER_ENTER",param1.tankId,"tankObjectExists=1",true);
             this.tankModel.kill(param1.killer,param1.delay, DamageType.SMOKY);
             if(!this.tankModel.isLocal())
             {
-               RuntimeLifecycleDiagnostics.recordDeath("DEATH_CONFIRMED_CALL",param1.tankId,"source=TankPacketHandler",true);
                this.tankModel.deathConfirmed();
             }
-            RuntimeLifecycleDiagnostics.recordDeath("KILL_PACKET_HANDLER_EXIT",param1.tankId,"",true);
-            RuntimeLifecycleDiagnostics.recordPacketStage("HANDLER_EXIT",KillTankInPacket.id,this.id,-1,false);
             }             finally             {                Model.popObject();             }
          }
          else
          {
-            RuntimeLifecycleDiagnostics.beginDeath(param1.tankId,param1.killer,param1.delay,false);
-            RuntimeLifecycleDiagnostics.recordDeath("KILL_PACKET_HANDLER_ENTER",param1.tankId,"tankObjectExists=0",true);
          }
       }
       

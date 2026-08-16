@@ -18,7 +18,6 @@ package alternativa.tanks.model.battleselect.create
    import projects.tanks.clients.fp10.libraries.tanksservices.service.alertservices.IAlertService;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.logging.battlelist.UserBattleSelectActionsService;
    import services.alertservice.AlertAnswer;
-   import utils.TankTraceUtil;
    
    [ModelInfo]
    public class BattleCreateModel extends BattleCreateModelBase implements IBattleCreateModelBase, IObjectLoadListener
@@ -70,14 +69,12 @@ package alternativa.tanks.model.battleselect.create
       
       public function objectLoaded() : void
       {
-         TankTraceUtil.logCreateBattle("BattleCreateModel.objectLoaded battleCreationDisabled=" + getInitParam().battleCreationDisabled);
          battleCreateFormService.battleCreationDisabled = getInitParam().battleCreationDisabled;
          this.ensureCreateFormController();
       }
       
       public function objectLoadedPost() : void
       {
-         TankTraceUtil.logCreateBattle("BattleCreateModel.objectLoadedPost listenersAdded=" + this.formListenersAdded);
          this.ensureCreateFormController();
       }
       
@@ -92,7 +89,6 @@ package alternativa.tanks.model.battleselect.create
          battleCreateFormService.addEventListener(BattleCreateFormServiceEvent.SHOW_FORM,getFunctionWrapper(this.onShowForm));
          battleCreateFormService.addEventListener(BattleCreateFormServiceEvent.HIDE_FORM,getFunctionWrapper(this.onHideForm));
          this.formListenersAdded = true;
-         TankTraceUtil.logCreateBattle("BattleCreateModel.ensureCreateFormController maps=" + MapInfoModel.getMaps().length);
       }
       
       public function objectUnloaded() : void
@@ -115,7 +111,6 @@ package alternativa.tanks.model.battleselect.create
       
       private function onShowForm(param1:Event) : void
       {
-         TankTraceUtil.logCreateBattle("BattleCreateModel.onShowForm controllerNull=" + (this.getCreateBattleFormController() == null));
          var _loc2_:CreateBattleFormController = this.getCreateBattleFormController();
          _loc2_.showForm();
          _loc2_.addEventListener(CreateBattleEvent.CREATE_BATTLE,getFunctionWrapper(this.onCreateBattle));

@@ -34,7 +34,6 @@ package scpacker.networking.protocol.packets.panel
    import alternativa.tanks.models.performance.PerformanceModel;
    import projects.tanks.client.battleservice.model.performance.PerformanceModelBase;
    import projects.tanks.client.battleservice.model.performance.PerformanceCC;
-   import utils.TankTraceUtil;
    
    public class PanelPacketHandler extends AbstractPacketHandler
    {
@@ -82,7 +81,6 @@ package scpacker.networking.protocol.packets.panel
       
       private function handleLoadAccountStats(param1:LoadAccountStatsInPacket) : void
       {
-         TankTraceUtil.logRatings("LoadAccountStats received loaded=" + this.accountStatsLoaded + " score=" + param1.userPropertyCC.score + " rank=" + param1.userPropertyCC.rank + " rating=" + param1.userPropertyCC.userRating + " place=" + param1.userPropertyCC.place + " crystals=" + param1.userPropertyCC.crystals);
          if(this.accountStatsLoaded)
          {
             this.updateAccountStats(param1);
@@ -167,7 +165,6 @@ package scpacker.networking.protocol.packets.panel
 
       private function updateAccountStats(param1:LoadAccountStatsInPacket) : void
       {
-         TankTraceUtil.logRatings("UpdateAccountStats sync score=" + param1.userPropertyCC.score + " rank=" + param1.userPropertyCC.rank + " rating=" + param1.userPropertyCC.userRating + " place=" + param1.userPropertyCC.place + " crystals=" + param1.userPropertyCC.crystals);
          this.userPropertiesModel.putInitParams(param1.userPropertyCC);
          this.userPropertiesModel.updateScore(param1.userPropertyCC.score,true);
          this.userPropertiesModel.changeCrystal(param1.userPropertyCC.crystals);

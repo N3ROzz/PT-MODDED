@@ -7,7 +7,6 @@ package projects.tanks.clients.fp10.libraries.tanksservices.model
    import projects.tanks.clients.fp10.libraries.tanksservices.service.friend.FriendActionServiceEvent;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.friend.FriendActionServiceUidEvent;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.friend.IFriendActionService;
-   import utils.TankTraceUtil;
    
    [ModelInfo]
    public class FriendsModel extends FriendsModelBase implements IFriendsModelBase, ObjectLoadListener, ObjectUnloadListener, IFriends
@@ -43,19 +42,16 @@ package projects.tanks.clients.fp10.libraries.tanksservices.model
       
       private function onAddByUid(param1:FriendActionServiceUidEvent) : void
       {
-         TankTraceUtil.logFriends("FriendsModel.event addByUid uid=" + param1.uid);
          server.add(param1.uid);
       }
       
       private function onCheckUid(param1:FriendActionServiceUidEvent) : void
       {
-         TankTraceUtil.logFriends("FriendsModel.event checkUid uid=" + param1.uid);
          server.addByUid(param1.uid);
       }
       
       private function onAdd(param1:FriendActionServiceEvent) : void
       {
-         TankTraceUtil.logFriends("FriendsModel.event add userId=" + param1.userId);
          server.add(param1.userId);
       }
       

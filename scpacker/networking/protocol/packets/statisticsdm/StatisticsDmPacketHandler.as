@@ -13,7 +13,6 @@ package scpacker.networking.protocol.packets.statisticsdm
    import projects.tanks.clients.fp10.libraries.tanksservices.service.userproperties.IUserPropertiesService;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.premium.PremiumService;
    import projects.tanks.client.battleservice.model.statistics.UserStat;
-   import utils.TankTraceUtil;
    
    public class StatisticsDmPacketHandler extends AbstractPacketHandler
    {
@@ -63,7 +62,6 @@ package scpacker.networking.protocol.packets.statisticsdm
          Model.object = BattlePacketHandler.battlefieldGameObject;
          try
          {
-            TankTraceUtil.logRatings("DM changeUserStat user=" + (param1.userStats == null ? "null" : param1.userStats.user) + " score=" + (param1.userStats == null ? -1 : param1.userStats.score));
             this.updateLocalScore(param1.userStats);
             this.statisticsDMModel.changeUserStat(param1.userStats);
          }
@@ -85,7 +83,6 @@ package scpacker.networking.protocol.packets.statisticsdm
          try
          {
             this.localScore = 0;
-            TankTraceUtil.logRatings("DM initStatistics localScore=0");
             this.statisticsDMModel.putInitParams(param1.statisticsDmCC);
             this.statisticsDMModel.objectLoaded();
             this.statisticsDMModel.objectLoadedPost();
@@ -105,7 +102,6 @@ package scpacker.networking.protocol.packets.statisticsdm
          Model.object = BattlePacketHandler.battlefieldGameObject;
          try
          {
-            TankTraceUtil.logRatings("DM refreshUsersStat count=" + (param1.userStats == null ? -1 : param1.userStats.length));
             this.updateLocalScoreFromVector(param1.userStats);
             this.statisticsDMModel.refreshUsersStat(param1.userStats);
          }
@@ -141,7 +137,6 @@ package scpacker.networking.protocol.packets.statisticsdm
             return;
          }
          _loc2_ = param1.score - this.localScore;
-         TankTraceUtil.logRatings("DM localScore user=" + param1.user + " oldBattleScore=" + this.localScore + " newBattleScore=" + param1.score + " delta=" + _loc2_ + " accountScore=" + this.userPropertiesService.score + " premium=" + (this.premiumService != null && this.premiumService.hasPremium()));
          this.localScore = param1.score;
          if(_loc2_ > 0)
          {

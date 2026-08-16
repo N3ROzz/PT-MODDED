@@ -23,7 +23,6 @@ package scpacker.networking.protocol.packets.friends
    import platform.client.fp10.core.model.impl.Model;
    import projects.tanks.client.users.model.friends.FriendsCC;
    import projects.tanks.client.users.model.friends.container.UserContainerCC;
-   import utils.TankTraceUtil;
    
    public class FriendsPacketHandler extends AbstractPacketHandler
    {
@@ -121,7 +120,6 @@ package scpacker.networking.protocol.packets.friends
          try
          {
 
-         TankTraceUtil.logFriends("LoadFriendsList accepted=" + this.countUsers(param1.friendsAcceptedCC) + " acceptedNew=" + this.countUsers(param1.friendsAcceptedNotificatorCC) + " incoming=" + this.countUsers(param1.friendsIncomingCC) + " incomingNew=" + this.countUsers(param1.friendsIncomingNotificatorCC) + " outgoing=" + this.countUsers(param1.friendsOutgoingCC));
 
          this.friendsModel.putInitParams(new FriendsCC(99999, 99999, true));
          this.friendsModel.objectLoaded();
@@ -153,13 +151,11 @@ package scpacker.networking.protocol.packets.friends
       
       private function handleOutgoingOnAdding(param1:OutgoingOnAddingInPacket) : void
       {
-         TankTraceUtil.logFriends("packet=" + OutgoingOnAddingInPacket.id + " action=outgoingAdd userId=" + param1.userId);
          this.friendsOutgoingModel.onAdding(param1.userId);
       }
       
       private function handleAcceptIncomingFriend(param1:AcceptIncomingFriendInPacket) : void
       {
-         TankTraceUtil.logFriends("packet=" + AcceptIncomingFriendInPacket.id + " action=acceptedAdd userId=" + param1.userId);
          this.friendsAcceptedModel.onAdding(param1.userId);
          this.friendsAcceptedNotificatorModel.onAdding(param1.userId);
          this.friendsIncomingNotificatorModel.onRemoved(param1.userId);
@@ -167,73 +163,62 @@ package scpacker.networking.protocol.packets.friends
       
       private function handleIncomingOnAdding(param1:IncomingOnAddingInPacket) : void
       {
-         TankTraceUtil.logFriends("packet=" + IncomingOnAddingInPacket.id + " action=incomingAdd userId=" + param1.userId);
          this.friendsIncomingModel.onAdding(param1.userId);
          this.friendsIncomingNotificatorModel.onAdding(param1.userId);
       }
       
       private function handleAlreadyInAcceptedFriends(param1:AlreadyInAcceptedFriendsInPacket) : void
       {
-         TankTraceUtil.logFriends("packet=" + AlreadyInAcceptedFriendsInPacket.id + " action=alreadyAccepted userId=" + param1.userId);
          this.friendsOutgoingModel.onRemoved(param1.userId);
          this.friendsModel.alreadyInAcceptedFriends(param1.userId);
       }
       
       private function handleAlreadyInIncomingFriends(param1:AlreadyInIncomingFriendsInPacket) : void
       {
-         TankTraceUtil.logFriends("packet=" + AlreadyInIncomingFriendsInPacket.id + " action=alreadyIncoming userId=" + param1.userId);
          this.friendsOutgoingModel.onRemoved(param1.userId);
          this.friendsModel.alreadyInIncomingFriends(param1.userId,param1.userId);
       }
       
       private function handleAlreadyInOutgoingFriends(param1:AlreadyInOutgoingFriendsInPacket) : void
       {
-         TankTraceUtil.logFriends("packet=" + AlreadyInOutgoingFriendsInPacket.id + " action=alreadyOutgoing userId=" + param1.userId);
          this.friendsOutgoingModel.onAdding(param1.userId);
          this.friendsModel.alreadyInOutgoingFriends(param1.userId);
       }
       
       private function handleAcceptedOnRemove(param1:FriendsAcceptedOnRemoveInPacket) : void
       {
-         TankTraceUtil.logFriends("packet=" + FriendsAcceptedOnRemoveInPacket.id + " action=acceptedRemove userId=" + param1.userId);
          this.friendsAcceptedModel.onRemoved(param1.userId);
          this.friendsAcceptedNotificatorModel.onRemoved(param1.userId);
       }
       
       private function handleOutgoingOnRemove(param1:FriendsOutgoingOnRemoveInPacket) : void
       {
-         TankTraceUtil.logFriends("packet=" + FriendsOutgoingOnRemoveInPacket.id + " action=outgoingRemove userId=" + param1.userId);
          this.friendsOutgoingModel.onRemoved(param1.userId);
       }
       
       private function handleIncomingOnRemove(param1:FriendsIncomingOnRemoveInPacket) : void
       {
-         TankTraceUtil.logFriends("packet=" + FriendsIncomingOnRemoveInPacket.id + " action=incomingRemove userId=" + param1.userId);
          this.friendsIncomingModel.onRemoved(param1.userId);
          this.friendsIncomingNotificatorModel.onRemoved(param1.userId);
       }
       
       private function handleAcceptedNotificatorOnRemove(param1:FriendsAcceptedNotificatorOnRemoveInPacket) : void
       {
-         TankTraceUtil.logFriends("packet=" + FriendsAcceptedNotificatorOnRemoveInPacket.id + " action=acceptedNotificatorAdd userId=" + param1.userId);
          this.friendsAcceptedNotificatorModel.onAdding(param1.userId);
       }
       
       private function handleIncomingNotificatorOnRemove(param1:FriendsIncomingNotificatorOnRemoveInPacket) : void
       {
-         TankTraceUtil.logFriends("packet=" + FriendsIncomingNotificatorOnRemoveInPacket.id + " action=incomingNotificatorAdd userId=" + param1.userId);
          this.friendsIncomingNotificatorModel.onAdding(param1.userId);
       }
       
       private function handleUidExist() : void
       {
-         TankTraceUtil.logFriends("packet=" + FriendsUidExistInPacket.id + " action=uidExist");
          this.friendsModel.uidExist();
       }
       
       private function handleUidNotExist() : void
       {
-         TankTraceUtil.logFriends("packet=" + FriendsUidNotExistInPacket.id + " action=uidNotExist");
          this.friendsModel.uidNotExist();
       }
 

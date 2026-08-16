@@ -95,7 +95,6 @@ package alternativa.tanks.models.battle.battlefield
    import projects.tanks.clients.fp10.libraries.tanksservices.service.battle.IBattleInfoService;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.layout.ILobbyLayoutService;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.storage.IStorageService;
-   import utils.RuntimeLifecycleDiagnostics;
    
    [ModelInfo]
    public class BattlefieldModel extends BattlefieldModelBase implements IBattlefieldModelBase, ObjectLoadListener, ObjectLoadPostListener, ObjectUnloadPostListener, BattleEventListener, BattleService, BattleSfx
@@ -674,7 +673,6 @@ package alternativa.tanks.models.battle.battlefield
          var _loc1_:IBattleMap = this.getBattleMap();
          var _loc2_:MapResource = _loc1_.getMapResource();
          this.mapId = _loc2_.id;
-         RuntimeLifecycleDiagnostics.recordMap("MAP_BUILDER_BEGIN","source=BattlefieldModel mapResourceId=" + this.mapId,true);
          var _loc3_:XML = XML(_loc2_.mapData.toString());
          var _loc4_:MapBuilder = new MapBuilder(materialRegistry,_loc2_.libRegistry);
          _loc4_.build(_loc3_,getFunctionWrapper(this.onMapBuildingComplete));
@@ -695,13 +693,10 @@ package alternativa.tanks.models.battle.battlefield
       
       private function onMapBuildingComplete() : void
       {
-         RuntimeLifecycleDiagnostics.recordMap("MAP_BUILDER_COMPLETE","source=BattlefieldModel_callback",true);
          var _loc1_:MapBuilder = MapBuilder(getData(MapBuilder));
          this.followCameraController.setCollisionObject(_loc1_.getMapContainer());
          this.fixHardwareKeyboardInputBug();
-         RuntimeLifecycleDiagnostics.recordMap("UNLOCK_MAP_BEGIN","",true);
          battleReadinessService.unlockMap();
-         RuntimeLifecycleDiagnostics.recordMap("UNLOCK_MAP","",true);
          battleEventDispatcher.dispatchEvent(new MapBuildingCompleteEvent());
       }
       

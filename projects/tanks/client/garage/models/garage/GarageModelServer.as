@@ -8,7 +8,6 @@ package projects.tanks.client.garage.models.garage
    import scpacker.networking.protocol.packets.garage.BuyMultipleItemsOutPacket;
    import scpacker.networking.protocol.packets.garage.MountItemOutPacket;
    import scpacker.networking.protocol.packets.garage.BuyKitOutPacket;
-   import utils.TankTraceUtil;
    
    public class GarageModelServer
    {
@@ -28,7 +27,6 @@ package projects.tanks.client.garage.models.garage
       
       public function itemMounted(param1:String) : void
       {
-         TankTraceUtil.logRatings("Garage itemMounted itemId=" + param1);
          network.send(new MountItemOutPacket(param1));
       }
       
