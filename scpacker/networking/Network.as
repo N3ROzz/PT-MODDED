@@ -13,6 +13,11 @@ package scpacker.networking
    import flash.events.ProgressEvent;
    import flash.events.SecurityErrorEvent;
    import flash.net.Socket;
+   import flash.net.Socket;
+import flash.filesystem.File;
+import flash.filesystem.FileMode;
+import flash.filesystem.FileStream;
+import flash.utils.ByteArray;
    import flash.utils.ByteArray;
    import flash.utils.getTimer;
    import flash.utils.getQualifiedClassName;
@@ -278,7 +283,19 @@ package scpacker.networking
                   }
                   catch(packetError:Error)
                   {
-                     this.reportNetworkError("PACKET_FAILURE",_loc8_,_loc1_,_loc3_,_loc4_,_loc7_,packetError,true,false);
+                     this.reportNetworkError(
+   "PACKET_FAILURE",
+   _loc8_,
+   _loc1_,
+   _loc3_,
+   _loc4_,
+   _loc7_,
+   packetError,
+   true,
+   false,
+   getQualifiedClassName(_loc11_),
+   _loc13_
+);
                   }
                }
             }
@@ -387,48 +404,154 @@ package scpacker.networking
          }
       }
 
-      private function reportNetworkError(param1:String, param2:String, param3:int, param4:int, param5:int, param6:Boolean, param7:Error, param8:Boolean, param9:Boolean) : void
+  private function reportNetworkError(
+   category:String,
+   stage:String,
+   packetId:int,
+   frameLength:int,
+   payloadLength:int,
+   compressed:Boolean,
+   error:Error,
+   transportRecoverable:Boolean,
+   applicationStateGuaranteed:Boolean,
+   packetClass:String = null,
+   handlerId:int = -1
+) : void
+{
+   var logMessage:String =
+      "[NETWORK]" +
+      " category=" + category +
+      " stage=" + stage +
+      " packetId=" + packetId +
+      " frameLength=" + frameLength +
+      " payloadLength=" + payloadLength +
+      " compressed=" + compressed +
+      " transportRecoverable=" + transportRecoverable +
+      " applicationStateGuaranteed=" + applicationStateGuaranteed;
+
+   // Packet/handler diagnostics when available
+   if(packetClass != null && packetClass.length > 0)
+   {
+      logMessage += " packetClass=" + this.cleanLogText(packetClass);
+   }
+
+   if(handlerId >= 0)
+   {
+      logMessage += " handlerId=" + handlerId;
+   }
+
+   // Error diagnostics
+   if(error != null)
+   {
+      try
       {
-         var _loc10_:String = "[NETWORK] category=" + param1 + " stage=" + param2 + " packetId=" + param3 + " frameLength=" + param4 + " payloadLength=" + param5 + " compressed=" + param6 + " transportRecoverable=" + param8 + " applicationStateGuaranteed=" + param9;
-         if(param7 != null)
+         logMessage +=
+            " error=" +
+            this.cleanLogText(error.name + ":" + error.message) +
+            " errorId=" +
+            error.errorID;
+
+         var stackTrace:String = error.getStackTrace();
+
+         if(stackTrace != null && stackTrace.length > 0)
+         {
+            logMessage +=
+               " stack=" +
+               this.cleanLogText(stackTrace);
+         }
+         else
+         {
+            logMessage += " stack=unavailable";
+         }
+      }
+      catch(errorFormattingError:Error)
+      {
+         logMessage += " error=unavailable";
+      }
+   }
+
+   // LogService
+   try
+   {
+      var logService:LogService =
+         LogService(
+            OSGi.getInstance().getService(LogService)
+         );
+
+      if(logService != null)
+      {
+         var logger:Logger =
+            logService.getLogger("net");
+
+         if(logger != null)
+         {
+            logger.error(logMessage);
+         }
+      }
+   }
+   catch(logError:Error)
+   {
+   }
+
+   // Flash/AIR trace
+   try
+   {
+      trace(logMessage);
+   }
+   catch(traceError:Error)
+   {
+   }
+
+   // Persistent file logging for important network failures
+   if(
+      category == "PACKET_FAILURE" ||
+      category == "FATAL_RECEIVE" ||
+      category == "RECEIVE_FAILURE" ||
+      category == "SEND_FAILURE" ||
+      category == "FATAL_FRAME"
+   )
+   {
+      var fileStream:FileStream = null;
+
+      try
+      {
+         var logFile:File =
+            File.desktopDirectory.resolvePath(
+               "protanki-network-errors.log"
+            );
+
+         fileStream = new FileStream();
+
+         fileStream.open(
+            logFile,
+            FileMode.APPEND
+         );
+
+         fileStream.writeUTFBytes(
+            new Date().toString() +
+            " " +
+            logMessage +
+            "\r\n"
+         );
+      }
+      catch(fileLogError:Error)
+      {
+      }
+      finally
+      {
+         if(fileStream != null)
          {
             try
             {
-               _loc10_ += " error=" + this.cleanLogText(param7.name + ":" + param7.message);
-               var _loc11_:String = param7.getStackTrace();
-               if(_loc11_ != null && _loc11_.length > 0)
-               {
-                  _loc10_ += " stack=" + this.cleanLogText(_loc11_);
-               }
+               fileStream.close();
             }
-            catch(errorFormattingError:Error)
+            catch(closeFileLogError:Error)
             {
-               _loc10_ += " error=unavailable";
             }
-         }
-         try
-         {
-            var _loc12_:LogService = LogService(OSGi.getInstance().getService(LogService));
-            if(_loc12_ != null)
-            {
-               var _loc13_:Logger = _loc12_.getLogger("net");
-               if(_loc13_ != null)
-               {
-                  _loc13_.error(_loc10_);
-               }
-            }
-         }
-         catch(logError:Error)
-         {
-         }
-         try
-         {
-            trace(_loc10_);
-         }
-         catch(traceError:Error)
-         {
          }
       }
+   }
+}
 
       private function cleanLogText(param1:String) : String
       {
