@@ -39,7 +39,6 @@ package alternativa.tanks.service.item
    import projects.tanks.clients.fp10.libraries.TanksLocale;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.userproperties.IUserPropertiesService;
    import projects.tanks.clients.fp10.libraries.tanksservices.utils.LocaleServiceLangValues;
-   import utils.GarageKitPipelineDiagnostics;
    
    public class ItemServiceImpl extends EventDispatcher implements ItemService
    {
@@ -348,15 +347,7 @@ package alternativa.tanks.service.item
       
       public function isBuyable(param1:IGameObject) : Boolean
       {
-         var _loc2_:Boolean = Boolean(IBuyable(param1.adapt(IBuyable)).isBuyable());
-         var _loc3_:Boolean = false;
-         if(_loc2_)
-         {
-            _loc3_ = this.isEnabledItem(param1);
-         }
-         var _loc4_:Boolean = _loc2_ && _loc3_;
-         GarageKitPipelineDiagnostics.buyable(param1,_loc2_,_loc3_,_loc4_);
-         return _loc4_;
+         return Boolean(IBuyable(param1.adapt(IBuyable)).isBuyable()) && this.isEnabledItem(param1);
       }
       
       public function getProperties(param1:IGameObject) : Vector.<ItemPropertyValue>
@@ -494,7 +485,6 @@ package alternativa.tanks.service.item
          var _loc2_:Boolean = this.getCategory(param1) == ItemCategoryEnum.KIT;
          var _loc3_:Boolean = param1.hasModel(GarageKit);
          var _loc4_:Boolean = _loc2_ && _loc3_ && GarageKit(param1.adapt(GarageKit)).getImage != null;
-         GarageKitPipelineDiagnostics.classification(param1,_loc2_,_loc3_,_loc4_);
          return _loc4_;
       }
       
@@ -546,40 +536,19 @@ package alternativa.tanks.service.item
       
       public function canBuy(param1:IGameObject) : Boolean
       {
-         var _loc2_:Boolean = this.isBuyable(param1);
-         var _loc3_:int = int(userPropertyService.rank);
-         var _loc4_:int = GarageKitPipelineDiagnostics.isTracked(param1) ? this.getMinRankIndex(param1) : 0;
-         var _loc5_:int = 0;
-         var _loc6_:Boolean = false;
-         var _loc7_:Boolean = false;
-         var _loc8_:Boolean = this.hasItem(param1);
-         if(!_loc2_)
+         if(!this.isBuyable(param1) || userPropertyService.rank > this.getMaxRankIndex(param1))
          {
-            GarageKitPipelineDiagnostics.canBuy(param1,false,GarageKitPipelineDiagnostics.getCanBuyReason(param1),_loc3_,_loc4_,_loc5_,false,false,_loc8_);
             return false;
          }
-         _loc5_ = this.getMaxRankIndex(param1);
-         if(_loc3_ > _loc5_)
+         if(this.isGrouped(param1))
          {
-            GarageKitPipelineDiagnostics.canBuy(param1,false,"rank_above_max",_loc3_,_loc4_,_loc5_,false,false,_loc8_);
-            return false;
-         }
-         _loc6_ = this.isGrouped(param1);
-         if(_loc6_)
-         {
-            _loc7_ = this.getGroup(param1) in this.groupedItems;
-            GarageKitPipelineDiagnostics.canBuy(param1,!_loc7_,_loc7_ ? "owned_group" : "group_available",_loc3_,_loc4_,_loc5_,true,_loc7_,_loc8_);
-            return !_loc7_;
+            return !(this.getGroup(param1) in this.groupedItems);
          }
          if(this.isKit(param1))
          {
-            var _loc9_:Boolean = GarageKit(param1.adapt(GarageKit)).canBuy();
-            GarageKitPipelineDiagnostics.canBuy(param1,_loc9_,GarageKitPipelineDiagnostics.getCanBuyReason(param1),_loc3_,_loc4_,_loc5_,false,false,_loc8_);
-            return _loc9_;
+            return GarageKit(param1.adapt(GarageKit)).canBuy();
          }
-         var _loc10_:Boolean = this.isCountable(param1) || !_loc8_;
-         GarageKitPipelineDiagnostics.canBuy(param1,_loc10_,_loc10_ ? "available" : "already_owned",_loc3_,_loc4_,_loc5_,false,false,_loc8_);
-         return _loc10_;
+         return this.isCountable(param1) || !this.hasItem(param1);
       }
       
       public function addMountableCategories(param1:Vector.<ItemCategoryEnum>) : void
@@ -713,11 +682,8 @@ package alternativa.tanks.service.item
          if(timePeriod == null)
          {
             var timeEnabled:Boolean = Boolean(TimePeriod(param1.adapt(TimePeriod)).isEnabled());
-            var delayedResult:Boolean = timeEnabled && !this.isItemAppearInDelayPeriod(param1) || this.getTimeToStartInSeconds(param1) > 0 && this.isItemAlreadyAppear(param1);
-            GarageKitPipelineDiagnostics.timeState(param1,timeEnabled,false,0,0,delayedResult);
-            return delayedResult;
+            return timeEnabled && !this.isItemAppearInDelayPeriod(param1) || this.getTimeToStartInSeconds(param1) > 0 && this.isItemAlreadyAppear(param1);
          }
-         GarageKitPipelineDiagnostics.timeState(param1,timePeriod.isEnabled(),timePeriod.isTimeless(),timePeriod.getTimeLeftInSeconds(),timePeriod.getTimeToStartInSeconds(),true);
          return true;
       }
 

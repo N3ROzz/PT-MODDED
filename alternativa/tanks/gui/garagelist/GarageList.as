@@ -40,7 +40,6 @@ package alternativa.tanks.gui.garagelist
    import projects.tanks.client.commons.types.ItemCategoryEnum;
    import projects.tanks.clients.fp10.libraries.tanksservices.utils.removeDisplayObject;
    import utils.ScrollStyleUtils;
-   import utils.GarageKitPipelineDiagnostics;
    
    public class GarageList extends DiscreteSprite implements IResourceLoadingListener
    {
@@ -705,18 +704,9 @@ package alternativa.tanks.gui.garagelist
       
       public function addItem(param1:GarageListRendererData) : void
       {
-         try
-         {
-            param1.iconNormal = this.createIcon(param1,false);
-            param1.iconSelected = this.createIcon(param1,true);
-            this.dp.addItem(param1);
-            GarageKitPipelineDiagnostics.finalVisible(param1.id);
-         }
-         catch(error:Error)
-         {
-            GarageKitPipelineDiagnostics.objectException(param1 == null ? null : param1.id,"garage_list_add",error);
-            throw error;
-         }
+         param1.iconNormal = this.createIcon(param1,false);
+         param1.iconSelected = this.createIcon(param1,true);
+         this.dp.addItem(param1);
       }
       
       public function sort() : void
