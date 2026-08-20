@@ -174,7 +174,7 @@ package alternativa.tanks.view.battlelist.battleitem
       
       private function getFullMapName() : String
       {
-         var _loc1_:String = this.createParams.proBattle ? this.params.mapName : this.getMapNameWithoutFormat();
+         var _loc1_:String = this.createParams.proBattle ? this.getSafeMapName() : this.getMapNameWithoutFormat();
          if(this.data.formatBattle)
          {
             _loc1_ = _loc1_ + " " + this.data.formatName;
@@ -184,20 +184,26 @@ package alternativa.tanks.view.battlelist.battleitem
       
       private function getMapNameWithoutFormat() : String
       {
-         return BattleInfoUtils.buildBattleName(this.params.mapName,this.createParams.battleMode.name);
+         return BattleInfoUtils.buildBattleName(this.getSafeMapName(),this.createParams.battleMode.name);
       }
       
       private function getMapColumnName() : String
       {
-         if(this.params.mapName != null && this.params.mapName != "")
+         var _loc1_:String = this.getSafeMapName();
+         if(_loc1_ != "")
          {
-            return this.params.mapName;
+            return _loc1_;
          }
          if(this.createParams.mapId != null && this.createParams.mapId != "" && !this.isNumericString(this.createParams.mapId))
          {
             return this.createParams.mapId;
          }
          return "";
+      }
+
+      private function getSafeMapName() : String
+      {
+         return this.params.mapName == null ? "" : this.params.mapName;
       }
       
       private function isNumericString(param1:String) : Boolean
@@ -280,12 +286,12 @@ package alternativa.tanks.view.battlelist.battleitem
             this.battleNameLabel.text = this.getMapNameWithoutFormat();
             if(this.needCutMapLabelText())
             {
-               this.battleNameLabel.text = this.params.mapName;
+               this.battleNameLabel.text = this.getSafeMapName();
             }
          }
          else
          {
-            this.battleNameLabel.text = this.params.mapName;
+            this.battleNameLabel.text = this.getSafeMapName();
          }
       }
       

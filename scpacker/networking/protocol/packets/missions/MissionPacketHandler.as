@@ -86,20 +86,12 @@ package scpacker.networking.protocol.packets.missions
       
       private function notifyDailyQuestCompleted() : void
       {
-         Model.object = PanelPacketHandler.dailyQuestGameObject;
-         try
-         {
          this.dailyQuestNotifierModel.notifyDailyQuestCompleted();
-         }          finally          {             Model.popObject();          }
       }
       
       private function notifyDailyQuestGenerated() : void
       {
-         Model.object = PanelPacketHandler.dailyQuestGameObject;
-         try
-         {
          this.dailyQuestNotifierModel.notifyDailyQuestGenerated();
-         }          finally          {             Model.popObject();          }
       }
    }
 }

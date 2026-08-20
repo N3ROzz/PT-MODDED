@@ -190,6 +190,10 @@ package scpacker.networking.protocol.packets.battlelist
          _loc4_.battleMode = EnumUtils.stringToBattleMode(String(param1.battleMode));
          _loc4_.equipmentConstraintsMode = EnumUtils.stringToEquipmentConstraintsMode(String(param1.equipmentConstraintsMode));
          _loc4_.map = this.battleSelectSpace.getObject(Long.getLong(int(param1.preview) * 1000,int(param1.preview) * 1000));
+         if(_loc4_.map == null)
+         {
+            trace("[BATTLE_LIST] event=MAP_RESOLUTION_FAILED battleId=" + _loc4_.battleId + " preview=" + param1.preview);
+         }
          _loc4_.maxPeople = int(param1.maxPeople);
          _loc4_.name = String(param1.name);
          _loc4_.parkourMode = Boolean(param1.parkourMode);

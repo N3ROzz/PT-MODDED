@@ -41,6 +41,7 @@ package alternativa.tanks.model.info
       public static function setBattleInfoParams(param1:IGameObject, param2:BattleInfoBaseParams) : void
       {
          var _loc3_:BattleInfoCC = IBattleInfo(param1.adapt(IBattleInfo)).getConstructor();
+         var _loc4_:String = null;
          var _loc5_:BattleCreateParameters = new BattleCreateParameters();
          _loc5_.battleId = _loc3_.battleId;
          _loc5_.battleMode = _loc3_.battleMode;
@@ -68,9 +69,14 @@ package alternativa.tanks.model.info
          _loc5_.withoutUpgrades = _loc3_.withoutUpgrades;
          param2.battle = Model.object;
          param2.createParams = _loc5_;
-         param2.mapName = IMapInfo(_loc3_.map.adapt(IMapInfo)).getName();
+         param2.mapName = "";
+         if(_loc3_.map != null)
+         {
+            _loc4_ = IMapInfo(_loc3_.map.adapt(IMapInfo)).getName();
+            param2.mapName = _loc4_ == null ? "" : _loc4_;
+            param2.matchmakingMark = IMapInfo(_loc3_.map.adapt(IMapInfo)).hasMatchmakingMark();
+         }
          param2.customName = _loc3_.name;
-         param2.matchmakingMark = IMapInfo(_loc3_.map.adapt(IMapInfo)).hasMatchmakingMark();
          param2.previewResource = IBattleInfo(param1.adapt(IBattleInfo)).getPreviewResource();
          param2.battleUrl = getBattleUrl(param2.battle.name);
          param2.endTime = getTimer() + _loc3_.timeLeftInSec * 1000;
@@ -81,6 +87,7 @@ package alternativa.tanks.model.info
       public static function setBattleItemParams(param1:IGameObject, param2:BattleItemCC, param3:BattleInfoBaseParams) : void
       {
          var _loc4_:BattleCreateParameters = new BattleCreateParameters();
+         var _loc5_:String = null;
          _loc4_.battleId = param2.battleId;
          _loc4_.battleMode = param2.battleMode;
          _loc4_.equipmentConstraintsMode = param2.equipmentConstraintsMode;
@@ -96,9 +103,11 @@ package alternativa.tanks.model.info
          param3.createParams = _loc4_;
          param3.customName = param2.name;
          param3.suspicionLevel = EnumUtils.stringToBattleSuspicionLevel(param2.suspicionLevel.name);
+         param3.mapName = "";
          if(param2.map != null)
          {
-            param3.mapName = IMapInfo(param2.map.adapt(IMapInfo)).getName();
+            _loc5_ = IMapInfo(param2.map.adapt(IMapInfo)).getName();
+            param3.mapName = _loc5_ == null ? "" : _loc5_;
             param3.matchmakingMark = IMapInfo(param2.map.adapt(IMapInfo)).hasMatchmakingMark();
             param3.previewResource = IMapInfo(param2.map.adapt(IMapInfo)).getPreviewResource();
          }

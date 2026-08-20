@@ -31,6 +31,8 @@ package scpacker.networking.protocol.packets.panel
    import projects.tanks.client.panel.model.dailyquest.quest.mode.DailyQuestWithModeModelBase;
    import projects.tanks.client.panel.model.dailyquest.showing.QuestShowingModelBase;
    import alternativa.tanks.model.dailyquest.QuestShowingModel;
+   import alternativa.tanks.service.dailyquest.DailyQuestNotifierModel;
+   import projects.tanks.client.panel.model.dailyquest.notifier.DailyQuestNotifierModelBase;
    import alternativa.tanks.models.performance.PerformanceModel;
    import projects.tanks.client.battleservice.model.performance.PerformanceModelBase;
    import projects.tanks.client.battleservice.model.performance.PerformanceCC;
@@ -147,6 +149,7 @@ package scpacker.networking.protocol.packets.panel
          var modelVector:Vector.<Long> = new Vector.<Long>();
          modelVector.push(DailyQuestModelBase.modelId);
          modelVector.push(QuestShowingModelBase.modelId);
+         modelVector.push(DailyQuestNotifierModelBase.modelId);
          modelVector.push(BonusCatchDailyQuestModelBase.modelId);
          modelVector.push(CaptureGoalDailyQuestModelBase.modelId);
          modelVector.push(ScoreCollectOnMapDailyQuestModelBase.modelId);
@@ -154,11 +157,13 @@ package scpacker.networking.protocol.packets.panel
          var dailyQuestGameClass:IGameClass = this.gameTypeRegistry.createClass(GameClassIds.PANEL_DAILY_QUEST, modelVector);
          dailyQuestGameObject = panelSpace.createObject(Long.getLong(12546678,87655471), dailyQuestGameClass, "Daily quest game object");
          var questShowingModel:QuestShowingModel = QuestShowingModel(modelRegistry.getModel(QuestShowingModelBase.modelId));
+         var dailyQuestNotifierModel:DailyQuestNotifierModel = DailyQuestNotifierModel(modelRegistry.getModel(DailyQuestNotifierModelBase.modelId));
 
          Model.object = dailyQuestGameObject;
          try
          {
          questShowingModel.objectLoadedPost();
+         dailyQuestNotifierModel.objectLoadedPost();
          }          finally          {             Model.popObject();          }
          this.accountStatsLoaded = true;
       }

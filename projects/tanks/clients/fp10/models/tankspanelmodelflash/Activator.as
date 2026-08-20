@@ -52,6 +52,7 @@ package projects.tanks.clients.fp10.models.tankspanelmodelflash
    import alternativa.tanks.service.payment.PaymentService;
    import alternativa.tanks.gui.dailyquests.DailyQuestChangesIndicator;
    import alternativa.tanks.service.dailyquest.DailyQuestNotifierService;
+   import alternativa.tanks.service.dailyquest.DailyQuestNotifierModel;
    import alternativa.tanks.gui.buycrystals.BuyCrystalsAlert;
    import alternativa.tanks.service.settings.keybinding.KeyCodesConverter;
    import alternativa.tanks.service.logging.UserChangeGameScreenServiceImpl;
@@ -164,6 +165,13 @@ package projects.tanks.clients.fp10.models.tankspanelmodelflash
          },function():DailyQuestNotifierService
          {
             return DailyQuestChangesIndicator.dailyQuestInfoService;
+         });
+         osgi.injectService(DailyQuestNotifierService,function(param1:Object):void
+         {
+            DailyQuestNotifierModel.dailyQuestNotifierService = DailyQuestNotifierService(param1);
+         },function():DailyQuestNotifierService
+         {
+            return DailyQuestNotifierModel.dailyQuestNotifierService;
          });
          osgi.injectService(ILocaleService,function(param1:Object):void
          {
@@ -3708,6 +3716,7 @@ package projects.tanks.clients.fp10.models.tankspanelmodelflash
          modelRegisterAdapt.registerEvents(PasswordService,PasswordServiceEvents);
          modelRegister.add(new UserEmailAndPasswordModel());
          modelRegister.add(new QuestShowingModel());
+         modelRegister.add(new DailyQuestNotifierModel());
 
          modelRegisterAdapt.registerAdapt(DailyQuest,DailyQuestAdapt);
          modelRegisterAdapt.registerEvents(DailyQuest,DailyQuestEvents);
