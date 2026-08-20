@@ -103,6 +103,7 @@ package scpacker.networking.protocol.packets.garage
    import alternativa.tanks.model.item.delaymountcategory.DelayMountCategoryModel;
    import projects.tanks.client.garage.models.item.delaymount.DelayMountCategoryModelBase;
    import juho.hacking.PaintRegistry;
+   import utils.GarageKitPipelineDiagnostics;
    
    public class GaragePacketHandler extends AbstractPacketHandler
    {
@@ -475,6 +476,7 @@ package scpacker.networking.protocol.packets.garage
          var propertyValueList:Vector.<PropertyData> = null;
          var gameObject:IGameObject = null;
          var remainingTime:int = 0;
+         GarageKitPipelineDiagnostics.beginMarket(packet.battlesJson == null ? -1 : packet.battlesJson.length);
          var parsed:Object = JSON.parse(packet.battlesJson);
          var marketItems:Vector.<IGameObject> = new Vector.<IGameObject>();
          var sourceItems:Array = parsed.items;
@@ -500,6 +502,7 @@ package scpacker.networking.protocol.packets.garage
             sourceItem = sourceItems[sourceIndex];
             if(EnumUtils.intToItemCategoryEnum(sourceItem.type) == ItemCategoryEnum.KIT)
             {
+               GarageKitPipelineDiagnostics.received(sourceItem,sourceIndex,sourceItem.hasOwnProperty("kit") && sourceItem.kit != null && sourceItem.kit.hasOwnProperty("kitItems") && sourceItem.kit.kitItems != null ? sourceItem.kit.kitItems.length : 0);
                processingItems.push({item:sourceItem,serverIndex:sourceIndex});
             }
             sourceIndex++;
@@ -514,12 +517,17 @@ package scpacker.networking.protocol.packets.garage
             {
                var invalidKit:Boolean = item == null || !item.hasOwnProperty("kit") || item.kit == null;
                var resolution:Object = null;
+               if(invalidKit)
+               {
+                  GarageKitPipelineDiagnostics.dropSource(item,"missing_kit_data");
+               }
                if(!invalidKit)
                {
                for each(var kit in item.kit.kitItems)
                {
                   resolution = this.resolveKitComponent(kit,marketByObjectName,marketByRawId,marketByRawIdAndModification);
                   var resolvedKitItem:IGameObject = resolution.item as IGameObject;
+                  GarageKitPipelineDiagnostics.componentResolution(item,kit != null && kit.hasOwnProperty("id") && kit.id != null ? String(kit.id) : "",resolvedKitItem != null,String(resolution.source),String(resolution.reason));
                   if(resolvedKitItem == null)
                   {
                      invalidKit = true;
@@ -537,7 +545,22 @@ package scpacker.networking.protocol.packets.garage
             }
 
             var gameClass:IGameClass = this.getGameClassForItem(item);
-            gameObject = this.garageSpace.createObject(Long.getLong(0,item.previewResourceId),gameClass,item.id + "_m" + (item.modificationID == undefined ? "0" : item.modificationID));
+            try
+            {
+               gameObject = this.garageSpace.createObject(Long.getLong(0,item.previewResourceId),gameClass,item.id + "_m" + (item.modificationID == undefined ? "0" : item.modificationID));
+               if(EnumUtils.intToItemCategoryEnum(item.type) == ItemCategoryEnum.KIT)
+               {
+                  GarageKitPipelineDiagnostics.objectCreated(item,gameObject);
+               }
+            }
+            catch(createError:Error)
+            {
+               if(EnumUtils.intToItemCategoryEnum(item.type) == ItemCategoryEnum.KIT)
+               {
+                  GarageKitPipelineDiagnostics.objectFailure(item,"create_object",createError);
+               }
+               throw createError;
+            }
             Model.object = gameObject;
             try
             {
@@ -615,7 +638,19 @@ package scpacker.networking.protocol.packets.garage
             }
             //this.upgradeParamsModel.objectLoadedPost();
             createdByServerIndex[int(processingEntry.serverIndex)] = gameObject;
-            }             finally             {                Model.popObject();             }
+            }
+            catch(initError:Error)
+            {
+               if(EnumUtils.intToItemCategoryEnum(item.type) == ItemCategoryEnum.KIT)
+               {
+                  GarageKitPipelineDiagnostics.objectFailure(item,"initialize_models",initError);
+               }
+               throw initError;
+            }
+            finally
+            {
+               Model.popObject();
+            }
             if(EnumUtils.intToItemCategoryEnum(item.type) != ItemCategoryEnum.KIT)
             {
                this.registerComponentCandidate(marketByObjectName,gameObject.name,gameObject);
@@ -629,9 +664,11 @@ package scpacker.networking.protocol.packets.garage
             if(createdByServerIndex[sourceIndex] != null)
             {
                marketItems.push(createdByServerIndex[sourceIndex]);
+               GarageKitPipelineDiagnostics.marketCollected(createdByServerIndex[sourceIndex]);
             }
             sourceIndex++;
          }
+         GarageKitPipelineDiagnostics.reportAll("HANDLER_COLLECTION_COMPLETE");
          Model.object = this.garageGameObject;
          try
          {

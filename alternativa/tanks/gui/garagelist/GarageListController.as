@@ -25,6 +25,7 @@ package alternativa.tanks.gui.garagelist
    import projects.tanks.clients.fp10.libraries.tanksservices.service.userproperties.IUserPropertiesService;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.userproperties.UserPropertiesServiceEvent;
    import projects.tanks.clients.fp10.libraries.tanksservices.utils.removeDisplayObject;
+   import utils.GarageKitPipelineDiagnostics;
    
    public class GarageListController
    {
@@ -187,6 +188,7 @@ package alternativa.tanks.gui.garagelist
       public function initStore(param1:Vector.<IGameObject>) : void
       {
          this._itemsInStoreFromServer = param1;
+         GarageKitPipelineDiagnostics.reportAll("CONTROLLER_STORE_INPUT");
          this.updateStore();
       }
       
@@ -257,9 +259,11 @@ package alternativa.tanks.gui.garagelist
             _loc3_ = this._itemsInStoreFromServer[_loc2_];
             _loc4_ = itemService.canBuy(_loc3_);
             _loc5_ = this.availableInPartner(_loc3_);
+            GarageKitPipelineDiagnostics.marketFilter(_loc3_,_loc4_,_loc5_);
             if(_loc4_ && _loc5_)
             {
                this._itemsInStore.push(_loc3_);
+               GarageKitPipelineDiagnostics.marketInserted(_loc3_);
             }
             _loc2_++;
          }
@@ -306,6 +310,13 @@ package alternativa.tanks.gui.garagelist
             }
             _loc3_++;
          }
+         for each(var diagnosticItem:IGameObject in this._itemsInStore)
+         {
+            if(GarageKitPipelineDiagnostics.isTracked(diagnosticItem) && _loc1_.indexOf(diagnosticItem) == -1)
+            {
+               GarageKitPipelineDiagnostics.dropObject(diagnosticItem,"modification_filter");
+            }
+         }
          this._itemsInStore = _loc1_;
       }
       
@@ -317,6 +328,13 @@ package alternativa.tanks.gui.garagelist
          var _loc10_:int = 0;
          if(!this._categoryButtons.getCategoryButtonVisibility(param1))
          {
+            for each(var hiddenCategoryItem:IGameObject in this._itemsInStore)
+            {
+               if(GarageKitPipelineDiagnostics.isTracked(hiddenCategoryItem) && itemService.getViewCategory(hiddenCategoryItem) == param1)
+               {
+                  GarageKitPipelineDiagnostics.dropObject(hiddenCategoryItem,"category_button_hidden");
+               }
+            }
             _loc7_ = this._categoryButtons.findVisibleCategory();
             this.showCategory(_loc7_);
             return;
@@ -325,6 +343,14 @@ package alternativa.tanks.gui.garagelist
          this._categoryButtons.select(param1);
          var _loc3_:Vector.<IGameObject> = this.getItemsByCategory(this._itemsInDepot,param1);
          var _loc4_:Vector.<IGameObject> = this.getItemsByCategory(this._itemsInStore,param1);
+         for each(var diagnosticItem:IGameObject in this._itemsInStore)
+         {
+            if(GarageKitPipelineDiagnostics.isTracked(diagnosticItem))
+            {
+               var diagnosticCategory:ItemViewCategoryEnum = itemService.getViewCategory(diagnosticItem);
+               GarageKitPipelineDiagnostics.categoryEvaluated(diagnosticItem,param1 == null ? "" : param1.name,diagnosticCategory == null ? "" : diagnosticCategory.name,diagnosticCategory == param1);
+            }
+         }
          this._garageList.clearList();
          var _loc5_:int = int(_loc3_.length);
          var _loc6_:int = 0;
@@ -615,11 +641,17 @@ package alternativa.tanks.gui.garagelist
       
       public function addItemToStore(param1:IGameObject) : void
       {
-         if(this.isItemInStore(param1) || !itemService.canBuy(param1))
+         if(this.isItemInStore(param1))
          {
             return;
          }
+         if(!itemService.canBuy(param1))
+         {
+            GarageKitPipelineDiagnostics.dropObject(param1,"dynamic_can_buy_false:" + GarageKitPipelineDiagnostics.getCanBuyReason(param1));
+            return;
+         }
          this._itemsInStore.push(param1);
+         GarageKitPipelineDiagnostics.marketInserted(param1);
          if(this._currentShowingCategory == itemService.getViewCategory(param1))
          {
             this._garageList.addItem(this.createData(param1,false));

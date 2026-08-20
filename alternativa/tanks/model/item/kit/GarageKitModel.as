@@ -13,6 +13,7 @@ package alternativa.tanks.model.item.kit
    import platform.client.fp10.core.resource.types.ImageResource;
    import projects.tanks.client.garage.models.item.kit.GarageKitCC;
    import flash.utils.Dictionary;
+   import utils.GarageKitPipelineDiagnostics;
    
    [ModelInfo]
    public class GarageKitModel extends GarageKitModelBase implements IGarageKitModelBase, GarageKit, ICollectDiscount
@@ -79,11 +80,13 @@ package alternativa.tanks.model.item.kit
          {
             if(!itemService.hasItem(_loc1_.item) && itemService.getMinRankIndex(_loc1_.item) > userPropertyService.rank)
             {
+               GarageKitPipelineDiagnostics.kitCanBuy(object,true,"unowned_component_above_rank",0);
                return true;
             }
          }
          var _loc2_:int = this.getPriceYouSave();
          var _loc3_:Boolean = _loc2_ > 0;
+         GarageKitPipelineDiagnostics.kitCanBuy(object,_loc3_,_loc3_ ? "positive_savings" : "no_positive_savings",_loc2_);
          return _loc3_;
       }
 
