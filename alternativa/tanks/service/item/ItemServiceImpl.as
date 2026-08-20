@@ -536,6 +536,10 @@ package alternativa.tanks.service.item
       
       public function canBuy(param1:IGameObject) : Boolean
       {
+         if(this.isKit(param1))
+         {
+            return GarageKit(param1.adapt(GarageKit)).canBuy();
+         }
          if(!this.isBuyable(param1) || userPropertyService.rank > this.getMaxRankIndex(param1))
          {
             return false;
@@ -543,10 +547,6 @@ package alternativa.tanks.service.item
          if(this.isGrouped(param1))
          {
             return !(this.getGroup(param1) in this.groupedItems);
-         }
-         if(this.isKit(param1))
-         {
-            return GarageKit(param1.adapt(GarageKit)).canBuy();
          }
          return this.isCountable(param1) || !this.hasItem(param1);
       }
