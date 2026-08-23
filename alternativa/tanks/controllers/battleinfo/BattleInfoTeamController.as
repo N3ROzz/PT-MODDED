@@ -99,7 +99,16 @@ package alternativa.tanks.controllers.battleinfo
       
       override public function removeUser(param1:String) : void
       {
-         this.userId2userList[param1].removeUser(param1);
+         if(this.userId2userList == null)
+         {
+            return;
+         }
+         var _loc2_:BattleInfoUserList = this.userId2userList[param1];
+         if(_loc2_ == null)
+         {
+            return;
+         }
+         _loc2_.removeUser(param1);
          delete this.userId2userList[param1];
          this.updateAvailableEnterInBattle();
       }

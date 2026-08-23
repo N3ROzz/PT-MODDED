@@ -45,13 +45,25 @@ package alternativa.tanks.view.battleinfo
       
       public function addUser(param1:BattleInfoUser) : void
       {
-         this.addUserSlot(param1,this.getFreeIndex());
+         var _loc2_:int = int(this.getFreeIndex());
+         if(_loc2_ < dataProvider.length)
+         {
+            this.addUserSlot(param1,_loc2_);
+         }
+         else
+         {
+            this.addUserSlot(param1);
+         }
          ++this.usersCount;
       }
       
       public function removeUser(param1:String) : void
       {
          var _loc2_:int = this.getIndexById(param1);
+         if(_loc2_ == -1)
+         {
+            return;
+         }
          dataProvider.removeItemAt(_loc2_);
          this.addEmptySlot();
          --this.usersCount;

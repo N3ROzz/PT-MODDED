@@ -65,16 +65,26 @@ package alternativa.tanks.model.info
       
       public function roundFinished() : void
       {
-         this.data().roundStarted = false;
-         this.data().endTime = 0;
+         var _loc1_:BattleInfoBaseParams = this.data();
+         if(_loc1_ == null || battleInfoFormService.getSelectedBattle() != object)
+         {
+            return;
+         }
+         _loc1_.roundStarted = false;
+         _loc1_.endTime = 0;
          battleInfoFormService.roundFinish();
       }
       
       public function roundStarted(param1:int) : void
       {
-         this.data().roundStarted = true;
-         this.data().endTime = getTimer() + param1 * 1000;
-         this.data().userToInfo.resetScore();
+         var _loc2_:BattleInfoBaseParams = this.data();
+         if(_loc2_ == null || _loc2_.userToInfo == null || battleInfoFormService.getSelectedBattle() != object)
+         {
+            return;
+         }
+         _loc2_.roundStarted = true;
+         _loc2_.endTime = getTimer() + param1 * 1000;
+         _loc2_.userToInfo.resetScore();
          battleInfoFormService.roundStart(param1);
       }
       
