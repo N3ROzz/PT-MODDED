@@ -14,6 +14,7 @@ package alternativa.proplib
    
    public class PropLibrary
    {
+      public static var diagnosticTrace:Function;
       
       public static const LIB_FILE_NAME:String = "library.xml";
       
@@ -28,17 +29,36 @@ package alternativa.proplib
       public function PropLibrary(files:ByteArrayMap)
       {
          super();
+         traceDiagnostic("PROP_LIBRARY_CONSTRUCTOR filesNull=" + (files == null));
          if(files == null)
          {
             throw new ArgumentError("Parameter files is null");
          }
          this.files = files;
          var imageMapData:ByteArray = files.getValue(IMG_FILE_NAME);
+         traceDiagnostic("PROP_LIBRARY_IMAGES_ENTRY found=" + (imageMapData != null) + " length=" + (imageMapData == null ? -1 : imageMapData.length));
          if(imageMapData != null)
          {
+            traceDiagnostic("PROP_LIBRARY_IMAGES_XML_PARSE_START");
             this.imageMap = this.parseImageMap(XML(imageMapData.toString()));
+            traceDiagnostic("PROP_LIBRARY_IMAGES_XML_PARSE_COMPLETE");
          }
-         this._rootGroup = this.parseGroup(XML(files.getValue(LIB_FILE_NAME).toString()));
+         var libraryData:ByteArray = files.getValue(LIB_FILE_NAME);
+         traceDiagnostic("PROP_LIBRARY_CONFIG_ENTRY name=" + LIB_FILE_NAME + " found=" + (libraryData != null) + " length=" + (libraryData == null ? -1 : libraryData.length));
+         traceDiagnostic("PROP_LIBRARY_XML_DEREFERENCE libraryDataNull=" + (libraryData == null));
+         traceDiagnostic("PROP_LIBRARY_XML_PARSE_START");
+         var libraryXml:XML = XML(libraryData.toString());
+         traceDiagnostic("PROP_LIBRARY_XML_PARSE_COMPLETE root=" + libraryXml.name());
+         this._rootGroup = this.parseGroup(libraryXml);
+         traceDiagnostic("PROP_LIBRARY_ROOT_GROUP_COMPLETE rootNull=" + (this._rootGroup == null));
+      }
+
+      private static function traceDiagnostic(param1:String) : void
+      {
+         if(diagnosticTrace != null)
+         {
+            diagnosticTrace(param1);
+         }
       }
       
       public function get name() : String
@@ -76,15 +96,19 @@ package alternativa.proplib
       {
          var propElement:XML = null;
          var groupElement:XML = null;
+         traceDiagnostic("PROP_LIBRARY_GROUP_START xmlNull=" + (groupXML == null) + " name=" + (groupXML == null ? "" : groupXML.@name));
          var group:PropGroup = new PropGroup(XMLUtils.copyXMLString(groupXML.@name));
          for each(propElement in groupXML.prop)
          {
+            traceDiagnostic("PROP_LIBRARY_PROP_START name=" + propElement.@name);
             group.addProp(this.parseProp(propElement));
+            traceDiagnostic("PROP_LIBRARY_PROP_COMPLETE name=" + propElement.@name);
          }
          for each(groupElement in groupXML.elements("prop-group"))
          {
             group.addGroup(this.parseGroup(groupElement));
          }
+         traceDiagnostic("PROP_LIBRARY_GROUP_COMPLETE name=" + groupXML.@name);
          return group;
       }
       
@@ -128,6 +152,7 @@ package alternativa.proplib
       
       private function parsePropObject(parentXmlElement:XML) : PropObject
       {
+         traceDiagnostic("PROP_LIBRARY_OBJECT_TYPE meshCount=" + parentXmlElement.mesh.length() + " spriteCount=" + parentXmlElement.sprite.length());
          if(parentXmlElement.mesh.length() > 0)
          {
             return this.parsePropMesh(parentXmlElement.mesh[0]);
@@ -143,6 +168,7 @@ package alternativa.proplib
       {
          var textureXml:XML = null;
          var modelData:ByteArray = this.files.getValue(propXml.@file.toString().toLowerCase());
+         traceDiagnostic("PROP_LIBRARY_MESH_MODEL_REF file=" + propXml.@file + " found=" + (modelData != null) + " length=" + (modelData == null ? -1 : modelData.length));
          var textureFiles:Object = null;
          if(propXml.texture.length() > 0)
          {
@@ -150,10 +176,24 @@ package alternativa.proplib
             for each(textureXml in propXml.texture)
             {
                textureFiles[XMLUtils.copyXMLString(textureXml.@name)] = textureXml.attribute("diffuse-map").toString().toLowerCase();
+               var textureFileName:String = textureXml.attribute("diffuse-map").toString().toLowerCase();
+               var textureData:ByteArray = this.files.getValue(textureFileName);
+               traceDiagnostic("PROP_LIBRARY_TEXTURE_REF material=" + textureXml.@name + " file=" + textureFileName + " found=" + (textureData != null) + " length=" + (textureData == null ? -1 : textureData.length));
             }
          }
          var objectName:String = XMLUtils.getAttributeAsString(propXml,"object",null);
-         return new PropMesh(modelData,objectName,textureFiles,this.files,this.imageMap);
+         traceDiagnostic("PROP_LIBRARY_PROP_MESH_CREATE objectName=" + objectName + " modelDataNull=" + (modelData == null) + " filesNull=" + (this.files == null));
+         PropMesh.diagnosticTrace = diagnosticTrace;
+         var propMesh:PropMesh = null;
+         try
+         {
+            propMesh = new PropMesh(modelData,objectName,textureFiles,this.files,this.imageMap);
+         }
+         finally
+         {
+            PropMesh.diagnosticTrace = null;
+         }
+         return propMesh;
       }
       
       private function parsePropSprite(propXml:XML) : PropSprite
@@ -167,4 +207,3 @@ package alternativa.proplib
       }
    }
 }
-

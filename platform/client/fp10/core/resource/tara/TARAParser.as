@@ -67,7 +67,7 @@ class FileInfo
    public function FileInfo(param1:String, param2:int)
    {
       super();
-      this.name = param1;
+      this.name = param1.toLowerCase();
       this.size = param2;
    }
 }
