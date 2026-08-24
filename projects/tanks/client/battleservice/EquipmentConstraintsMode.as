@@ -11,6 +11,8 @@ package projects.tanks.client.battleservice
       public static const HORNET_WASP_RAILGUN:EquipmentConstraintsMode = new EquipmentConstraintsMode(3,"HORNET_WASP_RAILGUN");
 
       public static const HARD:EquipmentConstraintsMode = new EquipmentConstraintsMode(4,"HARD");
+
+      public static const LIGHT:EquipmentConstraintsMode = new EquipmentConstraintsMode(5,"LIGHT");
       
       private var _value:int;
       
@@ -31,6 +33,7 @@ package projects.tanks.client.battleservice
          _loc1_.push(WASP_RAILGUN);
          _loc1_.push(HORNET_WASP_RAILGUN);
          _loc1_.push(HARD);
+         _loc1_.push(LIGHT);
          return _loc1_;
       }
       

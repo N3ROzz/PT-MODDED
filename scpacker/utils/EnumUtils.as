@@ -165,6 +165,8 @@ package scpacker.utils
                return EquipmentConstraintsMode.HORNET_WASP_RAILGUN;
             case "HARD":
                return EquipmentConstraintsMode.HARD;
+            case "LIGHT":
+               return EquipmentConstraintsMode.LIGHT;
             default:
                throw new Error(param1);
          }
