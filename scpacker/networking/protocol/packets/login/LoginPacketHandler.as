@@ -7,7 +7,6 @@ package scpacker.networking.protocol.packets.login
    import scpacker.networking.protocol.AbstractPacket;
    import projects.tanks.client.entrance.model.entrance.login.LoginModelBase;
    import projects.tanks.client.entrance.model.entrance.entrance.EntranceModelBase;
-   import utils.LoginDebugTrace;
    
    public class LoginPacketHandler extends AbstractPacketHandler
    {
@@ -28,11 +27,9 @@ package scpacker.networking.protocol.packets.login
          switch(param1.getId())
          {
             case LoginSuccessInPacket.id:
-               LoginDebugTrace.recordAuthSuccess(param1.getId());
                this.loginSuccess();
                break;
             case LoginFailedInPacket.id:
-               LoginDebugTrace.recordAuthFailure("password",param1.getId());
                this.wrongPassword();
          }
       }

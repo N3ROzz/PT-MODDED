@@ -4,7 +4,6 @@ package projects.tanks.client.entrance.model.entrance.loginbyhash
    import scpacker.networking.Network;
    import alternativa.osgi.OSGi;
    import scpacker.networking.protocol.packets.loginbyhash.LoginByHashOutPacket;
-   import utils.LoginDebugTrace;
    
    public class LoginByHashModelServer
    {      
@@ -19,7 +18,6 @@ package projects.tanks.client.entrance.model.entrance.loginbyhash
       
       public function loginByHash(param1:String) : void
       {
-         LoginDebugTrace.beginLoginAttempt("saved_hash");
          network.send(new LoginByHashOutPacket(param1));
       }
       

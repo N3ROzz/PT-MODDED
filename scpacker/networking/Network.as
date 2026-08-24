@@ -27,10 +27,6 @@ import flash.utils.ByteArray;
    import scpacker.networking.protocol.PacketFactory;
    import scpacker.networking.protocol.AbstractPacket;
    import scpacker.networking.protocol.PacketInitializer;
-   import utils.LoginDebugTrace;
-   import scpacker.networking.protocol.packets.battlelist.SelectBattleInOutPacket;
-   import scpacker.networking.protocol.packets.init.LoadResourcesInPacket;
-   import scpacker.networking.protocol.packets.init.ResourcesLoadedOutPacket;
    
    public class Network
    {
@@ -67,8 +63,6 @@ import flash.utils.ByteArray;
       private var extraPort:int;
 
       private var transportFailed:Boolean;
-
-      private var afterJoinTraceUntil:int;
       
       public function Network()
       {
@@ -87,7 +81,6 @@ import flash.utils.ByteArray;
       {
          var _loc3_:OSGi = null;
          var _loc4_:ProtocolInitializer = null;
-         LoginDebugTrace.beginConnection(param1,param2,useExtraHost);
          this.transportFailed = false;
          if(!useExtraHost)
          {
@@ -121,22 +114,10 @@ import flash.utils.ByteArray;
       {
          var _loc1_:String = "wrap";
          this.sendBuffer.clear();
-         if(param1 != null && this.socket != null && this.socket.connected)
-         {
-            try
-            {
-               LoginDebugTrace.recordPacket("OUT",param1.getId(),param1.getPacketHandlerId(),-1,getQualifiedClassName(param1));
-            }
-            catch(loginDiagnosticError:Error)
-            {
-               this.reportNetworkError("DIAGNOSTIC_FAILURE","login_debug_out",param1.getId(),-1,-1,false,loginDiagnosticError,true,false);
-            }
-         }
          if(param1 == null || this.socket == null || !this.socket.connected || this.transportFailed)
          {
             return;
          }
-         this.recordBattleSelectTrace(param1.getId(),true);
          try
          {
             param1.wrap(this.sendBuffer);
@@ -144,14 +125,6 @@ import flash.utils.ByteArray;
             this.socket.writeBytes(this.sendBuffer);
             _loc1_ = "flush";
             this.socket.flush();
-            if(param1.getId() == -1284211503)
-            {
-               this.afterJoinTraceUntil = getTimer() + 3000;
-            }
-            if(param1.getId() == ResourcesLoadedOutPacket.id)
-            {
-               this.writeBattleSelectTrace("RESOURCES_LOADED_OUT packetId=" + ResourcesLoadedOutPacket.id + " callbackId=" + ResourcesLoadedOutPacket(param1).callbackID);
-            }
          }
          catch(e:Error)
          {
@@ -170,7 +143,6 @@ import flash.utils.ByteArray;
 
       private function onConnect(param1:Event) : void
       {
-         LoginDebugTrace.recordEvent("SOCKET_CONNECTED");
       }
       
       private function onSocketData(param1:ProgressEvent) : void
@@ -205,7 +177,6 @@ import flash.utils.ByteArray;
          var _loc2_:Error = null;
          var _loc13_:int = -1;
          var _loc14_:int = -1;
-         var _loc15_:Boolean = false;
          this.inputBuffer.position = this.readPosition;
          while(true)
          {
@@ -241,7 +212,6 @@ import flash.utils.ByteArray;
             }
             _loc13_ = -1;
             _loc14_ = getTimer();
-            _loc15_ = false;
             var _loc12_:int = this.inputBuffer.position + _loc4_;
             _loc6_ = false;
             _loc2_ = null;
@@ -279,9 +249,6 @@ import flash.utils.ByteArray;
                   {
                   }
                }
-               _loc15_ = true;
-               this.recordBattleSelectTrace(_loc1_,false,_loc13_,_loc11_ == null ? "unresolved" : getQualifiedClassName(_loc11_));
-               this.recordInboundDiagnosticsSafely(_loc1_,_loc11_,_loc3_,_loc7_);
                if(_loc11_ == null)
                {
                   this.reportNetworkError("UNKNOWN_PACKET","packet_resolution",_loc1_,_loc3_,_loc4_,_loc7_,null,true,false);
@@ -292,7 +259,6 @@ import flash.utils.ByteArray;
                   {
                      _loc8_ = "unwrap";
                      _loc11_.unwrap(this.payloadBuffer);
-                     this.recordResourceHandshakeInbound(_loc11_);
                      _loc8_ = "handler";
                      packetInvoker.invoke(_loc11_);
                   }
@@ -340,117 +306,6 @@ import flash.utils.ByteArray;
          this.readPosition = 0;
       }
 
-      private function recordBattleSelectTrace(param1:int, param2:Boolean, param3:int = -1, param4:String = null) : void
-      {
-         var _loc3_:String = null;
-         var _loc4_:String = null;
-         if(!param2 && this.afterJoinTraceUntil > 0 && getTimer() <= this.afterJoinTraceUntil)
-         {
-            _loc4_ = "BATTLE_SELECT_TRACE AFTER_JOIN_IN packetId=" + param1 + " handlerId=" + param3 + " class=" + param4;
-         }
-         else if(param2 && param1 == 2092412133)
-         {
-            _loc3_ = "OUT_SELECT";
-         }
-         else if(param2 && param1 == -1284211503)
-         {
-            _loc3_ = "OUT_JOIN_BATTLE";
-         }
-         else if(!param2 && param1 == 2092412133)
-         {
-            _loc3_ = "IN_SELECT_ACK";
-         }
-         else if(!param2 && param1 == 546722394)
-         {
-            _loc3_ = "IN_LOAD_BATTLE_INFO";
-         }
-         else
-         {
-            return;
-         }
-         if(_loc4_ == null)
-         {
-            _loc4_ = "BATTLE_SELECT_TRACE " + _loc3_ + " packetId=" + param1;
-         }
-         this.writeBattleSelectTrace(_loc4_.substr("BATTLE_SELECT_TRACE ".length));
-      }
-
-      private function recordResourceHandshakeInbound(param1:AbstractPacket) : void
-      {
-         if(param1.getId() == LoadResourcesInPacket.id)
-         {
-            var _loc1_:LoadResourcesInPacket = LoadResourcesInPacket(param1);
-            var _loc3_:int = 0;
-            try
-            {
-               var _loc2_:Object = JSON.parse(_loc1_.resourcesJson);
-               for each(var _loc4_:Object in _loc2_)
-               {
-                  _loc3_++;
-               }
-            }
-            catch(resourceCountError:Error)
-            {
-               _loc3_ = -1;
-            }
-            this.writeBattleSelectTrace("LOAD_RESOURCES_IN callbackId=" + _loc1_.callbackId + " resourceCount=" + _loc3_);
-         }
-         else if(param1.getId() == -593368100)
-         {
-            this.writeBattleSelectTrace("END_LAYOUT_SWITCH packetId=-593368100");
-         }
-      }
-
-      public function writeBattleSelectTrace(param1:String) : void
-      {
-         var _loc4_:String = "BATTLE_SELECT_TRACE " + param1;
-         try
-         {
-            var _loc5_:LogService = LogService(OSGi.getInstance().getService(LogService));
-            if(_loc5_ != null)
-            {
-               var _loc6_:Logger = _loc5_.getLogger("net");
-               if(_loc6_ != null)
-               {
-                  _loc6_.info(_loc4_);
-               }
-            }
-         }
-         catch(logError:Error)
-         {
-         }
-         try
-         {
-            trace(_loc4_);
-         }
-         catch(traceError:Error)
-         {
-         }
-         var _loc7_:FileStream = null;
-         try
-         {
-            _loc7_ = new FileStream();
-            _loc7_.open(File.desktopDirectory.resolvePath("protanki-network-errors.log"),FileMode.APPEND);
-            _loc7_.writeUTFBytes(_loc4_ + "\r\n");
-         }
-         catch(fileError:Error)
-         {
-         }
-         finally
-         {
-            if(_loc7_ != null)
-            {
-               try
-               {
-                  _loc7_.close();
-               }
-               catch(closeError:Error)
-               {
-               }
-            }
-         }
-      }
-
       private function compactInputBufferFrom(param1:int) : void
       {
          if(param1 < 0 || param1 > this.inputBuffer.length)
@@ -473,32 +328,6 @@ import flash.utils.ByteArray;
          }
          this.inputBuffer.position = 0;
          this.readPosition = 0;
-      }
-
-      private function recordInboundDiagnosticsSafely(param1:int, param2:AbstractPacket, param3:int, param4:Boolean) : void
-      {
-         var _loc4_:int = -1;
-         var _loc5_:String = "unresolved";
-         if(param2 != null)
-         {
-            try
-            {
-               _loc4_ = param2.getPacketHandlerId();
-               _loc5_ = getQualifiedClassName(param2);
-            }
-            catch(packetMetadataError:Error)
-            {
-               this.reportNetworkError("DIAGNOSTIC_FAILURE","packet_metadata",param1,param3,param3 - MIN_FRAME_LENGTH,param4,packetMetadataError,true,false);
-            }
-         }
-         try
-         {
-            LoginDebugTrace.recordPacket("IN",param1,_loc4_,param3,_loc5_);
-         }
-         catch(loginDiagnosticError:Error)
-         {
-            this.reportNetworkError("DIAGNOSTIC_FAILURE","login_debug",param1,param3,param3 - MIN_FRAME_LENGTH,param4,loginDiagnosticError,true,false);
-         }
       }
 
       private function isFatalSendStage(param1:String) : Boolean
@@ -716,8 +545,6 @@ import flash.utils.ByteArray;
       private function onClose(param1:Event) : void
       {
          var _loc4_:int = 0;
-         LoginDebugTrace.recordEvent("SOCKET_CLOSED");
-         LoginDebugTrace.endSession("socket_closed");
          closeSocket();
          var _loc3_:IDisplay = IDisplay(OSGi.getInstance().getService(IDisplay));
          _loc4_ = _loc3_.mainContainer.numChildren - 1;
@@ -743,8 +570,6 @@ import flash.utils.ByteArray;
       
       private function ioError(param1:IOErrorEvent) : void
       {
-         LoginDebugTrace.recordEvent("SOCKET_IO_ERROR","text=" + param1.text);
-         LoginDebugTrace.endSession("socket_io_error");
          closeSocket();
          if(!useExtraHost)
          {
@@ -758,8 +583,6 @@ import flash.utils.ByteArray;
       
       private function onSecurityError(param1:SecurityErrorEvent) : void
       {
-         LoginDebugTrace.recordEvent("SOCKET_SECURITY_ERROR","text=" + param1.text);
-         LoginDebugTrace.endSession("socket_security_error");
          closeSocket();
          if(!useExtraHost)
          {

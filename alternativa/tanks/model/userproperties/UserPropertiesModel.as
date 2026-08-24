@@ -21,7 +21,6 @@ package alternativa.tanks.model.userproperties
    import projects.tanks.clients.fp10.libraries.tanksservices.service.user.IUserInfoService;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.user.UserInfoLabelUpdaterEvent;
    import projects.tanks.clients.fp10.libraries.tanksservices.service.userproperties.IUserPropertiesService;
-   import utils.LoginDebugTrace;
    
    [ModelInfo]
    public class UserPropertiesModel extends UserPropertiesModelBase implements IUserPropertiesModelBase, ObjectLoadListener, ObjectLoadPostListener, IUserProperties
@@ -94,7 +93,6 @@ package alternativa.tanks.model.userproperties
          this._place = getInitParam().place;
          this._userRating = getInitParam().userRating;
          this._initialUserRating = getInitParam().userRating;
-         LoginDebugTrace.recordUserProperties(this._id,this._name,this._rank);
          if(clanUserInfoService != null)
          {
             clanUserInfoService.removeEventListener(ClanUserInfoEvent.ON_JOIN_CLAN,this.onClanUserInfoChanged);

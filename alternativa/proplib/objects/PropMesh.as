@@ -14,7 +14,6 @@ package alternativa.proplib.objects
    
    public class PropMesh extends PropObject
    {
-      public static var diagnosticTrace:Function;
       
       public static const DEFAULT_TEXTURE:String = "$$$_DEFAULT_TEXTURE_$$$";
       
@@ -43,25 +42,7 @@ package alternativa.proplib.objects
       public function PropMesh(modelData:ByteArray, objectName:String, textureFiles:Object, files:ByteArrayMap, imageMap:TextureByteDataMap)
       {
          super(PropObjectType.MESH);
-         traceDiagnostic("PROP_MESH_CONSTRUCTOR modelDataNull=" + (modelData == null) + " objectName=" + objectName + " filesNull=" + (files == null));
-         try
-         {
-            this.parseModel(modelData,objectName,textureFiles,files,imageMap);
-            traceDiagnostic("PROP_MESH_CONSTRUCTOR_COMPLETE");
-         }
-         catch(e:Error)
-         {
-            traceDiagnostic("PROP_MESH_CONSTRUCTOR_ERROR error=" + e.message + " stack=" + e.getStackTrace());
-            throw e;
-         }
-      }
-
-      private static function traceDiagnostic(param1:String) : void
-      {
-         if(diagnosticTrace != null)
-         {
-            diagnosticTrace(param1);
-         }
+         this.parseModel(modelData,objectName,textureFiles,files,imageMap);
       }
       
       private function parseModel(modelData:ByteArray, objectName:String, textureFiles:Object, files:ByteArrayMap, imageMap:TextureByteDataMap) : void
@@ -69,10 +50,7 @@ package alternativa.proplib.objects
          var textureName:String = null;
          var textureFileName:String = null;
          var textureByteData:TextureByteData = null;
-         traceDiagnostic("PROP_MESH_PROCESS_OBJECTS_START modelDataNull=" + (modelData == null));
          var mesh:Mesh = this.processObjects(modelData,objectName);
-         traceDiagnostic("PROP_MESH_PROCESS_OBJECTS_COMPLETE meshNull=" + (mesh == null));
-         traceDiagnostic("PROP_MESH_INIT_DEREFERENCE meshNull=" + (mesh == null));
          this.initMesh(mesh);
          this.object = mesh;
          var defaultTextureFileName:String = this.getTextureFileName(mesh);
@@ -92,7 +70,6 @@ package alternativa.proplib.objects
          for(textureName in textureFiles)
          {
             textureFileName = textureFiles[textureName];
-            traceDiagnostic("PROP_MESH_TEXTURE_RESOLVE material=" + textureName + " file=" + textureFileName + " filesNull=" + (files == null) + " imageMapNull=" + (imageMap == null));
             if(imageMap == null)
             {
                textureByteData = new TextureByteData(files.getValue(textureFileName),null);
@@ -101,7 +78,6 @@ package alternativa.proplib.objects
             {
                textureByteData = imageMap.getValue(textureFileName);
             }
-            traceDiagnostic("PROP_MESH_TEXTURE_RESOLVED material=" + textureName + " dataNull=" + (textureByteData == null));
             this.textures.putValue(textureName,textureByteData);
          }
       }
@@ -110,19 +86,15 @@ package alternativa.proplib.objects
       {
          var currObject:Object3D = null;
          var currObjectName:String = null;
-         traceDiagnostic("PROP_MESH_MODEL_DATA_DEREFERENCE modelDataNull=" + (modelData == null));
          modelData.position = 0;
          var parser:Parser3DS = new Parser3DS();
-         traceDiagnostic("PROP_MESH_3DS_PARSE_START length=" + modelData.length);
          parser.parse(modelData);
-         traceDiagnostic("PROP_MESH_3DS_PARSE_COMPLETE objectsNull=" + (parser.objects == null) + " objectCount=" + (parser.objects == null ? -1 : parser.objects.length));
          var objects:Vector.<Object3D> = parser.objects;
          var numObjects:int = int(objects.length);
          var mesh:Mesh = null;
          for(var i:int = 0; i < numObjects; i++)
          {
             currObject = objects[i];
-            traceDiagnostic("PROP_MESH_OBJECT index=" + i + " objectNull=" + (currObject == null) + " nameNull=" + (currObject == null || currObject.name == null));
             currObjectName = currObject.name.toLowerCase();
             if(currObjectName.indexOf("occl") == 0)
             {
@@ -133,7 +105,6 @@ package alternativa.proplib.objects
                mesh = Mesh(currObject);
             }
          }
-         traceDiagnostic("PROP_MESH_FALLBACK selectedNull=" + (mesh == null) + " firstObjectNull=" + (objects.length == 0 || objects[0] == null));
          return mesh != null ? mesh : Mesh(objects[0]);
       }
       

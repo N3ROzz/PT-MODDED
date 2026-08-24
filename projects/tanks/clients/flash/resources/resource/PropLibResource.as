@@ -1,6 +1,5 @@
 package projects.tanks.clients.flash.resources.resource
 {
-   import alternativa.osgi.OSGi;
    import alternativa.engine3d.objects.Mesh;
    import alternativa.proplib.PropLibrary;
    import alternativa.proplib.objects.PropObject;
@@ -10,13 +9,11 @@ package projects.tanks.clients.flash.resources.resource
    import flash.events.ErrorEvent;
    import flash.events.Event;
    import flash.events.IOErrorEvent;
-   import flash.events.HTTPStatusEvent;
    import flash.events.ProgressEvent;
    import flash.events.SecurityErrorEvent;
    import flash.net.URLLoaderDataFormat;
    import flash.net.URLRequest;
    import flash.utils.ByteArray;
-   import flash.utils.getQualifiedClassName;
    import flash.utils.setTimeout;
    import platform.client.fp10.core.resource.IResourceLoadingListener;
    import platform.client.fp10.core.resource.IResourceSerializationListener;
@@ -26,7 +23,6 @@ package projects.tanks.clients.flash.resources.resource
    import platform.client.fp10.core.resource.SafeURLLoader;
    import platform.client.fp10.core.resource.tara.TARAParser;
    import platform.client.fp10.core.service.localstorage.IResourceLocalStorage;
-   import scpacker.networking.Network;
    
    public class PropLibResource extends Resource
    {
@@ -39,8 +35,6 @@ package projects.tanks.clients.flash.resources.resource
       public static const TYPE:int = 8;
       
       private var loader:SafeURLLoader;
-
-      private var traceReloadAttempt:int;
       
       public var taraData:ByteArray;
       
@@ -84,7 +78,6 @@ package projects.tanks.clients.flash.resources.resource
       override public function load(param1:String, param2:IResourceLoadingListener) : void
       {
          super.load(param1,param2);
-         this.traceTarget("RESOURCE_14267_DEPENDENCY_STATE hasDependencies=" + this.isHasDependencies() + " status=" + status);
          this.doLoad();
       }
       
@@ -93,17 +86,12 @@ package projects.tanks.clients.flash.resources.resource
          this.loader = new SafeURLLoader();
          this.loader.dataFormat = URLLoaderDataFormat.BINARY;
          this.loader.addEventListener(Event.OPEN,this.onLoadingOpen);
-         this.loader.addEventListener(HTTPStatusEvent.HTTP_STATUS,this.onHttpStatus);
          this.loader.addEventListener(ProgressEvent.PROGRESS,this.onLoadingProgress);
          this.loader.addEventListener(IOErrorEvent.IO_ERROR,this.onLoadingError);
          this.loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR,this.onLoadingError);
          this.loader.addEventListener(Event.COMPLETE,this.onLoadingComplete);
-         var _loc1_:String = baseUrl + PROP_LIB_FILE_NAME;
-         this.traceTarget("RESOURCE_14267_REQUEST_URL url=" + _loc1_ + " status=" + status);
-         this.loader.load(new URLRequest(_loc1_));
-         var _loc2_:String = status;
+         this.loader.load(new URLRequest(baseUrl + PROP_LIB_FILE_NAME));
          status = ResourceStatus.REQUESTED;
-         this.traceTarget("RESOURCE_14267_STATUS from=" + _loc2_ + " to=" + status);
          startTimeoutTracking();
       }
       
@@ -135,8 +123,6 @@ package projects.tanks.clients.flash.resources.resource
       
       override protected function doReload() : void
       {
-         ++this.traceReloadAttempt;
-         this.traceTarget("RESOURCE_14267_RETRY attempt=" + this.traceReloadAttempt + " url=" + (baseUrl + PROP_LIB_FILE_NAME) + " status=" + status);
          this.loader.close();
          this.destroyLoader();
          this.doLoad();
@@ -145,7 +131,6 @@ package projects.tanks.clients.flash.resources.resource
       private function destroyLoader() : void
       {
          this.loader.removeEventListener(Event.OPEN,this.onLoadingOpen);
-         this.loader.removeEventListener(HTTPStatusEvent.HTTP_STATUS,this.onHttpStatus);
          this.loader.removeEventListener(ProgressEvent.PROGRESS,this.onLoadingProgress);
          this.loader.removeEventListener(Event.COMPLETE,this.onLoadingComplete);
          this.loader.removeEventListener(IOErrorEvent.IO_ERROR,this.onLoadingError);
@@ -155,62 +140,28 @@ package projects.tanks.clients.flash.resources.resource
       
       private function onLoadingOpen(param1:Event) : void
       {
-         this.traceTarget("RESOURCE_14267_REQUEST_START status=" + status);
          updateLastActivityTime();
          listener.onResourceLoadingStart(this);
-      }
-
-      private function onHttpStatus(param1:HTTPStatusEvent) : void
-      {
-         this.traceTarget("RESOURCE_14267_HTTP_STATUS statusCode=" + param1.status + " resourceStatus=" + status);
       }
       
       private function onLoadingComplete(param1:Event) : void
       {
-         this.traceTarget("RESOURCE_14267_DOWNLOAD_COMPLETE bytes=" + (this.loader.data == null ? 0 : ByteArray(this.loader.data).length) + " status=" + status);
          stopTimeoutTracking();
          this.taraData = this.loader.data;
          this.destroyLoader();
-         try
-         {
-            this.createLibrary(this.taraData);
-         }
-         catch(e:Error)
-         {
-            this.traceTarget("RESOURCE_14267_PARSE_ERROR error=" + e.message + " status=" + status);
-            throw e;
-         }
-         this.traceTarget("RESOURCE_14267_COMPLETE_LOADING_ENTRY status=" + status);
+         this.createLibrary(this.taraData);
          completeLoading();
-         this.traceTarget("RESOURCE_14267_COMPLETE_LOADING_EXIT status=" + status);
       }
       
       private function onLoadingProgress(param1:ProgressEvent) : void
       {
-         this.traceTarget("RESOURCE_14267_PROGRESS bytesLoaded=" + param1.bytesLoaded + " bytesTotal=" + param1.bytesTotal + " status=" + status);
          updateLastActivityTime();
       }
       
       private function onLoadingError(param1:ErrorEvent) : void
       {
-         this.traceTarget("RESOURCE_14267_REQUEST_ERROR error=" + param1.toString() + " status=" + status);
          stopTimeoutTracking();
          listener.onResourceLoadingFatalError(this,param1.toString());
-      }
-
-      private function traceTarget(param1:String) : void
-      {
-         if(this.id.high != 0 || this.id.low != 14267)
-         {
-            return;
-         }
-         try
-         {
-            Network(OSGi.getInstance().getService(Network)).writeBattleSelectTrace(param1);
-         }
-         catch(diagnosticError:Error)
-         {
-         }
       }
       
       private function createLibrary(param1:ByteArray) : void
@@ -218,103 +169,12 @@ package projects.tanks.clients.flash.resources.resource
          var data:ByteArray = param1;
          try
          {
-            this.traceParserProbe(data);
-            this.traceTarget("RESOURCE_14267_TASK_CREATION task=none parser=TARAParser");
-            this.traceTarget("RESOURCE_14267_TASK_START parser=TARAParser position=" + data.position + " bytesAvailable=" + data.bytesAvailable);
-            var taraParser:TARAParser = new TARAParser(data);
-            this.traceTarget("RESOURCE_14267_TARA_COMPLETE position=" + data.position + " bytesAvailable=" + data.bytesAvailable);
-            var entryNames:Array = [];
-            for(var entryName:String in taraParser.data)
-            {
-               entryNames.push(entryName);
-            }
-            entryNames.sort();
-            this.traceTarget("RESOURCE_14267_TARA_ENTRIES names=" + entryNames.join(","));
-            this.traceTarget("RESOURCE_14267_PROP_LIBRARY_START");
-            PropLibrary.diagnosticTrace = this.traceTarget;
-            try
-            {
-               this.lib = new PropLibrary(new ByteArrayMap(taraParser.data));
-            }
-            finally
-            {
-               PropLibrary.diagnosticTrace = null;
-            }
-            this.traceTarget("RESOURCE_14267_PROP_LIBRARY_COMPLETE");
-            this.traceTarget("RESOURCE_14267_PREPARE_MESHES_START");
+            this.lib = new PropLibrary(new ByteArrayMap(new TARAParser(data).data));
             prepareMeshes(this.lib.rootGroup);
-            this.traceTarget("RESOURCE_14267_PREPARE_MESHES_COMPLETE");
-            this.traceTarget("RESOURCE_14267_TASK_COMPLETE parser=TARAParser");
          }
          catch(e:Error)
          {
-            this.traceTarget("RESOURCE_14267_TASK_PARSE_ERROR error=" + e.message + " stack=" + e.getStackTrace());
             throw new Error("PropLibResource: not parsed" + " id:" + id + " baseUrl:" + baseUrl + " error: " + e.getStackTrace());
-         }
-      }
-
-      private function traceParserProbe(param1:ByteArray) : void
-      {
-         if(this.id.high != 0 || this.id.low != 14267)
-         {
-            return;
-         }
-         var _loc1_:ByteArray = new ByteArray();
-         _loc1_.writeBytes(param1,0,param1.length);
-         _loc1_.position = 0;
-         this.traceTarget("RESOURCE_14267_PARSER_INPUT position=" + _loc1_.position + " bytesAvailable=" + _loc1_.bytesAvailable);
-         try
-         {
-            var _loc2_:String = _loc1_.readUTF();
-            this.traceTarget("RESOURCE_14267_READ_UTF value=" + _loc2_ + " position=" + _loc1_.position + " bytesAvailable=" + _loc1_.bytesAvailable);
-         }
-         catch(headerError:Error)
-         {
-            this.traceTarget("RESOURCE_14267_READ_UTF_ERROR error=" + headerError.message + " position=" + _loc1_.position + " bytesAvailable=" + _loc1_.bytesAvailable);
-            return;
-         }
-         try
-         {
-            var _loc3_:Object = _loc1_.readObject();
-            this.traceTarget("RESOURCE_14267_FIRST_OBJECT class=" + getQualifiedClassName(_loc3_) + " length=" + (_loc3_ is ByteArray ? ByteArray(_loc3_).length : -1));
-            if(_loc3_ is ByteArray)
-            {
-               try
-               {
-                  ByteArray(_loc3_).uncompress();
-                  this.traceTarget("RESOURCE_14267_FIRST_UNCOMPRESS_COMPLETE length=" + ByteArray(_loc3_).length);
-               }
-               catch(firstUncompressError:Error)
-               {
-                  this.traceTarget("RESOURCE_14267_FIRST_UNCOMPRESS_ERROR error=" + firstUncompressError.message);
-               }
-            }
-         }
-         catch(firstObjectError:Error)
-         {
-            this.traceTarget("RESOURCE_14267_FIRST_OBJECT_ERROR error=" + firstObjectError.message + " position=" + _loc1_.position + " bytesAvailable=" + _loc1_.bytesAvailable);
-            return;
-         }
-         try
-         {
-            var _loc4_:Object = _loc1_.readObject();
-            this.traceTarget("RESOURCE_14267_SECOND_OBJECT class=" + getQualifiedClassName(_loc4_) + " length=" + (_loc4_ is ByteArray ? ByteArray(_loc4_).length : -1));
-            if(_loc4_ is ByteArray)
-            {
-               try
-               {
-                  ByteArray(_loc4_).uncompress();
-                  this.traceTarget("RESOURCE_14267_SECOND_UNCOMPRESS_COMPLETE length=" + ByteArray(_loc4_).length);
-               }
-               catch(secondUncompressError:Error)
-               {
-                  this.traceTarget("RESOURCE_14267_SECOND_UNCOMPRESS_ERROR error=" + secondUncompressError.message);
-               }
-            }
-         }
-         catch(secondObjectError:Error)
-         {
-            this.traceTarget("RESOURCE_14267_SECOND_OBJECT_ERROR error=" + secondObjectError.message + " position=" + _loc1_.position + " bytesAvailable=" + _loc1_.bytesAvailable);
          }
       }
    }

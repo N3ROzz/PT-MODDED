@@ -8,9 +8,6 @@ package alternativa.tanks.model.info.team
    import alternativa.tanks.view.battleinfo.BattleInfoBaseParams;
    import alternativa.tanks.view.battleinfo.team.BattleInfoTeamParams;
    import alternativa.types.Long;
-   import flash.filesystem.File;
-   import flash.filesystem.FileMode;
-   import flash.filesystem.FileStream;
    import platform.client.fp10.core.model.ObjectLoadPostListener;
    import platform.client.fp10.core.model.ObjectUnloadListener;
    import alternativa.tanks.view.battleinfo.BattleInfoViewEvent;
@@ -178,7 +175,6 @@ package alternativa.tanks.model.info.team
       {
          var _loc1_:BattleCreateParameters = this.data().createParams;
          this.selectedTeam = param1.team;
-         this.recordTeamJoinTrace("ENTER_BATTLE_EVENT selectedTeam=" + this.selectedTeam + " object.name=" + object.name);
          trackerService.trackEvent("battleList","StartTeamBattle","");
          userBattleSelectActionsService.enterToBattle(_loc1_.battleMode,object.name);
          if(_loc1_.parkourMode)
@@ -206,37 +202,7 @@ package alternativa.tanks.model.info.team
          if(getData(ServerFightCommandAlreadySentFlag) == null)
          {
             putData(ServerFightCommandAlreadySentFlag,this.fightCommandFlag);
-            this.recordTeamJoinTrace("SEND_FIGHT selectedTeam=" + this.selectedTeam + " object.name=" + object.name);
             server.fight(this.selectedTeam);
-         }
-      }
-
-      private function recordTeamJoinTrace(param1:String) : void
-      {
-         var _loc1_:String = "BATTLE_SELECT_TRACE " + param1;
-         trace(_loc1_);
-         var _loc2_:FileStream = null;
-         try
-         {
-            _loc2_ = new FileStream();
-            _loc2_.open(File.desktopDirectory.resolvePath("protanki-network-errors.log"),FileMode.APPEND);
-            _loc2_.writeUTFBytes(_loc1_ + "\r\n");
-         }
-         catch(fileError:Error)
-         {
-         }
-         finally
-         {
-            if(_loc2_ != null)
-            {
-               try
-               {
-                  _loc2_.close();
-               }
-               catch(closeError:Error)
-               {
-               }
-            }
          }
       }
 

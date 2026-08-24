@@ -5,9 +5,6 @@ package scpacker.networking.protocol.packets.battleInfo
    import alternativa.tanks.model.info.dm.BattleDmInfoModel;
    import alternativa.tanks.model.info.team.BattleTeamInfoModel;
    import alternativa.types.Long;
-   import flash.filesystem.File;
-   import flash.filesystem.FileMode;
-   import flash.filesystem.FileStream;
    import platform.client.fp10.core.model.impl.Model;
    import platform.client.fp10.core.type.IGameClass;
    import platform.client.fp10.core.type.IGameObject;
@@ -251,12 +248,9 @@ package scpacker.networking.protocol.packets.battleInfo
       private function loadBattleInfo(param1:LoadBattleInfoInPacket) : void
       {
          var _loc1_:Object = JSON.parse(param1.battlesJson);
-         var _loc9_:String = _loc1_.battleMode == "DM" ? "DM" : "TEAM";
-         this.recordLoadInfoTrace("LOAD_INFO_PARSED itemId=" + _loc1_.itemId + " battleMode=" + _loc1_.battleMode + " preview=" + _loc1_.preview + " name=" + _loc1_.name + " branch=" + _loc9_);
-         var _loc2_:IGameClass = _loc9_ == "DM" ? BattleListPacketHandler.dmBattleInfoGameClass : BattleListPacketHandler.teamBattleInfoGameClass;
+         var _loc2_:IGameClass = _loc1_.battleMode == "DM" ? BattleListPacketHandler.dmBattleInfoGameClass : BattleListPacketHandler.teamBattleInfoGameClass;
          this.destroyPreviousBattleInfoObjects();
          var _loc3_:IGameObject = this.battleInfoSpace.createObject(IdTool.getNextId(),_loc2_,String(_loc1_.itemId));
-         this.recordLoadInfoTrace("LOAD_INFO_OBJECT_CREATED object.name=" + _loc3_.name + " branch=" + _loc9_);
          var _loc4_:BattleCreateParameters = this.createBattleParameters(_loc1_);
          var _loc5_:BattleInfoCC = new BattleInfoCC();
          _loc5_.battleId = _loc4_.battleId;
@@ -298,14 +292,12 @@ package scpacker.networking.protocol.packets.battleInfo
             this.battleEntranceModel.objectLoaded();
             this.battleInfoModel.putInitParams(_loc5_);
             this.battleInfoModel.objectLoaded();
-            this.recordLoadInfoTrace("LOAD_INFO_MODEL_INITIALIZED branch=" + _loc9_);
             if(_loc1_.battleMode == "DM")
             {
                var _loc7_:BattleDMInfoCC = new BattleDMInfoCC();
                _loc7_.users = this.buildUsers(_loc1_.users);
                this.battleDmInfoModel.putInitParams(_loc7_);
                this.battleDmInfoModel.objectLoadedPost();
-               this.recordLoadInfoTrace("LOAD_INFO_FORM_INITIALIZED branch=DM");
             }
             else
             {
@@ -318,41 +310,11 @@ package scpacker.networking.protocol.packets.battleInfo
                _loc8_.usersRed = this.buildUsers(_loc1_.usersRed);
                this.teamBattleInfoModel.putInitParams(_loc8_);
                this.teamBattleInfoModel.objectLoadedPost();
-               this.recordLoadInfoTrace("LOAD_INFO_FORM_INITIALIZED branch=TEAM");
             }
          }
          finally
          {
             Model.popObject();
-         }
-      }
-
-      private function recordLoadInfoTrace(param1:String) : void
-      {
-         var _loc1_:String = "BATTLE_SELECT_TRACE " + param1;
-         trace(_loc1_);
-         var _loc2_:FileStream = null;
-         try
-         {
-            _loc2_ = new FileStream();
-            _loc2_.open(File.desktopDirectory.resolvePath("protanki-network-errors.log"),FileMode.APPEND);
-            _loc2_.writeUTFBytes(_loc1_ + "\r\n");
-         }
-         catch(fileError:Error)
-         {
-         }
-         finally
-         {
-            if(_loc2_ != null)
-            {
-               try
-               {
-                  _loc2_.close();
-               }
-               catch(closeError:Error)
-               {
-               }
-            }
          }
       }
 
