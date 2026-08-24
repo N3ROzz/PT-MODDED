@@ -29,6 +29,8 @@ import flash.utils.ByteArray;
    import scpacker.networking.protocol.PacketInitializer;
    import utils.LoginDebugTrace;
    import scpacker.networking.protocol.packets.battlelist.SelectBattleInOutPacket;
+   import scpacker.networking.protocol.packets.init.LoadResourcesInPacket;
+   import scpacker.networking.protocol.packets.init.ResourcesLoadedOutPacket;
    
    public class Network
    {
@@ -65,6 +67,8 @@ import flash.utils.ByteArray;
       private var extraPort:int;
 
       private var transportFailed:Boolean;
+
+      private var afterJoinTraceUntil:int;
       
       public function Network()
       {
@@ -140,6 +144,14 @@ import flash.utils.ByteArray;
             this.socket.writeBytes(this.sendBuffer);
             _loc1_ = "flush";
             this.socket.flush();
+            if(param1.getId() == -1284211503)
+            {
+               this.afterJoinTraceUntil = getTimer() + 3000;
+            }
+            if(param1.getId() == ResourcesLoadedOutPacket.id)
+            {
+               this.writeBattleSelectTrace("RESOURCES_LOADED_OUT packetId=" + ResourcesLoadedOutPacket.id + " callbackId=" + ResourcesLoadedOutPacket(param1).callbackID);
+            }
          }
          catch(e:Error)
          {
@@ -268,7 +280,7 @@ import flash.utils.ByteArray;
                   }
                }
                _loc15_ = true;
-               this.recordBattleSelectTrace(_loc1_,false);
+               this.recordBattleSelectTrace(_loc1_,false,_loc13_,_loc11_ == null ? "unresolved" : getQualifiedClassName(_loc11_));
                this.recordInboundDiagnosticsSafely(_loc1_,_loc11_,_loc3_,_loc7_);
                if(_loc11_ == null)
                {
@@ -280,6 +292,7 @@ import flash.utils.ByteArray;
                   {
                      _loc8_ = "unwrap";
                      _loc11_.unwrap(this.payloadBuffer);
+                     this.recordResourceHandshakeInbound(_loc11_);
                      _loc8_ = "handler";
                      packetInvoker.invoke(_loc11_);
                   }
@@ -327,12 +340,21 @@ import flash.utils.ByteArray;
          this.readPosition = 0;
       }
 
-      private function recordBattleSelectTrace(param1:int, param2:Boolean) : void
+      private function recordBattleSelectTrace(param1:int, param2:Boolean, param3:int = -1, param4:String = null) : void
       {
          var _loc3_:String = null;
-         if(param2 && param1 == 2092412133)
+         var _loc4_:String = null;
+         if(!param2 && this.afterJoinTraceUntil > 0 && getTimer() <= this.afterJoinTraceUntil)
+         {
+            _loc4_ = "BATTLE_SELECT_TRACE AFTER_JOIN_IN packetId=" + param1 + " handlerId=" + param3 + " class=" + param4;
+         }
+         else if(param2 && param1 == 2092412133)
          {
             _loc3_ = "OUT_SELECT";
+         }
+         else if(param2 && param1 == -1284211503)
+         {
+            _loc3_ = "OUT_JOIN_BATTLE";
          }
          else if(!param2 && param1 == 2092412133)
          {
@@ -346,7 +368,42 @@ import flash.utils.ByteArray;
          {
             return;
          }
-         var _loc4_:String = "BATTLE_SELECT_TRACE " + _loc3_ + " packetId=" + param1;
+         if(_loc4_ == null)
+         {
+            _loc4_ = "BATTLE_SELECT_TRACE " + _loc3_ + " packetId=" + param1;
+         }
+         this.writeBattleSelectTrace(_loc4_.substr("BATTLE_SELECT_TRACE ".length));
+      }
+
+      private function recordResourceHandshakeInbound(param1:AbstractPacket) : void
+      {
+         if(param1.getId() == LoadResourcesInPacket.id)
+         {
+            var _loc1_:LoadResourcesInPacket = LoadResourcesInPacket(param1);
+            var _loc3_:int = 0;
+            try
+            {
+               var _loc2_:Object = JSON.parse(_loc1_.resourcesJson);
+               for each(var _loc4_:Object in _loc2_)
+               {
+                  _loc3_++;
+               }
+            }
+            catch(resourceCountError:Error)
+            {
+               _loc3_ = -1;
+            }
+            this.writeBattleSelectTrace("LOAD_RESOURCES_IN callbackId=" + _loc1_.callbackId + " resourceCount=" + _loc3_);
+         }
+         else if(param1.getId() == -593368100)
+         {
+            this.writeBattleSelectTrace("END_LAYOUT_SWITCH packetId=-593368100");
+         }
+      }
+
+      public function writeBattleSelectTrace(param1:String) : void
+      {
+         var _loc4_:String = "BATTLE_SELECT_TRACE " + param1;
          try
          {
             var _loc5_:LogService = LogService(OSGi.getInstance().getService(LogService));

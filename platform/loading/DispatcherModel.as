@@ -24,6 +24,7 @@ package platform.loading
    import platform.client.fp10.core.type.impl.Space;
    import platform.loading.errors.ModelNotFoundError;
    import platform.loading.errors.ObjectLoadListenerError;
+   import scpacker.networking.Network;
    
    [ModelInfo]
    public class DispatcherModel extends DispatcherModelBase implements IDispatcherModelBase
@@ -177,6 +178,7 @@ package platform.loading
       public function onBatchLoadingComplete() : void
       {
          var _loc1_:ObjectsDependencies = ObjectsDependencies(clearData(ObjectsDependencies));
+         Network(OSGi.getInstance().getService(Network)).writeBattleSelectTrace("RESOURCE_BATCH_COMPLETE callbackId=" + _loc1_.callbackId);
          server.dependenciesLoaded(_loc1_.callbackId);
          clearData(BatchResourceLoader);
       }
