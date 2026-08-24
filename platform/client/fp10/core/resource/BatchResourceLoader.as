@@ -1,5 +1,6 @@
 package platform.client.fp10.core.resource
 {
+   import alternativa.osgi.OSGi;
    import alternativa.osgi.service.logging.LogService;
    import alternativa.osgi.service.logging.Logger;
    import platform.client.fp10.core.registry.ResourceRegistry;
@@ -7,6 +8,7 @@ package platform.client.fp10.core.resource
    import platform.client.fp10.core.service.errormessage.errors.ResourceError;
    import platform.client.fp10.core.type.AutoClosable;
    import flash.utils.getQualifiedClassName;
+   import scpacker.networking.Network;
    
    public class BatchResourceLoader implements IResourceLoadingListener, AutoClosable
    {
@@ -15,6 +17,8 @@ package platform.client.fp10.core.resource
       public static var logService:LogService;
       
       private static var logger:Logger;
+
+      public static var battleSelectTraceEnabled:Boolean;
       
       [Inject] // added
       public static var messageBoxService:IErrorMessageService;
@@ -80,11 +84,13 @@ package platform.client.fp10.core.resource
       
       public function onResourceLoadingStart(param1:Resource) : void
       {
+         this.traceResourceLifecycle("RESOURCE_START resource=" + this.resourceIdentity(param1));
       }
       
       public function onResourceLoadingComplete(param1:Resource) : void
       {
          ++this.numLoadedResources;
+         this.traceResourceLifecycle("RESOURCE_COMPLETE resource=" + this.resourceIdentity(param1) + " loaded=" + this.numLoadedResources + " total=" + this.numResources);
          if(this.numLoadedResources == this.numResources)
          {
             this.completeBatchLoading();
@@ -94,6 +100,7 @@ package platform.client.fp10.core.resource
       public function onResourceLoadingError(param1:Resource, param2:String) : void
       {
          getLogger().error("resource: %1, error: %2",[param1,param2]);
+         this.traceResourceLifecycle("RESOURCE_ERROR resource=" + this.resourceIdentity(param1) + " error=" + param2 + " loaded=" + (this.numLoadedResources + 1) + " total=" + this.numResources);
          this.onResourceLoadingComplete(param1);
       }
       
@@ -101,7 +108,28 @@ package platform.client.fp10.core.resource
       {
          var _loc3_:ResourceError = new ResourceError(param1,param2);
          getLogger().error(_loc3_.getMessage());
+         this.traceResourceLifecycle("RESOURCE_FATAL resource=" + this.resourceIdentity(param1) + " error=" + param2 + " loaded=" + this.numLoadedResources + " total=" + this.numResources);
          messageBoxService.showMessage(_loc3_);
+      }
+
+      private function resourceIdentity(param1:Resource) : String
+      {
+         return param1 == null ? "batch_sentinel" : param1.toString();
+      }
+
+      private function traceResourceLifecycle(param1:String) : void
+      {
+         if(!battleSelectTraceEnabled)
+         {
+            return;
+         }
+         try
+         {
+            Network(OSGi.getInstance().getService(Network)).writeBattleSelectTrace(param1);
+         }
+         catch(diagnosticError:Error)
+         {
+         }
       }
       
       public function close() : void
@@ -113,6 +141,7 @@ package platform.client.fp10.core.resource
       private function completeBatchLoading() : void
       {
          this.numResources = 0;
+         battleSelectTraceEnabled = false;
          this.callback.call();
       }
    }

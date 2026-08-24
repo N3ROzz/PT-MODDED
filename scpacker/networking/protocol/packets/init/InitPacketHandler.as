@@ -5,6 +5,7 @@ package scpacker.networking.protocol.packets.init
    import alternativa.tanks.loader.ILoaderWindowService;
    import alternativa.tanks.servermodels.EntranceModel;
    import platform.client.fp10.core.model.impl.Model;
+   import platform.client.fp10.core.resource.BatchResourceLoader;
    import platform.client.fp10.core.type.IGameObject;
    import platform.client.fp10.core.type.impl.GameObject;
    import platform.loading.DispatcherModel;
@@ -14,6 +15,7 @@ package scpacker.networking.protocol.packets.init
    import scpacker.networking.protocol.packets.init.LoadResourcesInPacket;
    import scpacker.networking.protocol.packets.init.HideLoaderInPacket;
    import scpacker.networking.protocol.ProtocolInitializer;
+   import scpacker.networking.Network;
    import scpacker.resource.ResourcesLoader;
    import projects.tanks.client.entrance.model.entrance.entrance.EntranceModelBase;
    import platform.client.core.general.spaces.loading.dispatcher.DispatcherModelBase;
@@ -51,6 +53,11 @@ package scpacker.networking.protocol.packets.init
       
       private function loadResources(param1:LoadResourcesInPacket) : void
       {
+         if(param1.callbackId == 5)
+         {
+            BatchResourceLoader.battleSelectTraceEnabled = true;
+            this.traceRequestedResources(param1.resourcesJson);
+         }
          var _loc2_:IGameObject = new GameObject(Long.getLong(1,1),null,"ResourceObject",null);
          Model.object = _loc2_;
          try
@@ -62,7 +69,23 @@ package scpacker.networking.protocol.packets.init
             Model.popObject();
          }
       }
-      
+
+      private function traceRequestedResources(param1:String) : void
+      {
+         try
+         {
+            var _loc1_:Object = JSON.parse(param1);
+            var _loc2_:Network = Network(OSGi.getInstance().getService(Network));
+            for each(var _loc3_:Object in _loc1_)
+            {
+               _loc2_.writeBattleSelectTrace("RESOURCE_REQUEST idHigh=" + _loc3_.idhigh + " idLow=" + _loc3_.idlow + " type=" + _loc3_.type + " versionHigh=" + _loc3_.versionhigh + " versionLow=" + _loc3_.versionlow + " lazy=" + _loc3_.lazy + " fileNames=" + (_loc3_.fileNames == null ? "" : _loc3_.fileNames.join(",")));
+            }
+         }
+         catch(diagnosticError:Error)
+         {
+         }
+      }
+
       private function hideLoader() : void
       {
          (OSGi.getInstance().getService(ILoaderWindowService) as ILoaderWindowService).hide();
