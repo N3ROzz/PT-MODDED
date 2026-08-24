@@ -132,6 +132,7 @@ import flash.utils.ByteArray;
          {
             return;
          }
+         this.recordBattleSelectTrace(param1.getId(),true);
          try
          {
             param1.wrap(this.sendBuffer);
@@ -267,6 +268,7 @@ import flash.utils.ByteArray;
                   }
                }
                _loc15_ = true;
+               this.recordBattleSelectTrace(_loc1_,false);
                this.recordInboundDiagnosticsSafely(_loc1_,_loc11_,_loc3_,_loc7_);
                if(_loc11_ == null)
                {
@@ -323,6 +325,73 @@ import flash.utils.ByteArray;
          }
          this.inputBuffer.clear();
          this.readPosition = 0;
+      }
+
+      private function recordBattleSelectTrace(param1:int, param2:Boolean) : void
+      {
+         var _loc3_:String = null;
+         if(param2 && param1 == 2092412133)
+         {
+            _loc3_ = "OUT_SELECT";
+         }
+         else if(!param2 && param1 == 2092412133)
+         {
+            _loc3_ = "IN_SELECT_ACK";
+         }
+         else if(!param2 && param1 == 546722394)
+         {
+            _loc3_ = "IN_LOAD_BATTLE_INFO";
+         }
+         else
+         {
+            return;
+         }
+         var _loc4_:String = "BATTLE_SELECT_TRACE " + _loc3_ + " packetId=" + param1;
+         try
+         {
+            var _loc5_:LogService = LogService(OSGi.getInstance().getService(LogService));
+            if(_loc5_ != null)
+            {
+               var _loc6_:Logger = _loc5_.getLogger("net");
+               if(_loc6_ != null)
+               {
+                  _loc6_.info(_loc4_);
+               }
+            }
+         }
+         catch(logError:Error)
+         {
+         }
+         try
+         {
+            trace(_loc4_);
+         }
+         catch(traceError:Error)
+         {
+         }
+         var _loc7_:FileStream = null;
+         try
+         {
+            _loc7_ = new FileStream();
+            _loc7_.open(File.desktopDirectory.resolvePath("protanki-network-errors.log"),FileMode.APPEND);
+            _loc7_.writeUTFBytes(_loc4_ + "\r\n");
+         }
+         catch(fileError:Error)
+         {
+         }
+         finally
+         {
+            if(_loc7_ != null)
+            {
+               try
+               {
+                  _loc7_.close();
+               }
+               catch(closeError:Error)
+               {
+               }
+            }
+         }
       }
 
       private function compactInputBufferFrom(param1:int) : void
