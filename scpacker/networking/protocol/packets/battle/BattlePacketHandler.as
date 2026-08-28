@@ -170,8 +170,6 @@ package scpacker.networking.protocol.packets.battle
    import platform.client.fp10.core.model.IObjectLoadListener;
    import scpacker.networking.protocol.packets.tank.TankPacketHandler;
    import platform.client.fp10.core.model.ObjectUnloadPostListener;
-   import projects.tanks.clients.fp10.libraries.tanksservices.service.layout.ILobbyLayoutService;
-   import projects.tanks.clients.flash.commons.services.layout.event.LobbyLayoutServiceEvent;
    import platform.client.fp10.core.type.impl.Space;
    import scpacker.utils.LongUtils;
    import utils.goldbox.GoldBoxDiagnostics;
@@ -230,8 +228,6 @@ package scpacker.networking.protocol.packets.battle
 
       private var userPropertiesService:IUserPropertiesService;
       private var lightingEffectsService:ILightingEffectsService;
-      private var lobbyLayoutService:ILobbyLayoutService = ILobbyLayoutService(OSGi.getInstance().getService(ILobbyLayoutService));
-
       private var battleSpace:ISpace;
 
       private var hullGameClass:GameClass;
@@ -1091,13 +1087,12 @@ package scpacker.networking.protocol.packets.battle
 
       private function unloadBattle() : void
       {
-         lobbyLayoutService.addEventListener(LobbyLayoutServiceEvent.END_LAYOUT_SWITCH_POST,this.unloadBattleSpace);
+         this.unloadBattleSpace();
       }
 
-      private function unloadBattleSpace(param1:LobbyLayoutServiceEvent = null) : void
+      private function unloadBattleSpace() : void
       {
          GoldBoxDiagnostics.onBattleUnload();
-         lobbyLayoutService.removeEventListener(LobbyLayoutServiceEvent.END_LAYOUT_SWITCH_POST,this.unloadBattleSpace);
          var gameObjects:Vector.<IGameObject> = this.battleSpace.objects.concat();
          for each (var gameObject:IGameObject in gameObjects)
          {
@@ -1115,6 +1110,7 @@ package scpacker.networking.protocol.packets.battle
 
          spaceRegistry.removeSpace(this.battleSpace);
          this.battleSpace = null;
+         battlefieldGameObject = null;
          TankNameGameObjectMapper.clearMappings();
 
          gameTypeRegistry.destroyClass(Long.getLong(14025,684260));
